@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright 2015, Google Inc.
 # All rights reserved.
 #
@@ -28,31 +27,30 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -ex
+"""Constants and functions for data used in interoperability testing."""
 
-# change to grpc repo root
-cd $(dirname $0)/../..
+import os
 
-root=`pwd`
-export LD_LIBRARY_PATH=$root/libs/opt
-source python2.7_virtual_environment/bin/activate
-# TODO(issue 215): Properly itemize these in run_tests.py so that they can be parallelized.
-# TODO(atash): Enable dynamic unused port discovery for this test.
-#python2.7 -B test/compiler/python_plugin_test.py --build_mode=opt --port=40987
-python2.7 -B -m grpc._adapter._blocking_invocation_inline_service_test
-python2.7 -B -m grpc._adapter._c_test
-python2.7 -B -m grpc._adapter._event_invocation_synchronous_event_service_test
-python2.7 -B -m grpc._adapter._future_invocation_asynchronous_event_service_test
-python2.7 -B -m grpc._adapter._links_test
-python2.7 -B -m grpc._adapter._lonely_rear_link_test
-python2.7 -B -m grpc._adapter._low_test
-python2.7 -B -m grpc.early_adopter.implementations_test
-python2.7 -B -m grpc.framework.assembly.implementations_test
-python2.7 -B -m grpc.framework.base.packets.implementations_test
-python2.7 -B -m grpc.framework.face.blocking_invocation_inline_service_test
-python2.7 -B -m grpc.framework.face.event_invocation_synchronous_event_service_test
-python2.7 -B -m grpc.framework.face.future_invocation_asynchronous_event_service_test
-python2.7 -B -m grpc.framework.foundation._later_test
-python2.7 -B -m grpc.framework.foundation._logging_pool_test
-# TODO(nathaniel): Get tests working under 3.4 (requires 3.X-friendly protobuf)
-# python3.4 -B -m unittest discover -s src/python -p '*.py'
+import pkg_resources
+
+_ROOT_CERTIFICATES_RESOURCE_PATH = 'credentials/ca.pem'
+_PRIVATE_KEY_RESOURCE_PATH = 'credentials/server1.key'
+_CERTIFICATE_CHAIN_RESOURCE_PATH = 'credentials/server1.pem'
+
+
+def test_root_certificates():
+  return pkg_resources.resource_string(
+      __name__, _ROOT_CERTIFICATES_RESOURCE_PATH)
+
+
+def prod_root_certificates():
+  return open(os.environ['SSL_CERT_FILE'], mode='rb').read()
+
+
+def private_key():
+  return pkg_resources.resource_string(__name__, _PRIVATE_KEY_RESOURCE_PATH)
+
+
+def certificate_chain():
+  return pkg_resources.resource_string(
+      __name__, _CERTIFICATE_CHAIN_RESOURCE_PATH)

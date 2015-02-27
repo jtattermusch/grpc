@@ -175,6 +175,10 @@ argp.add_argument('-f', '--forever',
                   default=False,
                   action='store_const',
                   const=True)
+argp.add_argument('-t', '--travis',
+                  default=False,
+                  action='store_const',
+                  const=True)
 argp.add_argument('--newline_on_success',
                   default=False,
                   action='store_const',
@@ -194,12 +198,16 @@ build_configs = set(cfg.build_config for cfg in run_configs)
 
 make_targets = []
 languages = set(_LANGUAGES[l] for l in args.language)
-build_steps = [jobset.JobSpec(['make',
-                               '-j', '%d' % (multiprocessing.cpu_count() + 1),
-                               'CONFIG=%s' % cfg] + list(set(
-                                   itertools.chain.from_iterable(
-                                       l.make_targets() for l in languages))))
-               for cfg in build_configs] + list(set(
+all_make_targets = list(set(
+      itertools.chain.from_iterable(
+        l.make_targets() for l in languages)))
+make_steps = [] if not all_make_targets else [
+    jobset.JobSpec([
+        'make',
+        '-j', '%d' % (multiprocessing.cpu_count() + 1),
+        'CONFIG=%s' % cfg] + all_make_targets)
+    for cfg in build_configs]
+build_steps = make_steps + list(set(
                    jobset.JobSpec(cmdline)
                    for l in languages
                    for cmdline in l.build_steps()))
@@ -251,17 +259,18 @@ class TestCache(object):
         self.parse(json.loads(f.read()))
 
 
-def _build_and_run(check_cancelled, newline_on_success, cache):
+def _build_and_run(check_cancelled, newline_on_success, travis, cache):
   """Do one pass of building & running tests."""
   # build latest sequentially
-  if not jobset.run(build_steps, maxjobs=1):
+  if not jobset.run(build_steps, maxjobs=1,
+                    newline_on_success=newline_on_success, travis=travis):
     return 1
 
   # run all the tests
   all_runs = itertools.chain.from_iterable(
       itertools.repeat(one_run, runs_per_test))
   if not jobset.run(all_runs, check_cancelled,
-                    newline_on_success=newline_on_success,
+                    newline_on_success=newline_on_success, travis=travis,
                     maxjobs=min(args.jobs, min(c.maxjobs for c in run_configs)),
                     cache=cache):
     return 2
@@ -292,6 +301,7 @@ if forever:
 else:
   result = _build_and_run(check_cancelled=lambda: False,
                           newline_on_success=args.newline_on_success,
+                          travis=args.travis,
                           cache=test_cache)
   if result == 0:
     jobset.message('SUCCESS', 'All tests passed', do_newline=True)

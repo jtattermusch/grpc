@@ -27,27 +27,30 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Base Dockerfile for gRPC Node.
-#
-# Includes Node installation dependencies
-FROM grpc/base
+"""Constants and functions for data used in interoperability testing."""
 
-RUN curl -sL https://deb.nodesource.com/setup | bash -
+import os
 
-RUN apt-get update && apt-get install -y nodejs nodejs-legacy
+import pkg_resources
 
-RUN npm install -g node-gyp
+_ROOT_CERTIFICATES_RESOURCE_PATH = 'credentials/ca.pem'
+_PRIVATE_KEY_RESOURCE_PATH = 'credentials/server1.key'
+_CERTIFICATE_CHAIN_RESOURCE_PATH = 'credentials/server1.pem'
 
-# Get the source from GitHub, this gets the protobuf library as well
-RUN git clone git@github.com:grpc/grpc.git /var/local/git/grpc
-RUN cd /var/local/git/grpc && \
-  git pull --recurse-submodules && \
-  git submodule update --init --recursive
 
-# TODO: pre-building seems unnecessary, because we need to run make clean
-# anyway to prevent build from crashing if header files are added/removed.
-# Build the C core
-RUN make static_c shared_c -j12 -C /var/local/git/grpc
+def test_root_certificates():
+  return pkg_resources.resource_string(
+      __name__, _ROOT_CERTIFICATES_RESOURCE_PATH)
 
-# Define the default command.
-CMD ["bash"]
+
+def prod_root_certificates():
+  return open(os.environ['SSL_CERT_FILE'], mode='rb').read()
+
+
+def private_key():
+  return pkg_resources.resource_string(__name__, _PRIVATE_KEY_RESOURCE_PATH)
+
+
+def certificate_chain():
+  return pkg_resources.resource_string(
+      __name__, _CERTIFICATE_CHAIN_RESOURCE_PATH)

@@ -67,6 +67,9 @@ namespace Grpc.Core.Internal
             var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
 
             var request = await requestStream.ReadNext();
+            // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
+            Preconditions.CheckArgument(await requestStream.ReadNext() == null);
+
             var result = await handler(request);
             await responseStream.Write(result);
             await responseStream.WriteStatus(Status.DefaultSuccess);
@@ -97,6 +100,9 @@ namespace Grpc.Core.Internal
             var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
 
             var request = await requestStream.ReadNext();
+            // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
+            Preconditions.CheckArgument(await requestStream.ReadNext() == null);
+
             await handler(request, responseStream);
             await responseStream.WriteStatus(Status.DefaultSuccess);
             await finishedTask;
@@ -125,7 +131,6 @@ namespace Grpc.Core.Internal
             var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
 
-            var request = await requestStream.ReadNext();
             var result = await handler(requestStream);
             await responseStream.Write(result);
             await responseStream.WriteStatus(Status.DefaultSuccess);

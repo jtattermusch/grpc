@@ -238,6 +238,7 @@ namespace Grpc.Core.Internal
             Preconditions.CheckState(!disposed);
             Preconditions.CheckState(!errorOccured);
 
+            Preconditions.CheckState(!readingDone, "Stream has already been closed.");
             Preconditions.CheckState(readCompletionDelegate == null, "Only one write can be pending at a time");
         }
 
@@ -417,9 +418,15 @@ namespace Grpc.Core.Internal
             lock (myLock)
             {
                 origCompletionDelegate = readCompletionDelegate;
-                readCompletionDelegate = null;
-                if (payload == null)
+                if (payload != null)
                 {
+                    readCompletionDelegate = null;
+                }
+                else
+                {
+                    // This was the last read. Keeping the readCompletionDelegate
+                    // to be either fired by this handler or by client-side finished
+                    // handler.
                     readingDone = true;
                 }
 

@@ -80,10 +80,7 @@ namespace Grpc.Core.Tests
             using (Channel channel = new Channel(host + ":" + port))
             {
                 var call = new Call<string, string>(serviceName, unaryEchoStringMethod, channel, Metadata.Empty);
-
                 Assert.AreEqual("ABC", Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken)));
-
-                Assert.AreEqual("abcdef", Calls.BlockingUnaryCall(call, "abcdef", default(CancellationToken)));
             }
 
             server.ShutdownAsync().Wait();

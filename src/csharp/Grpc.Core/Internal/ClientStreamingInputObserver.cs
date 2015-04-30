@@ -33,34 +33,34 @@ using Grpc.Core.Internal;
 
 namespace Grpc.Core.Internal
 {
-    internal class ClientStreamingInputObserver<TWrite, TRead> : IObserver<TWrite>
-    {
-        readonly AsyncCall<TWrite, TRead> call;
+    //internal class ClientStreamingInputObserver<TWrite, TRead> : IObserver<TWrite>
+    //{
+    //    readonly AsyncCall<TWrite, TRead> call;
 
-        public ClientStreamingInputObserver(AsyncCall<TWrite, TRead> call)
-        {
-            this.call = call;
-        }
+    //    public ClientStreamingInputObserver(AsyncCall<TWrite, TRead> call)
+    //    {
+    //        this.call = call;
+    //    }
 
-        public void OnCompleted()
-        {
-            var taskSource = new AsyncCompletionTaskSource();
-            call.StartSendCloseFromClient(taskSource.CompletionDelegate);
-            // TODO: how bad is the Wait here?
-            taskSource.Task.Wait();
-        }
+    //    public void OnCompleted()
+    //    {
+    //        var taskSource = new AsyncCompletionTaskSource();
+    //        call.StartSendCloseFromClient(taskSource.CompletionDelegate);
+    //        // TODO: how bad is the Wait here?
+    //        taskSource.Task.Wait();
+    //    }
 
-        public void OnError(Exception error)
-        {
-            throw new InvalidOperationException("This should never be called.");
-        }
+    //    public void OnError(Exception error)
+    //    {
+    //        throw new InvalidOperationException("This should never be called.");
+    //    }
 
-        public void OnNext(TWrite value)
-        {
-            var taskSource = new AsyncCompletionTaskSource();
-            call.StartSendMessage(value, taskSource.CompletionDelegate);
-            // TODO: how bad is the Wait here?
-            taskSource.Task.Wait();
-        }
-    }
+    //    public void OnNext(TWrite value)
+    //    {
+    //        var taskSource = new AsyncCompletionTaskSource();
+    //        call.StartSendMessage(value, taskSource.CompletionDelegate);
+    //        // TODO: how bad is the Wait here?
+    //        taskSource.Task.Wait();
+    //    }
+    //}
 }

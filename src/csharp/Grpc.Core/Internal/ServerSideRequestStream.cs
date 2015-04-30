@@ -32,52 +32,25 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+namespace Grpc.Core.Internal
 {
-    //// TODO: replace this by something that implements IAsyncEnumerator.
-    ///// <summary>
-    ///// Observer that allows us to await incoming messages one-by-one.
-    ///// The implementation is not ideal and class will be probably replaced
-    ///// by something more versatile in the future.
-    ///// </summary>
-    //public class RecordingQueue<T> : IObserver<T>
-    //{
-    //    readonly BlockingCollection<T> queue = new BlockingCollection<T>();
-    //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+    internal class ServerSideRequestStream<TRequest, TResponse> : IAsyncStreamReader<TRequest>
+    {
+        readonly AsyncCallServer<TRequest, TResponse> call;
 
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(null);
-    //    }
+        public ServerSideRequestStream(AsyncCallServer<TRequest, TResponse> call)
+        {
+            this.call = call;
+        }
 
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
-
-    //    public void OnNext(T value)
-    //    {
-    //        queue.Add(value);
-    //    }
-
-    //    public BlockingCollection<T> Queue
-    //    {
-    //        get
-    //        {
-    //            return queue;
-    //        }
-    //    }
-
-    //    public Task Finished
-    //    {
-    //        get
-    //        {
-    //            return tcs.Task;
-    //        }
-    //    }
-    //}
+        public Task<TRequest> ReadNext()
+        {
+            var taskSource = new AsyncCompletionTaskSource<TRequest>();
+            call.StartReadMessage(taskSource.CompletionDelegate);
+            return taskSource.Task;
+        }
+    }
 }

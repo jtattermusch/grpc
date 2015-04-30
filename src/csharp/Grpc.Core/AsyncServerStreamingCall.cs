@@ -32,52 +32,41 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+namespace Grpc.Core
 {
-    //// TODO: replace this by something that implements IAsyncEnumerator.
-    ///// <summary>
-    ///// Observer that allows us to await incoming messages one-by-one.
-    ///// The implementation is not ideal and class will be probably replaced
-    ///// by something more versatile in the future.
-    ///// </summary>
-    //public class RecordingQueue<T> : IObserver<T>
-    //{
-    //    readonly BlockingCollection<T> queue = new BlockingCollection<T>();
-    //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+    /// <summary>
+    /// Return type for server streaming async calls.
+    /// </summary>
+    public struct AsyncServerStreamingCall<TResponse>
+    {
+        readonly IAsyncStreamReader<TResponse> responseStream;
 
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(null);
-    //    }
+        public AsyncServerStreamingCall(IAsyncStreamReader<TResponse> responseStream)
+        {
+            this.responseStream = responseStream;
+        }
 
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
+        /// <summary>
+        /// Reads the next response from ResponseStream
+        /// </summary>
+        /// <returns></returns>
+        public Task<TResponse> ReadNext()
+        {
+            return responseStream.ReadNext();
+        }
 
-    //    public void OnNext(T value)
-    //    {
-    //        queue.Add(value);
-    //    }
-
-    //    public BlockingCollection<T> Queue
-    //    {
-    //        get
-    //        {
-    //            return queue;
-    //        }
-    //    }
-
-    //    public Task Finished
-    //    {
-    //        get
-    //        {
-    //            return tcs.Task;
-    //        }
-    //    }
-    //}
+        /// <summary>
+        /// Async stream to read streaming responses.
+        /// </summary>
+        public IAsyncStreamReader<TResponse> ResponseStream
+        {
+            get
+            {
+                return responseStream;
+            }
+        }
+    }
 }

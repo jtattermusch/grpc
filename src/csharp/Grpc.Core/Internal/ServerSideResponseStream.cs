@@ -1,5 +1,4 @@
 #region Copyright notice and license
-
 // Copyright 2015, Google Inc.
 // All rights reserved.
 //
@@ -28,56 +27,37 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #endregion
-
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using Grpc.Core.Internal;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+namespace Grpc.Core.Internal
 {
-    //// TODO: replace this by something that implements IAsyncEnumerator.
-    ///// <summary>
-    ///// Observer that allows us to await incoming messages one-by-one.
-    ///// The implementation is not ideal and class will be probably replaced
-    ///// by something more versatile in the future.
-    ///// </summary>
-    //public class RecordingQueue<T> : IObserver<T>
-    //{
-    //    readonly BlockingCollection<T> queue = new BlockingCollection<T>();
-    //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+    /// <summary>
+    /// Writes responses asynchronously to an underlying AsyncCallServer object.
+    /// </summary>
+    internal class ServerSideResponseStream<TRequest, TResponse> : IServerStreamWriter<TResponse>
+    {
+        readonly AsyncCallServer<TRequest, TResponse> call;
 
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(null);
-    //    }
+        public ServerSideResponseStream(AsyncCallServer<TRequest, TResponse> call)
+        {
+            this.call = call;
+        }
 
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
+        public Task Write(TResponse message)
+        {
+            var taskSource = new AsyncCompletionTaskSource<object>();
+            call.StartSendMessage(message, taskSource.CompletionDelegate);
+            return taskSource.Task;
+        }
 
-    //    public void OnNext(T value)
-    //    {
-    //        queue.Add(value);
-    //    }
-
-    //    public BlockingCollection<T> Queue
-    //    {
-    //        get
-    //        {
-    //            return queue;
-    //        }
-    //    }
-
-    //    public Task Finished
-    //    {
-    //        get
-    //        {
-    //            return tcs.Task;
-    //        }
-    //    }
-    //}
+        public Task WriteStatus(Status status)
+        {
+            var taskSource = new AsyncCompletionTaskSource<object>();
+            call.StartSendStatusFromServer(status, taskSource.CompletionDelegate);
+            return taskSource.Task;
+        }
+    }
 }

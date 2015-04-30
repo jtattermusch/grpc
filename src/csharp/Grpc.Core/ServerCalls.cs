@@ -32,26 +32,41 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
+
 using Grpc.Core.Internal;
+using System.Threading;
 
 namespace Grpc.Core
 {
-    // TODO: perhaps add also serverSideStreaming and clientSideStreaming
+    public delegate Task<TResponse> UnaryServerMethod<TRequest, TResponse>(TRequest request);
 
-    public delegate void UnaryRequestServerMethod<TRequest, TResponse>(TRequest request, IObserver<TResponse> responseObserver);
+    public delegate Task<TResponse> ClientStreamingServerMethod<TRequest, TResponse>(IAsyncStreamReader<TRequest> requestStream);
 
-    public delegate IObserver<TRequest> StreamingRequestServerMethod<TRequest, TResponse>(IObserver<TResponse> responseObserver);
+    public delegate Task ServerStreamingServerMethod<TRequest, TResponse>(TRequest request, IServerStreamWriter<TResponse> responseStream);
+
+    public delegate Task DuplexStreamingServerMethod<TRequest, TResponse>(IAsyncStreamReader<TRequest> requestStream, IServerStreamWriter<TResponse> responseStream);
 
     internal static class ServerCalls
     {
-        public static IServerCallHandler UnaryRequestCall<TRequest, TResponse>(Method<TRequest, TResponse> method, UnaryRequestServerMethod<TRequest, TResponse> handler)
+        public static IServerCallHandler UnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method, UnaryServerMethod<TRequest, TResponse> handler)
         {
-            return new UnaryRequestServerCallHandler<TRequest, TResponse>(method, handler);
+            return new UnaryServerCallHandler<TRequest, TResponse>(method, handler);
         }
 
-        public static IServerCallHandler StreamingRequestCall<TRequest, TResponse>(Method<TRequest, TResponse> method, StreamingRequestServerMethod<TRequest, TResponse> handler)
+        public static IServerCallHandler ClientStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method, ClientStreamingServerMethod<TRequest, TResponse> handler)
         {
-            return new StreamingRequestServerCallHandler<TRequest, TResponse>(method, handler);
+            return new ClientStreamingServerCallHandler<TRequest, TResponse>(method, handler);
+        }
+
+        public static IServerCallHandler ServerStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method, ServerStreamingServerMethod<TRequest, TResponse> handler)
+        {
+            return new ServerStreamingServerCallHandler<TRequest, TResponse>(method, handler);
+        }
+
+        public static IServerCallHandler DuplexStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method, DuplexStreamingServerMethod<TRequest, TResponse> handler)
+        {
+            return new DuplexStreamingServerCallHandler<TRequest, TResponse>(method, handler);
         }
     }
 }

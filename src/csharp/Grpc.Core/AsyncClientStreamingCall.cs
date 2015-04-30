@@ -32,52 +32,72 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+namespace Grpc.Core
 {
-    //// TODO: replace this by something that implements IAsyncEnumerator.
-    ///// <summary>
-    ///// Observer that allows us to await incoming messages one-by-one.
-    ///// The implementation is not ideal and class will be probably replaced
-    ///// by something more versatile in the future.
-    ///// </summary>
-    //public class RecordingQueue<T> : IObserver<T>
-    //{
-    //    readonly BlockingCollection<T> queue = new BlockingCollection<T>();
-    //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+    /// <summary>
+    /// Return type for client streaming async calls.
+    /// </summary>
+    public struct AsyncClientStreamingCall<TRequest, TResponse>
+    {
+        readonly IClientStreamWriter<TRequest> requestStream;
+        readonly Task<TResponse> result;
 
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(null);
-    //    }
+        public AsyncClientStreamingCall(IClientStreamWriter<TRequest> requestStream, Task<TResponse> result)
+        {
+            this.requestStream = requestStream;
+            this.result = result;
+        }
 
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
+        /// <summary>
+        /// Writes a request to RequestStream.
+        /// </summary>
+        public Task Write(TRequest message)
+        {
+            return requestStream.Write(message);
+        }
 
-    //    public void OnNext(T value)
-    //    {
-    //        queue.Add(value);
-    //    }
+        /// <summary>
+        /// Closes the RequestStream.
+        /// </summary>
+        public Task Close()
+        {
+            return requestStream.Close();
+        }
 
-    //    public BlockingCollection<T> Queue
-    //    {
-    //        get
-    //        {
-    //            return queue;
-    //        }
-    //    }
+        /// <summary>
+        /// Asynchronous call result.
+        /// </summary>
+        public Task<TResponse> Result
+        {
+            get
+            {
+                return this.result;
+            }
+        }
 
-    //    public Task Finished
-    //    {
-    //        get
-    //        {
-    //            return tcs.Task;
-    //        }
-    //    }
-    //}
+        /// <summary>
+        /// Async stream to send streaming requests.
+        /// </summary>
+        public IClientStreamWriter<TRequest> RequestStream
+        {
+            get
+            {
+                return requestStream;
+            }
+        }
+
+        /// <summary>
+        /// Allows awaiting this object directly.
+        /// </summary>
+        /// <returns></returns>
+        public TaskAwaiter<TResponse> GetAwaiter()
+        {
+            return result.GetAwaiter();
+        }
+
+        
+    }
 }

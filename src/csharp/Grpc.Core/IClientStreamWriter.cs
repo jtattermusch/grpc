@@ -1,4 +1,4 @@
-#region Copyright notice and license
+﻿#region Copyright notice and license
 
 // Copyright 2015, Google Inc.
 // All rights reserved.
@@ -32,52 +32,22 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+namespace Grpc.Core
 {
-    //// TODO: replace this by something that implements IAsyncEnumerator.
-    ///// <summary>
-    ///// Observer that allows us to await incoming messages one-by-one.
-    ///// The implementation is not ideal and class will be probably replaced
-    ///// by something more versatile in the future.
-    ///// </summary>
-    //public class RecordingQueue<T> : IObserver<T>
-    //{
-    //    readonly BlockingCollection<T> queue = new BlockingCollection<T>();
-    //    TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(null);
-    //    }
-
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
-
-    //    public void OnNext(T value)
-    //    {
-    //        queue.Add(value);
-    //    }
-
-    //    public BlockingCollection<T> Queue
-    //    {
-    //        get
-    //        {
-    //            return queue;
-    //        }
-    //    }
-
-    //    public Task Finished
-    //    {
-    //        get
-    //        {
-    //            return tcs.Task;
-    //        }
-    //    }
-    //}
+    /// <summary>
+    /// Client-side writable stream of messages with Close capability.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IClientStreamWriter<T> : IAsyncStreamWriter<T>
+    {
+        /// <summary>
+        /// Closes the stream. Can only be called once there is no pending write. No writes should follow calling this.
+        /// </summary>
+        Task Close();
+    }
 }

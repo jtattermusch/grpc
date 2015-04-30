@@ -201,17 +201,12 @@ namespace Grpc.IntegrationTesting
         {
             Console.WriteLine("running client_streaming");
 
-            var bodySizes = new List<int> { 27182, 8, 1828, 45904 };
+            var bodySizes = new List<int> { 27182, 8, 1828, 45904 }.ConvertAll( (size) => StreamingInputCallRequest.CreateBuilder().SetPayload(CreateZerosPayload(size)).Build());
 
-            var context = client.StreamingInputCall();
-            foreach (var size in bodySizes)
-            {
-                context.Inputs.OnNext(
-                    StreamingInputCallRequest.CreateBuilder().SetPayload(CreateZerosPayload(size)).Build());
-            }
-            context.Inputs.OnCompleted();
+            var call = client.StreamingInputCall();
+            call.RequestStream.WriteAll(bodySizes).Wait();
 
-            var response = context.Task.Result;
+            var response = call.Result.Result;
             Assert.AreEqual(74922, response.AggregatedPayloadSize);
             Console.WriteLine("Passed!");
         }
@@ -228,11 +223,9 @@ namespace Grpc.IntegrationTesting
                         (size) => ResponseParameters.CreateBuilder().SetSize(size).Build()))
                 .Build();
 
-            var recorder = new RecordingObserver<StreamingOutputCallResponse>();
-            client.StreamingOutputCall(request, recorder);
+            var call = client.StreamingOutputCall(request);
 
-            var responseList = recorder.ToList().Result;
-
+            var responseList = call.ResponseStream.ToList().Result;
             foreach (var res in responseList)
             {
                 Assert.AreEqual(PayloadType.COMPRESSABLE, res.Payload.Type);
@@ -245,51 +238,50 @@ namespace Grpc.IntegrationTesting
         {
             Console.WriteLine("running ping_pong");
 
-            var recorder = new RecordingQueue<StreamingOutputCallResponse>();
-            var inputs = client.FullDuplexCall(recorder);
+            var call = client.FullDuplexCall();
 
             StreamingOutputCallResponse response;
 
-            inputs.OnNext(StreamingOutputCallRequest.CreateBuilder()
+            call.RequestStream.Write(StreamingOutputCallRequest.CreateBuilder()
                 .SetResponseType(PayloadType.COMPRESSABLE)
                 .AddResponseParameters(ResponseParameters.CreateBuilder().SetSize(31415))
-                .SetPayload(CreateZerosPayload(27182)).Build());
+                .SetPayload(CreateZerosPayload(27182)).Build()).Wait();
 
-            response = recorder.Queue.Take();
+            response = call.ResponseStream.ReadNext().Result;
             Assert.AreEqual(PayloadType.COMPRESSABLE, response.Payload.Type);
             Assert.AreEqual(31415, response.Payload.Body.Length);
 
-            inputs.OnNext(StreamingOutputCallRequest.CreateBuilder()
+            call.RequestStream.Write(StreamingOutputCallRequest.CreateBuilder()
                           .SetResponseType(PayloadType.COMPRESSABLE)
                           .AddResponseParameters(ResponseParameters.CreateBuilder().SetSize(9))
-                          .SetPayload(CreateZerosPayload(8)).Build());
+                          .SetPayload(CreateZerosPayload(8)).Build()).Wait();
 
-            response = recorder.Queue.Take();
+            response = call.ResponseStream.ReadNext().Result;
             Assert.AreEqual(PayloadType.COMPRESSABLE, response.Payload.Type);
             Assert.AreEqual(9, response.Payload.Body.Length);
 
-            inputs.OnNext(StreamingOutputCallRequest.CreateBuilder()
+            call.RequestStream.Write(StreamingOutputCallRequest.CreateBuilder()
                           .SetResponseType(PayloadType.COMPRESSABLE)
                           .AddResponseParameters(ResponseParameters.CreateBuilder().SetSize(2653))
-                          .SetPayload(CreateZerosPayload(1828)).Build());
+                          .SetPayload(CreateZerosPayload(1828)).Build()).Wait();
 
-            response = recorder.Queue.Take();
+            response = call.ResponseStream.ReadNext().Result;
             Assert.AreEqual(PayloadType.COMPRESSABLE, response.Payload.Type);
             Assert.AreEqual(2653, response.Payload.Body.Length);
 
-            inputs.OnNext(StreamingOutputCallRequest.CreateBuilder()
+            call.RequestStream.Write(StreamingOutputCallRequest.CreateBuilder()
                           .SetResponseType(PayloadType.COMPRESSABLE)
                           .AddResponseParameters(ResponseParameters.CreateBuilder().SetSize(58979))
-                          .SetPayload(CreateZerosPayload(45904)).Build());
+                          .SetPayload(CreateZerosPayload(45904)).Build()).Wait();
 
-            response = recorder.Queue.Take();
+            response = call.ResponseStream.ReadNext().Result;
             Assert.AreEqual(PayloadType.COMPRESSABLE, response.Payload.Type);
             Assert.AreEqual(58979, response.Payload.Body.Length);
 
-            inputs.OnCompleted();
+            call.RequestStream.Close().Wait();
 
-            recorder.Finished.Wait();
-            Assert.AreEqual(0, recorder.Queue.Count);
+            response = call.ResponseStream.ReadNext().Result;
+            Assert.AreEqual(null, response);
 
             Console.WriteLine("Passed!");
         }
@@ -297,12 +289,10 @@ namespace Grpc.IntegrationTesting
         public static void RunEmptyStream(TestServiceGrpc.ITestServiceClient client)
         {
             Console.WriteLine("running empty_stream");
+            var call = client.FullDuplexCall();
+            call.Close().Wait();
 
-            var recorder = new RecordingObserver<StreamingOutputCallResponse>();
-            var inputs = client.FullDuplexCall(recorder);
-            inputs.OnCompleted();
-
-            var responseList = recorder.ToList().Result;
+            var responseList = call.ResponseStream.ToList().Result;
             Assert.AreEqual(0, responseList.Count);
 
             Console.WriteLine("Passed!");

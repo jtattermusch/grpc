@@ -63,7 +63,7 @@ namespace math.Tests
             server.Start();
             channel = new Channel(host + ":" + port);
 
-            // TODO: get rid of the custom header here once we have dedicated tests
+            // TODO(jtattermusch): get rid of the custom header here once we have dedicated tests
             // for header support.
             var stubConfig = new StubConfiguration((headerBuilder) =>
             {
@@ -97,7 +97,7 @@ namespace math.Tests
             Assert.AreEqual(0, response.Remainder);
         }
 
-        // TODO: test division by zero
+        // TODO(jtattermusch): test division by zero
 
         [Test]
         public void DivAsync()
@@ -110,23 +110,22 @@ namespace math.Tests
         [Test]
         public void Fib()
         {
-            var recorder = new RecordingObserver<Num>();
-            client.Fib(new FibArgs.Builder { Limit = 6 }.Build(), recorder);
+            var call = client.Fib(new FibArgs.Builder { Limit = 6 }.Build());
 
             CollectionAssert.AreEqual(new List<long> { 1, 1, 2, 3, 5, 8 },
-                recorder.ToList().Result.ConvertAll((n) => n.Num_));
+                call.ResponseStream.ToList().Result.ConvertAll((n) => n.Num_));
         }
 
         // TODO: test Fib with limit=0 and cancellation
         [Test]
         public void Sum()
         {
-            var clientStreamingResult = client.Sum();
-            var numList = new List<long> { 10, 20, 30 }.ConvertAll(
+            var call = client.Sum();
+            var numbers = new List<long> { 10, 20, 30 }.ConvertAll(
                      n => Num.CreateBuilder().SetNum_(n).Build());
-            numList.Subscribe(clientStreamingResult.Inputs);
 
-            Assert.AreEqual(60, clientStreamingResult.Task.Result.Num_);
+            call.RequestStream.WriteAll(numbers).Wait();
+            Assert.AreEqual(60, call.Result.Result.Num_);
         }
 
         [Test]
@@ -139,10 +138,9 @@ namespace math.Tests
                 new DivArgs.Builder { Dividend = 7, Divisor = 2 }.Build()
             };
 
-            var recorder = new RecordingObserver<DivReply>();
-            var requestObserver = client.DivMany(recorder);
-            divArgsList.Subscribe(requestObserver);
-            var result = recorder.ToList().Result;
+            var call = client.DivMany();
+            call.RequestStream.WriteAll(divArgsList).Wait();
+            var result = call.ResponseStream.ToList().Result;
 
             CollectionAssert.AreEqual(new long[] { 3, 4, 3 }, result.ConvertAll((divReply) => divReply.Quotient));
             CollectionAssert.AreEqual(new long[] { 1, 16, 1 }, result.ConvertAll((divReply) => divReply.Remainder));

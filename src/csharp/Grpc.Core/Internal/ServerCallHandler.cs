@@ -35,86 +35,145 @@ using System;
 using System.Linq;
 using Grpc.Core.Internal;
 using Grpc.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Grpc.Core.Internal
 {
     internal interface IServerCallHandler
     {
-        void StartCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq);
+        Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq);
     }
 
-    internal class UnaryRequestServerCallHandler<TRequest, TResponse> : IServerCallHandler
+    internal class UnaryServerCallHandler<TRequest, TResponse> : IServerCallHandler
     {
         readonly Method<TRequest, TResponse> method;
-        readonly UnaryRequestServerMethod<TRequest, TResponse> handler;
+        readonly UnaryServerMethod<TRequest, TResponse> handler;
 
-        public UnaryRequestServerCallHandler(Method<TRequest, TResponse> method, UnaryRequestServerMethod<TRequest, TResponse> handler)
+        public UnaryServerCallHandler(Method<TRequest, TResponse> method, UnaryServerMethod<TRequest, TResponse> handler)
         {
             this.method = method;
             this.handler = handler;
         }
 
-        public void StartCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
                 method.RequestMarshaller.Deserializer);
 
             asyncCall.Initialize(call);
-           
-            var requestObserver = new RecordingObserver<TRequest>();
-            var finishedTask = asyncCall.ServerSideCallAsync(requestObserver);
+            var finishedTask = asyncCall.ServerSideCallAsync();
+            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
 
-            var request = requestObserver.ToList().Result.Single();
-            var responseObserver = new ServerStreamingOutputObserver<TRequest, TResponse>(asyncCall);
-            handler(request, responseObserver);
-
-            finishedTask.Wait();
+            var request = await requestStream.ReadNext();
+            var result = await handler(request);
+            await responseStream.Write(result);
+            await responseStream.WriteStatus(Status.DefaultSuccess);
+            await finishedTask;
         }
     }
 
-    internal class StreamingRequestServerCallHandler<TRequest, TResponse> : IServerCallHandler
+    internal class ServerStreamingServerCallHandler<TRequest, TResponse> : IServerCallHandler
     {
         readonly Method<TRequest, TResponse> method;
-        readonly StreamingRequestServerMethod<TRequest, TResponse> handler;
+        readonly ServerStreamingServerMethod<TRequest, TResponse> handler;
 
-        public StreamingRequestServerCallHandler(Method<TRequest, TResponse> method, StreamingRequestServerMethod<TRequest, TResponse> handler)
+        public ServerStreamingServerCallHandler(Method<TRequest, TResponse> method, ServerStreamingServerMethod<TRequest, TResponse> handler)
         {
             this.method = method;
             this.handler = handler;
         }
 
-        public void StartCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
                 method.RequestMarshaller.Deserializer);
 
             asyncCall.Initialize(call);
+            var finishedTask = asyncCall.ServerSideCallAsync();
+            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
 
-            var responseObserver = new ServerStreamingOutputObserver<TRequest, TResponse>(asyncCall);
-            var requestObserver = handler(responseObserver);
-            var finishedTask = asyncCall.ServerSideCallAsync(requestObserver);
-            finishedTask.Wait();
+            var request = await requestStream.ReadNext();
+            await handler(request, responseStream);
+            await responseStream.WriteStatus(Status.DefaultSuccess);
+            await finishedTask;
+        }
+    }
+
+    internal class ClientStreamingServerCallHandler<TRequest, TResponse> : IServerCallHandler
+    {
+        readonly Method<TRequest, TResponse> method;
+        readonly ClientStreamingServerMethod<TRequest, TResponse> handler;
+
+        public ClientStreamingServerCallHandler(Method<TRequest, TResponse> method, ClientStreamingServerMethod<TRequest, TResponse> handler)
+        {
+            this.method = method;
+            this.handler = handler;
+        }
+
+        public async Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
+        {
+            var asyncCall = new AsyncCallServer<TRequest, TResponse>(
+                method.ResponseMarshaller.Serializer,
+                method.RequestMarshaller.Deserializer);
+
+            asyncCall.Initialize(call);
+            var finishedTask = asyncCall.ServerSideCallAsync();
+            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+
+            var request = await requestStream.ReadNext();
+            var result = await handler(requestStream);
+            await responseStream.Write(result);
+            await responseStream.WriteStatus(Status.DefaultSuccess);
+            await finishedTask;
+        }
+    }
+
+    internal class DuplexStreamingServerCallHandler<TRequest, TResponse> : IServerCallHandler
+    {
+        readonly Method<TRequest, TResponse> method;
+        readonly DuplexStreamingServerMethod<TRequest, TResponse> handler;
+
+        public DuplexStreamingServerCallHandler(Method<TRequest, TResponse> method, DuplexStreamingServerMethod<TRequest, TResponse> handler)
+        {
+            this.method = method;
+            this.handler = handler;
+        }
+
+        public async Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
+        {
+            var asyncCall = new AsyncCallServer<TRequest, TResponse>(
+                method.ResponseMarshaller.Serializer,
+                method.RequestMarshaller.Deserializer);
+
+            asyncCall.Initialize(call);
+            var finishedTask = asyncCall.ServerSideCallAsync();
+            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+
+            await handler(requestStream, responseStream);
+            await responseStream.WriteStatus(Status.DefaultSuccess);
+            await finishedTask;
         }
     }
 
     internal class NoSuchMethodCallHandler : IServerCallHandler
     {
-        public void StartCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(string methodName, CallSafeHandle call, CompletionQueueSafeHandle cq)
         {
             // We don't care about the payload type here.
             var asyncCall = new AsyncCallServer<byte[], byte[]>(
                 (payload) => payload, (payload) => payload);
 
             asyncCall.Initialize(call);
-
-            var finishedTask = asyncCall.ServerSideCallAsync(new NullObserver<byte[]>());
-
-            // TODO: check result of the completion status.
-            asyncCall.StartSendStatusFromServer(new Status(StatusCode.Unimplemented, "No such method."), new AsyncCompletionDelegate((error) => { }));
-
-            finishedTask.Wait();
+            var finishedTask = asyncCall.ServerSideCallAsync();
+            var responseStream = new ServerSideResponseStream<byte[], byte[]>(asyncCall);
+            await responseStream.WriteStatus(new Status(StatusCode.Unimplemented, "No such method."));
+            await finishedTask;
         }
     }
 

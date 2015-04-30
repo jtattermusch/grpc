@@ -138,10 +138,9 @@ namespace Grpc.Core.Tests
             server.ShutdownAsync().Wait();
         }
 
-        private void HandleUnaryEchoString(string request, IObserver<string> responseObserver)
+        private Task<string> HandleUnaryEchoString(string request)
         {
-            responseObserver.OnNext(request);
-            responseObserver.OnCompleted();
+            return Task.FromResult(request);
         }
     }
 }

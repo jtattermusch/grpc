@@ -1,4 +1,5 @@
 #region Copyright notice and license
+
 // Copyright 2015, Google Inc.
 // All rights reserved.
 //
@@ -27,57 +28,74 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Grpc.Core
 {
     /// <summary>
-    /// Represents RPC result.
+    /// Return type for bidirectional streaming calls.
     /// </summary>
-    public struct Status
+    public struct AsyncDuplexStreamingCall<TRequest, TResponse>
     {
-        /// <summary>
-        /// Default result of a successful RPC. StatusCode=OK, empty details message.
-        /// </summary>
-        public readonly static Status DefaultSuccess = new Status(StatusCode.OK, "");
+        readonly IClientStreamWriter<TRequest> requestStream;
+        readonly IAsyncStreamReader<TResponse> responseStream;
 
-        readonly StatusCode statusCode;
-        readonly string detail;
-
-        public Status(StatusCode statusCode, string detail)
+        public AsyncDuplexStreamingCall(IClientStreamWriter<TRequest> requestStream, IAsyncStreamReader<TResponse> responseStream)
         {
-            this.statusCode = statusCode;
-            this.detail = detail;
+            this.requestStream = requestStream;
+            this.responseStream = responseStream;
         }
 
         /// <summary>
-        /// Gets the gRPC status code. OK indicates success, all other values indicate an error.
+        /// Writes a request to RequestStream.
         /// </summary>
-        public StatusCode StatusCode
+        public Task Write(TRequest message)
+        {
+            return requestStream.Write(message);
+        }
+
+        /// <summary>
+        /// Closes the RequestStream.
+        /// </summary>
+        public Task Close()
+        {
+            return requestStream.Close();
+        }
+
+        /// <summary>
+        /// Reads a response from ResponseStream.
+        /// </summary>
+        /// <returns></returns>
+        public Task<TResponse> ReadNext()
+        {
+            return responseStream.ReadNext();
+        }
+
+        /// <summary>
+        /// Async stream to read streaming responses.
+        /// </summary>
+        public IAsyncStreamReader<TResponse> ResponseStream
         {
             get
             {
-                return statusCode;
+                return responseStream;
             }
         }
 
         /// <summary>
-        /// Gets the detail.
+        /// Async stream to send streaming requests.
         /// </summary>
-        public string Detail
+        public IClientStreamWriter<TRequest> RequestStream
         {
             get
             {
-                return detail;
+                return requestStream;
             }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("Status(StatusCode={0}, Detail=\"{1}\")", statusCode, detail);
         }
     }
 }

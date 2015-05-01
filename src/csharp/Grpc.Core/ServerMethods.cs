@@ -32,34 +32,30 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Grpc.Core.Utils
+using Grpc.Core.Internal;
+using System.Threading;
+
+namespace Grpc.Core
 {
-    //public class RecordingObserver<T> : IObserver<T>
-    //{
-    //    TaskCompletionSource<List<T>> tcs = new TaskCompletionSource<List<T>>();
-    //    List<T> data = new List<T>();
+    /// <summary>
+    /// Server-side handler for unary call.
+    /// </summary>
+    public delegate Task<TResponse> UnaryServerMethod<TRequest, TResponse>(TRequest request);
 
-    //    public void OnCompleted()
-    //    {
-    //        tcs.SetResult(data);
-    //    }
+    /// <summary>
+    /// Server-side handler for client streaming call.
+    /// </summary>
+    public delegate Task<TResponse> ClientStreamingServerMethod<TRequest, TResponse>(IAsyncStreamReader<TRequest> requestStream);
 
-    //    public void OnError(Exception error)
-    //    {
-    //        tcs.SetException(error);
-    //    }
+    /// <summary>
+    /// Server-side handler for server streaming call.
+    /// </summary>
+    public delegate Task ServerStreamingServerMethod<TRequest, TResponse>(TRequest request, IServerStreamWriter<TResponse> responseStream);
 
-    //    public void OnNext(T value)
-    //    {
-    //        data.Add(value);
-    //    }
-
-    //    public Task<List<T>> ToList()
-    //    {
-    //        return tcs.Task;
-    //    }
-    //}
+    /// <summary>
+    /// Server-side handler for bidi streaming call.
+    /// </summary>
+    public delegate Task DuplexStreamingServerMethod<TRequest, TResponse>(IAsyncStreamReader<TRequest> requestStream, IServerStreamWriter<TResponse> responseStream);
 }

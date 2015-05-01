@@ -63,8 +63,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(call);
             var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
-            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             var request = await requestStream.ReadNext();
             // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
@@ -96,8 +96,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(call);
             var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
-            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             var request = await requestStream.ReadNext();
             // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
@@ -128,8 +128,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(call);
             var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
-            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             var result = await handler(requestStream);
             await responseStream.Write(result);
@@ -157,8 +157,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(call);
             var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerSideRequestStream<TRequest, TResponse>(asyncCall);
-            var responseStream = new ServerSideResponseStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             await handler(requestStream, responseStream);
             await responseStream.WriteStatus(Status.DefaultSuccess);
@@ -176,24 +176,12 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(call);
             var finishedTask = asyncCall.ServerSideCallAsync();
-            var responseStream = new ServerSideResponseStream<byte[], byte[]>(asyncCall);
+            var requestStream = new ServerRequestStream<byte[], byte[]>(asyncCall);
+            var responseStream = new ServerResponseStream<byte[], byte[]>(asyncCall);
             await responseStream.WriteStatus(new Status(StatusCode.Unimplemented, "No such method."));
+            // TODO(jtattermusch): if we don't read what client has sent, the server call never gets disposed.
+            await requestStream.ToList();
             await finishedTask;
-        }
-    }
-
-    internal class NullObserver<T> : IObserver<T>
-    {
-        public void OnCompleted()
-        {
-        }
-
-        public void OnError(Exception error)
-        {
-        }
-
-        public void OnNext(T value)
-        {
         }
     }
 }

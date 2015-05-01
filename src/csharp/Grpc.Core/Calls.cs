@@ -39,7 +39,7 @@ using Grpc.Core.Internal;
 namespace Grpc.Core
 {
     /// <summary>
-    /// Helper methods for generated stubs to make RPC calls (from the client-side perspective).
+    /// Helper methods for generated client stubs to make RPC calls.
     /// </summary>
     public static class Calls
     {
@@ -61,7 +61,7 @@ namespace Grpc.Core
             var asyncCall = new AsyncCall<TRequest, TResponse>(call.RequestMarshaller.Serializer, call.ResponseMarshaller.Deserializer);
             asyncCall.Initialize(call.Channel, GetCompletionQueue(), call.Name);
             asyncCall.StartServerStreamingCall(req, call.Headers);
-            var responseStream = new ClientSideResponseStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ClientResponseStream<TRequest, TResponse>(asyncCall);
             return new AsyncServerStreamingCall<TResponse>(responseStream);
         }
 
@@ -70,7 +70,7 @@ namespace Grpc.Core
             var asyncCall = new AsyncCall<TRequest, TResponse>(call.RequestMarshaller.Serializer, call.ResponseMarshaller.Deserializer);
             asyncCall.Initialize(call.Channel, GetCompletionQueue(), call.Name);
             var resultTask = asyncCall.ClientStreamingCallAsync(call.Headers);
-            var requestStream = new ClientSideRequestStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ClientRequestStream<TRequest, TResponse>(asyncCall);
             return new AsyncClientStreamingCall<TRequest, TResponse>(requestStream, resultTask);
         }
 
@@ -79,11 +79,14 @@ namespace Grpc.Core
             var asyncCall = new AsyncCall<TRequest, TResponse>(call.RequestMarshaller.Serializer, call.ResponseMarshaller.Deserializer);
             asyncCall.Initialize(call.Channel, GetCompletionQueue(), call.Name);
             asyncCall.StartDuplexStreamingCall(call.Headers);
-            var requestStream = new ClientSideRequestStream<TRequest, TResponse>(asyncCall);
-            var responseStream = new ClientSideResponseStream<TRequest, TResponse>(asyncCall);
+            var requestStream = new ClientRequestStream<TRequest, TResponse>(asyncCall);
+            var responseStream = new ClientResponseStream<TRequest, TResponse>(asyncCall);
             return new AsyncDuplexStreamingCall<TRequest, TResponse>(requestStream, responseStream);
         }
 
+        /// <summary>
+        /// Gets shared completion queue used for async calls.
+        /// </summary>
         private static CompletionQueueSafeHandle GetCompletionQueue()
         {
             return GrpcEnvironment.ThreadPool.CompletionQueue;

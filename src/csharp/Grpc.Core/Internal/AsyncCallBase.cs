@@ -44,7 +44,7 @@ namespace Grpc.Core.Internal
 {
     /// <summary>
     /// Base for handling both client side and server side calls.
-    /// Handles native call lifecycle and provides convenience methods.
+    /// Manages native call lifecycle and provides convenience methods.
     /// </summary>
     internal abstract class AsyncCallBase<TWrite, TRead>
     {

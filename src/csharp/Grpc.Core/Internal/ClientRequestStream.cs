@@ -30,37 +30,34 @@
 #endregion
 using System;
 using Grpc.Core.Internal;
+using System.Threading.Tasks;
 
 namespace Grpc.Core.Internal
 {
-    //internal class ClientStreamingInputObserver<TWrite, TRead> : IObserver<TWrite>
-    //{
-    //    readonly AsyncCall<TWrite, TRead> call;
+    /// <summary>
+    /// Writes requests asynchronously to an underlying AsyncCall object.
+    /// </summary>
+    internal class ClientRequestStream<TRequest, TResponse> : IClientStreamWriter<TRequest>
+    {
+        readonly AsyncCall<TRequest, TResponse> call;
 
-    //    public ClientStreamingInputObserver(AsyncCall<TWrite, TRead> call)
-    //    {
-    //        this.call = call;
-    //    }
+        public ClientRequestStream(AsyncCall<TRequest, TResponse> call)
+        {
+            this.call = call;
+        }
 
-    //    public void OnCompleted()
-    //    {
-    //        var taskSource = new AsyncCompletionTaskSource();
-    //        call.StartSendCloseFromClient(taskSource.CompletionDelegate);
-    //        // TODO: how bad is the Wait here?
-    //        taskSource.Task.Wait();
-    //    }
+        public Task Write(TRequest message)
+        {
+            var taskSource = new AsyncCompletionTaskSource<object>();
+            call.StartSendMessage(message, taskSource.CompletionDelegate);
+            return taskSource.Task;
+        }
 
-    //    public void OnError(Exception error)
-    //    {
-    //        throw new InvalidOperationException("This should never be called.");
-    //    }
-
-    //    public void OnNext(TWrite value)
-    //    {
-    //        var taskSource = new AsyncCompletionTaskSource();
-    //        call.StartSendMessage(value, taskSource.CompletionDelegate);
-    //        // TODO: how bad is the Wait here?
-    //        taskSource.Task.Wait();
-    //    }
-    //}
+        public Task Close()
+        {
+            var taskSource = new AsyncCompletionTaskSource<object>();
+            call.StartSendCloseFromClient(taskSource.CompletionDelegate);
+            return taskSource.Task;
+        }
+    }
 }

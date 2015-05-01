@@ -37,11 +37,11 @@ namespace Grpc.Core.Internal
     /// <summary>
     /// Writes responses asynchronously to an underlying AsyncCallServer object.
     /// </summary>
-    internal class ServerSideResponseStream<TRequest, TResponse> : IServerStreamWriter<TResponse>
+    internal class ServerResponseStream<TRequest, TResponse> : IServerStreamWriter<TResponse>
     {
         readonly AsyncCallServer<TRequest, TResponse> call;
 
-        public ServerSideResponseStream(AsyncCallServer<TRequest, TResponse> call)
+        public ServerResponseStream(AsyncCallServer<TRequest, TResponse> call)
         {
             this.call = call;
         }

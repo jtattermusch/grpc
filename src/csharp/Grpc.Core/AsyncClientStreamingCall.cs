@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 namespace Grpc.Core
 {
     /// <summary>
-    /// Return type for client streaming async calls.
+    /// Return type for client streaming calls.
     /// </summary>
     public struct AsyncClientStreamingCall<TRequest, TResponse>
     {

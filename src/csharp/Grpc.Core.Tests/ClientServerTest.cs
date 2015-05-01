@@ -44,15 +44,17 @@ namespace Grpc.Core.Tests
 {
     public class ClientServerTest
     {
-        string host = "localhost";
+        const string Host = "localhost";
+        const string ServiceName = "/tests.Test";
 
-        string serviceName = "/tests.Test";
-
-        Method<string, string> unaryEchoStringMethod = new Method<string, string>(
+        readonly static Method<string, string> UnaryEchoStringMethod = new Method<string, string>(
             MethodType.Unary,
             "/tests.Test/UnaryEchoString",
             Marshallers.StringMarshaller,
             Marshallers.StringMarshaller);
+
+        readonly static ServerServiceDefinition ServiceDefinition = ServerServiceDefinition.CreateBuilder(ServiceName)
+            .AddMethod(UnaryEchoStringMethod, HandleUnaryEchoString).Build();
 
         [TestFixtureSetUp]
         public void Init()
@@ -69,18 +71,38 @@ namespace Grpc.Core.Tests
         [Test]
         public void UnaryCall()
         {
-            Server server = new Server();
-            server.AddServiceDefinition(
-                ServerServiceDefinition.CreateBuilder(serviceName)
-                    .AddMethod(unaryEchoStringMethod, HandleUnaryEchoString).Build());
-
-            int port = server.AddListeningPort(host + ":0");
+            var server = new Server();
+            server.AddServiceDefinition(ServiceDefinition);
+            int port = server.AddListeningPort(Host + ":0");
             server.Start();
 
-            using (Channel channel = new Channel(host + ":" + port))
+            using (Channel channel = new Channel(Host + ":" + port))
             {
-                var call = new Call<string, string>(serviceName, unaryEchoStringMethod, channel, Metadata.Empty);
+                var call = new Call<string,string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
                 Assert.AreEqual("ABC", Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken)));
+            }
+
+            server.ShutdownAsync().Wait();
+        }
+
+        [Test]
+        public void CallOnDisposedChannel()
+        {
+            var server = new Server();
+            server.AddServiceDefinition(ServiceDefinition);
+            int port = server.AddListeningPort(Host + ":0");
+            server.Start();
+
+            Channel channel = new Channel(Host + ":" + port);
+            channel.Dispose();
+
+            var call = new Call<string,string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
+            try {
+              Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken));
+              Assert.Fail();
+            }
+            catch(ObjectDisposedException e)
+            {
             }
 
             server.ShutdownAsync().Wait();
@@ -89,18 +111,15 @@ namespace Grpc.Core.Tests
         [Test]
         public void UnaryCallPerformance()
         {
-            Server server = new Server();
-            server.AddServiceDefinition(
-                ServerServiceDefinition.CreateBuilder(serviceName)
-                .AddMethod(unaryEchoStringMethod, HandleUnaryEchoString).Build());
-
-            int port = server.AddListeningPort(host + ":0");
+            var server = new Server();
+            server.AddServiceDefinition(ServiceDefinition);
+            int port = server.AddListeningPort(Host + ":0");
             server.Start();
 
-            using (Channel channel = new Channel(host + ":" + port))
+            using (Channel channel = new Channel(Host + ":" + port))
             {
-                var call = new Call<string, string>(serviceName, unaryEchoStringMethod, channel, Metadata.Empty);
-                BenchmarkUtil.RunBenchmark(100, 1000,
+                var call = new Call<string, string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
+                BenchmarkUtil.RunBenchmark(100, 100,
                                            () => { Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken)); });
             }
 
@@ -110,17 +129,14 @@ namespace Grpc.Core.Tests
         [Test]
         public void UnknownMethodHandler()
         {
-            Server server = new Server();
-            server.AddServiceDefinition(
-                ServerServiceDefinition.CreateBuilder(serviceName).Build());
-
-            int port = server.AddListeningPort(host + ":0");
+            var server = new Server();
+            server.AddServiceDefinition(ServerServiceDefinition.CreateBuilder(ServiceName).Build());
+            int port = server.AddListeningPort(Host + ":0");
             server.Start();
 
-            using (Channel channel = new Channel(host + ":" + port))
+            using (Channel channel = new Channel(Host + ":" + port))
             {
-                var call = new Call<string, string>(serviceName, unaryEchoStringMethod, channel, Metadata.Empty);
-
+                var call = new Call<string, string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
                 try
                 {
                     Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken));
@@ -135,7 +151,10 @@ namespace Grpc.Core.Tests
             server.ShutdownAsync().Wait();
         }
 
-        private Task<string> HandleUnaryEchoString(string request)
+        /// <summary>
+        /// Handler for unaryEchoString method.
+        /// </summary>
+        private static Task<string> HandleUnaryEchoString(string request)
         {
             return Task.FromResult(request);
         }

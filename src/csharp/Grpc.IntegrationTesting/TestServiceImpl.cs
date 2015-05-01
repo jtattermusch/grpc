@@ -36,8 +36,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.ProtocolBuffers;
-using Grpc.Core.Utils;
 using Grpc.Core;
+using Grpc.Core.Utils;
 
 namespace grpc.testing
 {
@@ -71,35 +71,24 @@ namespace grpc.testing
         public async Task<StreamingInputCallResponse> StreamingInputCall(IAsyncStreamReader<StreamingInputCallRequest> requestStream)
         {
             int sum = 0;
-            while (true)
+            await requestStream.ForEach(async request =>
             {
-                var req = await requestStream.ReadNext();
-                if (req == null)
-                {
-                    break;
-                }
-                sum += req.Payload.Body.Length;
-            }
+                sum += request.Payload.Body.Length;
+            });
             return StreamingInputCallResponse.CreateBuilder().SetAggregatedPayloadSize(sum).Build();
         }
 
         public async Task FullDuplexCall(IAsyncStreamReader<StreamingOutputCallRequest> requestStream, IServerStreamWriter<StreamingOutputCallResponse> responseStream)
         {
-            while (true)
+            await requestStream.ForEach(async request =>
             {
-                var request = await requestStream.ReadNext();
-                if (request == null)
-                {
-                    break;
-                }
-
                 foreach (var responseParam in request.ResponseParametersList)
                 {
                     var response = StreamingOutputCallResponse.CreateBuilder()
                         .SetPayload(CreateZerosPayload(responseParam.Size)).Build();
                     await responseStream.Write(response);
                 }
-            }
+            });
         }
 
         public async Task HalfDuplexCall(IAsyncStreamReader<StreamingOutputCallRequest> requestStream, IServerStreamWriter<StreamingOutputCallResponse> responseStream)

@@ -36,8 +36,8 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Grpc.Core.Utils;
 using Grpc.Core;
+using Grpc.Core.Utils;
 
 namespace math
 {
@@ -71,28 +71,19 @@ namespace math
         public async Task<Num> Sum(IAsyncStreamReader<Num> requestStream)
         {
             long sum = 0;
-            while(true) {
-                var num = await requestStream.ReadNext();
-                if (num == null)
-                {
-                    break;
-                }
+            await requestStream.ForEach(async num =>
+            {
                 sum += num.Num_;
-            }
+            });
             return Num.CreateBuilder().SetNum_(sum).Build();
         }
 
         public async Task DivMany(IAsyncStreamReader<DivArgs> requestStream, IServerStreamWriter<DivReply> responseStream)
         {
-            while (true)
+            await requestStream.ForEach(async divArgs =>
             {
-                var divArgs = await requestStream.ReadNext();
-                if (divArgs == null)
-                {
-                    break;
-                }
                 await responseStream.Write(DivInternal(divArgs));
-            }
+            });
         }
 
         static DivReply DivInternal(DivArgs args)

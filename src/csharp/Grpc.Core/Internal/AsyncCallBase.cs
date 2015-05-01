@@ -68,14 +68,10 @@ namespace Grpc.Core.Internal
         protected AsyncCompletionDelegate<object> sendCompletionDelegate;  // Completion of a pending send or sendclose if not null.
         protected AsyncCompletionDelegate<TRead> readCompletionDelegate;  // Completion of a pending send or sendclose if not null.
 
-        //protected bool readPending;  // True if there is a read in progress.
         protected bool readingDone;
         protected bool halfcloseRequested;
         protected bool halfclosed;
         protected bool finished;  // True if close has been received from the peer.
-
-        // Streaming reads will be delivered to this observer. For a call that only does unary read it may remain null.
-        //protected IObserver<TRead> readObserver;
 
         public AsyncCallBase(Func<TWrite, byte[]> serializer, Func<byte[], TRead> deserializer)
         {
@@ -165,25 +161,6 @@ namespace Grpc.Core.Internal
                 readCompletionDelegate = completionDelegate;
             }
         }
-
-        ///// <summary>
-        ///// Requests receiving a next message.
-        ///// </summary>
-        //protected void StartReceiveMessage()
-        //{
-        //    lock (myLock)
-        //    {
-        //        Preconditions.CheckState(started);
-        //        Preconditions.CheckState(!disposed);
-        //        Preconditions.CheckState(!errorOccured);
-
-        //        Preconditions.CheckState(!readingDone);
-        //        Preconditions.CheckState(!readPending);
-
-        //        call.StartReceiveMessage(readFinishedHandler);
-        //        readPending = true;
-        //    }
-        //}
 
         // TODO(jtattermusch): find more fitting name for this method.
         /// <summary>
@@ -277,42 +254,6 @@ namespace Grpc.Core.Internal
             }
         }
 
-        //protected void FireReadObserverOnNext(TRead value)
-        //{
-        //    try
-        //    {
-        //        readObserver.OnNext(value);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("Exception occured while invoking readObserver.OnNext: " + e);
-        //    }
-        //}
-
-        //protected void FireReadObserverOnCompleted()
-        //{
-        //    try
-        //    {
-        //        readObserver.OnCompleted();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("Exception occured while invoking readObserver.OnCompleted: " + e);
-        //    }
-        //}
-
-        //protected void FireReadObserverOnError(Exception error)
-        //{
-        //    try
-        //    {
-        //        readObserver.OnError(error);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("Exception occured while invoking readObserver.OnError: " + e);
-        //    }
-        //}
-
         protected void FireCompletion<T>(AsyncCompletionDelegate<T> completionDelegate, T value, Exception error)
         {
             try
@@ -324,18 +265,6 @@ namespace Grpc.Core.Internal
                 Console.WriteLine("Exception occured while invoking completion delegate: " + e);
             }
         }
-
-        //protected void FireCompletion(AsyncCompletionDelegate completionDelegate, Exception error)
-        //{
-        //    try
-        //    {
-        //        completionDelegate(error);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("Exception occured while invoking completion delegate: " + e);
-        //    }
-        //}
 
         /// <summary>
         /// Creates completion callback delegate that wraps the batch completion handler in a try catch block to
@@ -442,11 +371,6 @@ namespace Grpc.Core.Internal
                 TryDeserialize(payload, out msg);
 
                 FireCompletion(origCompletionDelegate, msg, null);
-                //FireReadObserverOnNext(msg);
-
-                // Start a new read. The current one has already been delivered,
-                // so correct ordering of reads is assured.
-                //StartReceiveMessage();  
             }
             else
             {

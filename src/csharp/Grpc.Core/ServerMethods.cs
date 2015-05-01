@@ -32,10 +32,10 @@
 #endregion
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Grpc.Core.Internal;
-using System.Threading;
 
 namespace Grpc.Core
 {

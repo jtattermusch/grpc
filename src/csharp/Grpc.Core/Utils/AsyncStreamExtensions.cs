@@ -33,13 +33,36 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Grpc.Core.Utils
 {
+    /// <summary>
+    /// Extension methods that simplify work with gRPC streaming calls.
+    /// </summary>
     public static class AsyncStreamExtensions
     {
+        /// <summary>
+        /// Reads the entire stream and executes an async action for each element.
+        /// </summary>
+        public static async Task ForEach<T>(this IAsyncStreamReader<T> streamReader, Func<T, Task> asyncAction)
+            where T : class
+        {
+            while (true)
+            {
+                var elem = await streamReader.ReadNext();
+                if (elem == null)
+                {
+                    break;
+                }
+                await asyncAction(elem);
+            }
+        }
+
+        /// <summary>
+        /// Reads the entire stream and creates a list containing all the elements read.
+        /// </summary>
         public static async Task<List<T>> ToList<T>(this IAsyncStreamReader<T> streamReader)
             where T : class
         {
@@ -56,6 +79,10 @@ namespace Grpc.Core.Utils
             return result;
         }
 
+        /// <summary>
+        /// Writes all elements from given enumerable to the stream.
+        /// Closes the stream afterwards unless close = false.
+        /// </summary>
         public static async Task WriteAll<T>(this IClientStreamWriter<T> streamWriter, IEnumerable<T> elements, bool close = true)
             where T : class
         {
@@ -69,6 +96,9 @@ namespace Grpc.Core.Utils
             }
         }
 
+        /// <summary>
+        /// Writes all elements from given enumerable to the stream.
+        /// </summary>
         public static async Task WriteAll<T>(this IServerStreamWriter<T> streamWriter, IEnumerable<T> elements)
             where T : class
         {
@@ -78,5 +108,4 @@ namespace Grpc.Core.Utils
             }
         }
     }
- 
 }

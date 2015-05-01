@@ -47,13 +47,13 @@ namespace Grpc.Core.Tests
         const string Host = "localhost";
         const string ServiceName = "/tests.Test";
 
-        readonly static Method<string, string> UnaryEchoStringMethod = new Method<string, string>(
+        static readonly Method<string, string> UnaryEchoStringMethod = new Method<string, string>(
             MethodType.Unary,
             "/tests.Test/UnaryEchoString",
             Marshallers.StringMarshaller,
             Marshallers.StringMarshaller);
 
-        readonly static ServerServiceDefinition ServiceDefinition = ServerServiceDefinition.CreateBuilder(ServiceName)
+        static readonly ServerServiceDefinition ServiceDefinition = ServerServiceDefinition.CreateBuilder(ServiceName)
             .AddMethod(UnaryEchoStringMethod, HandleUnaryEchoString).Build();
 
         [TestFixtureSetUp]
@@ -78,7 +78,7 @@ namespace Grpc.Core.Tests
 
             using (Channel channel = new Channel(Host + ":" + port))
             {
-                var call = new Call<string,string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
+                var call = new Call<string, string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
                 Assert.AreEqual("ABC", Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken)));
             }
 
@@ -96,12 +96,13 @@ namespace Grpc.Core.Tests
             Channel channel = new Channel(Host + ":" + port);
             channel.Dispose();
 
-            var call = new Call<string,string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
-            try {
+            var call = new Call<string, string>(ServiceName, UnaryEchoStringMethod, channel, Metadata.Empty);
+            try
+            {
               Calls.BlockingUnaryCall(call, "ABC", default(CancellationToken));
               Assert.Fail();
             }
-            catch(ObjectDisposedException e)
+            catch (ObjectDisposedException e)
             {
             }
 

@@ -201,7 +201,7 @@ namespace Grpc.IntegrationTesting
         {
             Console.WriteLine("running client_streaming");
 
-            var bodySizes = new List<int> { 27182, 8, 1828, 45904 }.ConvertAll( (size) => StreamingInputCallRequest.CreateBuilder().SetPayload(CreateZerosPayload(size)).Build());
+            var bodySizes = new List<int> { 27182, 8, 1828, 45904 }.ConvertAll((size) => StreamingInputCallRequest.CreateBuilder().SetPayload(CreateZerosPayload(size)).Build());
 
             var call = client.StreamingInputCall();
             call.RequestStream.WriteAll(bodySizes).Wait();

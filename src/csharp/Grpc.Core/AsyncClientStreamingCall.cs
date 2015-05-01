@@ -97,7 +97,5 @@ namespace Grpc.Core
         {
             return result.GetAwaiter();
         }
-
-        
     }
 }

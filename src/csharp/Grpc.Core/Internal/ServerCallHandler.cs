@@ -33,9 +33,9 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Grpc.Core.Internal;
 using Grpc.Core.Utils;
-using System.Threading.Tasks;
 
 namespace Grpc.Core.Internal
 {

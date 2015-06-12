@@ -88,8 +88,6 @@ namespace Grpc.IntegrationTesting
 
         private void Run()
         {
-            GrpcEnvironment.Initialize();
-
             var server = new Server();
             server.AddServiceDefinition(TestService.BindService(new TestServiceImpl()));
 
@@ -107,8 +105,6 @@ namespace Grpc.IntegrationTesting
             server.Start();
 
             server.ShutdownTask.Wait();
-
-            GrpcEnvironment.Shutdown();
         }
 
         private static ServerOptions ParseArguments(string[] args)

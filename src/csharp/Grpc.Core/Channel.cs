@@ -54,6 +54,7 @@ namespace Grpc.Core
         /// <param name="options">Channel options.</param>
         public Channel(string host, Credentials credentials = null, IEnumerable<ChannelOption> options = null)
         {
+            GrpcEnvironment.AddRef();
             using (ChannelArgsSafeHandle nativeChannelArgs = ChannelOptions.CreateChannelArgs(options))
             {
                 if (credentials != null)
@@ -110,6 +111,7 @@ namespace Grpc.Core
             if (handle != null && !handle.IsInvalid)
             {
                 handle.Dispose();
+                GrpcEnvironment.RemoveRef();
             }
         }
 

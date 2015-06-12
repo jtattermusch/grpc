@@ -80,7 +80,7 @@ namespace Grpc.Core.Internal
             {
                 cq.Shutdown();
 
-                Console.WriteLine("Waiting for GPRC threads to finish.");
+                Console.WriteLine("Waiting for GRPC threads to finish.");
                 foreach (var thread in threads)
                 {
                     thread.Join();

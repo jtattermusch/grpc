@@ -54,8 +54,6 @@ namespace math.Tests
         [TestFixtureSetUp]
         public void Init()
         {
-            GrpcEnvironment.Initialize();
-
             server = new Server();
             server.AddServiceDefinition(Math.BindService(new MathServiceImpl()));
             int port = server.AddListeningPort(host, Server.PickUnusedPort);
@@ -77,7 +75,6 @@ namespace math.Tests
             channel.Dispose();
 
             server.ShutdownAsync().Wait();
-            GrpcEnvironment.Shutdown();
         }
 
         [Test]

@@ -42,8 +42,6 @@ namespace math
         {
             string host = "0.0.0.0";
 
-            GrpcEnvironment.Initialize();
-
             Server server = new Server();
             server.AddServiceDefinition(Math.BindService(new MathServiceImpl()));
             int port = server.AddListeningPort(host, 23456);
@@ -55,7 +53,6 @@ namespace math
             Console.ReadKey();
 
             server.ShutdownAsync().Wait();
-            GrpcEnvironment.Shutdown();
         }
     }
 }

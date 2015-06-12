@@ -43,30 +43,30 @@ namespace Grpc.Core.Tests
         [Test]
         public void InitializeAndShutdownGrpcEnvironment()
         {
-            GrpcEnvironment.Initialize();
+            GrpcEnvironment.AddRef();
             Assert.IsNotNull(GrpcEnvironment.ThreadPool.CompletionQueue);
-            GrpcEnvironment.Shutdown();
+            GrpcEnvironment.RemoveRef();
         }
 
         [Test]
         public void SubsequentInvocations()
         {
-            GrpcEnvironment.Initialize();
-            GrpcEnvironment.Initialize();
-            GrpcEnvironment.Shutdown();
-            GrpcEnvironment.Shutdown();
+            GrpcEnvironment.AddRef();
+            GrpcEnvironment.AddRef();
+            GrpcEnvironment.RemoveRef();
+            GrpcEnvironment.RemoveRef();
         }
 
         [Test]
         public void InitializeAfterShutdown()
         {
-            GrpcEnvironment.Initialize();
+            GrpcEnvironment.AddRef();
             var tp1 = GrpcEnvironment.ThreadPool;
-            GrpcEnvironment.Shutdown();
+            GrpcEnvironment.RemoveRef();
 
-            GrpcEnvironment.Initialize();
+            GrpcEnvironment.AddRef();
             var tp2 = GrpcEnvironment.ThreadPool;
-            GrpcEnvironment.Shutdown();
+            GrpcEnvironment.RemoveRef();
 
             Assert.IsFalse(object.ReferenceEquals(tp1, tp2));
         }

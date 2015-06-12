@@ -55,8 +55,6 @@ namespace Grpc.IntegrationTesting
         [TestFixtureSetUp]
         public void Init()
         {
-            GrpcEnvironment.Initialize();
-
             server = new Server();
             server.AddServiceDefinition(TestService.BindService(new TestServiceImpl()));
             int port = server.AddListeningPort(host, Server.PickUnusedPort, TestCredentials.CreateTestServerCredentials());
@@ -74,9 +72,7 @@ namespace Grpc.IntegrationTesting
         public void Cleanup()
         {
             channel.Dispose();
-
             server.ShutdownAsync().Wait();
-            GrpcEnvironment.Shutdown();
         }
 
         [Test]

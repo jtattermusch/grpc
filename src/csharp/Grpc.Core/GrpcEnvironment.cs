@@ -34,6 +34,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Grpc.Core.Internal;
+using Grpc.Core.Utils;
 
 namespace Grpc.Core
 {
@@ -51,6 +52,7 @@ namespace Grpc.Core
         static extern void grpcsharp_shutdown();
 
         static object staticLock = new object();
+        static int referenceCount = 0;
         static volatile GrpcEnvironment instance;
 
         readonly GrpcThreadPool threadPool;
@@ -64,7 +66,7 @@ namespace Grpc.Core
         /// lifetime (and call Shutdown once you're done), for the sake of easier testing it's
         /// allowed to initialize the environment again after it has been successfully shutdown.
         /// </summary>
-        public static void Initialize()
+        internal static void AddRef()
         {
             lock (staticLock)
             {
@@ -72,6 +74,7 @@ namespace Grpc.Core
                 {
                     instance = new GrpcEnvironment();
                 }
+                referenceCount++;
             }
         }
 
@@ -79,11 +82,13 @@ namespace Grpc.Core
         /// Shuts down the GRPC environment if it was initialized before.
         /// Repeated invocations have no effect.
         /// </summary>
-        public static void Shutdown()
+        internal static void RemoveRef()
         {
             lock (staticLock)
             {
-                if (instance != null)
+                Preconditions.CheckState(referenceCount > 0);
+                referenceCount--;
+                if (referenceCount == 0)
                 {
                     instance.Close();
                     instance = null;

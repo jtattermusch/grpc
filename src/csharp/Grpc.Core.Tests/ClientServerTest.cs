@@ -73,12 +73,6 @@ namespace Grpc.Core.Tests
         Server server;
         Channel channel;
 
-        [TestFixtureSetUp]
-        public void InitClass()
-        {
-            GrpcEnvironment.Initialize();
-        }
-
         [SetUp]
         public void Init()
         {
@@ -94,12 +88,6 @@ namespace Grpc.Core.Tests
         {
             channel.Dispose();
             server.ShutdownAsync().Wait();
-        }
-
-        [TestFixtureTearDown]
-        public void CleanupClass()
-        {
-            GrpcEnvironment.Shutdown();
         }
 
         [Test]

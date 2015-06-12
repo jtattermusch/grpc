@@ -67,6 +67,7 @@ namespace Grpc.Core
         /// <param name="options">Channel options.</param>
         public Server(IEnumerable<ChannelOption> options = null)
         {
+            GrpcEnvironment.AddRef();
             using (var channelArgs = ChannelOptions.CreateChannelArgs(options))
             {
                 this.handle = ServerSafeHandle.NewServer(GetCompletionQueue(), channelArgs);
@@ -146,6 +147,7 @@ namespace Grpc.Core
             handle.ShutdownAndNotify(HandleServerShutdown);
             await shutdownTcs.Task;
             handle.Dispose();
+            GrpcEnvironment.RemoveRef();
         }
 
         /// <summary>
@@ -162,6 +164,7 @@ namespace Grpc.Core
         public void Kill()
         {
             handle.Dispose();
+            GrpcEnvironment.RemoveRef();
         }
 
         private int AddListeningPortInternal(string host, int port, ServerCredentials credentials)

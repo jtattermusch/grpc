@@ -42,6 +42,7 @@ namespace Grpc.Core
     /// </summary>
     public class Channel : IDisposable
     {
+        readonly GrpcEnvironment environment;
         readonly ChannelSafeHandle handle;
         readonly string target;
 
@@ -54,7 +55,7 @@ namespace Grpc.Core
         /// <param name="options">Channel options.</param>
         public Channel(string host, Credentials credentials = null, IEnumerable<ChannelOption> options = null)
         {
-            GrpcEnvironment.AddRef();
+            this.environment = GrpcEnvironment.AddRef();
             using (ChannelArgsSafeHandle nativeChannelArgs = ChannelOptions.CreateChannelArgs(options))
             {
                 if (credentials != null)
@@ -103,6 +104,30 @@ namespace Grpc.Core
             get
             {
                 return this.handle;
+            }
+        }
+
+        internal CompletionQueueSafeHandle CompletionQueue
+        {
+            get
+            {
+                return this.environment.CompletionQueue;
+            }
+        }
+
+        internal CompletionRegistry CompletionRegistry
+        {
+            get
+            {
+                return this.environment.CompletionRegistry;
+            }
+        }
+
+        internal GrpcEnvironment Environment
+        {
+            get
+            {
+                return this.environment;
             }
         }
 

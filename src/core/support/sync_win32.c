@@ -64,7 +64,7 @@ int gpr_mu_trylock(gpr_mu *mu) {
   if (result) {
     if (mu->locked) {                /* This thread already holds the lock. */
       LeaveCriticalSection(&mu->cs); /* Decrement lock count. */
-      result = 0;                    /* Indicate failure */
+      return 0;                      /* Indicate failure */
     }
     mu->locked = 1;
   }

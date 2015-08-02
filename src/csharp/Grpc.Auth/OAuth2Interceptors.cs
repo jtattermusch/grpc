@@ -54,7 +54,7 @@ namespace Grpc.Auth
         /// </summary>
         public static MetadataInterceptorDelegate FromCredential(GoogleCredential googleCredential)
         {
-            var interceptor = new OAuth2Interceptor(googleCredential.InternalCredential, SystemClock.Default);
+            var interceptor = new OAuth2Interceptor(googleCredential, SystemClock.Default);
             return new MetadataInterceptorDelegate(interceptor.InterceptHeaders);
         }
 
@@ -80,10 +80,10 @@ namespace Grpc.Auth
             private const string AuthorizationHeader = "Authorization";
             private const string Schema = "Bearer";
 
-            private ServiceCredential credential;
+            private ITokenAccess credential;
             private IClock clock;
 
-            public OAuth2Interceptor(ServiceCredential credential, IClock clock)
+            public OAuth2Interceptor(ITokenAccess credential, IClock clock)
             {
                 this.credential = credential;
                 this.clock = clock;

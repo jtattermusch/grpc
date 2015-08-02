@@ -43,6 +43,7 @@ using Grpc.Auth;
 using Grpc.Core;
 using Grpc.Core.Utils;
 using NUnit.Framework;
+using Google.Apis.Auth.OAuth2;
 
 namespace Grpc.IntegrationTesting
 {
@@ -97,10 +98,10 @@ namespace Grpc.IntegrationTesting
             }
 
             var interopClient = new InteropClient(options);
-            interopClient.Run();
+            interopClient.Run().Wait();
         }
 
-        private void Run()
+        private async Task Run()
         {
             Credentials credentials = null;
             if (options.useTls)
@@ -122,7 +123,8 @@ namespace Grpc.IntegrationTesting
                 TestService.TestServiceClient client = new TestService.TestServiceClient(channel);
                 if (options.testCase == "service_account_creds" || options.testCase == "compute_engine_creds")
                 {
-                    var credential = GoogleCredential.GetApplicationDefault();
+                    var credential = await GoogleCredential.GetApplicationDefaultAsync();
+                    Console.WriteLine("Got credentials");
                     if (credential.IsCreateScopedRequired)
                     {
                         credential = credential.CreateScoped(new[] { AuthScope });
@@ -130,7 +132,7 @@ namespace Grpc.IntegrationTesting
                     client.HeaderInterceptor = OAuth2Interceptors.FromCredential(credential);
                 }
 
-                RunTestCaseAsync(options.testCase, client).Wait();
+                await RunTestCaseAsync(options.testCase, client);
             }
             GrpcEnvironment.Shutdown();
         }
@@ -164,10 +166,10 @@ namespace Grpc.IntegrationTesting
                     RunComputeEngineCreds(client);
                     break;
                 case "oauth2_auth_token":
-                    RunOAuth2AuthToken(client);
+                    await RunOAuth2AuthTokenAsync(client);
                     break;
                 case "per_rpc_creds":
-                    RunPerRpcCreds(client);
+                    await RunPerRpcCredsAsync(client);
                     break;
                 case "cancel_after_begin":
                     await RunCancelAfterBeginAsync(client);
@@ -349,11 +351,11 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("Passed!");
         }
 
-        public static void RunOAuth2AuthToken(TestService.TestServiceClient client)
+        public static async Task RunOAuth2AuthTokenAsync(TestService.TestServiceClient client)
         {
             Console.WriteLine("running oauth2_auth_token");
-            var credential = GoogleCredential.GetApplicationDefault().CreateScoped(new[] { AuthScope });
-            Assert.IsTrue(credential.RequestAccessTokenAsync(CancellationToken.None).Result);
+            ITokenAccess credential = (await GoogleCredential.GetApplicationDefaultAsync()).CreateScoped(new[] { AuthScope });
+            Assert.IsTrue(await credential.RequestAccessTokenAsync(CancellationToken.None));
             string oauth2Token = credential.Token.AccessToken;
 
             client.HeaderInterceptor = OAuth2Interceptors.FromAccessToken(oauth2Token);
@@ -370,12 +372,12 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("Passed!");
         }
 
-        public static void RunPerRpcCreds(TestService.TestServiceClient client)
+        public static async Task RunPerRpcCredsAsync(TestService.TestServiceClient client)
         {
             Console.WriteLine("running per_rpc_creds");
 
-            var credential = GoogleCredential.GetApplicationDefault().CreateScoped(new[] { AuthScope });
-            Assert.IsTrue(credential.RequestAccessTokenAsync(CancellationToken.None).Result);
+            ITokenAccess credential = (await GoogleCredential.GetApplicationDefaultAsync()).CreateScoped(new[] { AuthScope });
+            Assert.IsTrue(await credential.RequestAccessTokenAsync(CancellationToken.None));
             string oauth2Token = credential.Token.AccessToken;
             var headerInterceptor = OAuth2Interceptors.FromAccessToken(oauth2Token);
 

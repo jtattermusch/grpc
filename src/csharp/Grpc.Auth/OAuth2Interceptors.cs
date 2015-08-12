@@ -97,17 +97,13 @@ namespace Grpc.Auth
             public string GetAccessToken(string authUri, CancellationToken cancellationToken)
             {
                 // TODO(jtattermusch): Rethink synchronous wait to obtain the result.
-                var accessToken = credential.GetAccessTokenForRequestAsync(authUri, cancellationToken: cancellationToken).GetAwaiter().GetResult();
-                return accessToken;
+                return credential.GetAccessTokenForRequestAsync(authUri, cancellationToken: cancellationToken).GetAwaiter().GetResult();
             }
 
             public void InterceptHeaders(string authUri, Metadata metadata)
             {
                 var accessToken = GetAccessToken(authUri, CancellationToken.None);
                 metadata.Add(CreateBearerTokenHeader(accessToken));
-                foreach(var entry in metadata) {
-                    Console.WriteLine(entry);
-                }
             }
 
             public static Metadata.Entry CreateBearerTokenHeader(string accessToken)

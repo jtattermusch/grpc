@@ -121,17 +121,6 @@ namespace Grpc.IntegrationTesting
             using (Channel channel = new Channel(options.serverHost, options.serverPort.Value, credentials, channelOptions))
             {
                 TestService.TestServiceClient client = new TestService.TestServiceClient(channel);
-                if (options.testCase == "service_account_creds" || options.testCase == "compute_engine_creds")
-                {
-                    var credential = await GoogleCredential.GetApplicationDefaultAsync();
-                    Console.WriteLine("Got credentials");
-                    if (credential.IsCreateScopedRequired)
-                    {
-                        credential = credential.CreateScoped(new[] { AuthScope });
-                    }
-                    client.HeaderInterceptor = OAuth2Interceptors.FromCredential(credential);
-                }
-
                 await RunTestCaseAsync(options.testCase, client);
             }
             GrpcEnvironment.Shutdown();
@@ -160,10 +149,13 @@ namespace Grpc.IntegrationTesting
                     await RunEmptyStreamAsync(client);
                     break;
                 case "service_account_creds":
-                    RunServiceAccountCreds(client);
+                    await RunServiceAccountCredsAsync(client);
                     break;
                 case "compute_engine_creds":
-                    RunComputeEngineCreds(client);
+                    await RunComputeEngineCredsAsync(client);
+                    break;
+                case "jwt_token_creds":
+                    await RunJwtTokenCredsAsync(client);
                     break;
                 case "oauth2_auth_token":
                     await RunOAuth2AuthTokenAsync(client);
@@ -311,9 +303,13 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("Passed!");
         }
 
-        public static void RunServiceAccountCreds(TestService.ITestServiceClient client)
+        public static async Task RunServiceAccountCredsAsync(TestService.TestServiceClient client)
         {
             Console.WriteLine("running service_account_creds");
+            var credential = await GoogleCredential.GetApplicationDefaultAsync();
+            credential = credential.CreateScoped(new[] { AuthScope });
+            client.HeaderInterceptor = OAuth2Interceptors.FromCredential(credential);
+
             var request = SimpleRequest.CreateBuilder()
                 .SetResponseType(PayloadType.COMPRESSABLE)
                     .SetResponseSize(314159)
@@ -331,9 +327,13 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("Passed!");
         }
 
-        public static void RunComputeEngineCreds(TestService.ITestServiceClient client)
+        public static async Task RunComputeEngineCredsAsync(TestService.TestServiceClient client)
         {
             Console.WriteLine("running compute_engine_creds");
+            var credential = await GoogleCredential.GetApplicationDefaultAsync();
+            Assert.IsFalse(credential.IsCreateScopedRequired);
+            client.HeaderInterceptor = OAuth2Interceptors.FromCredential(credential);
+            
             var request = SimpleRequest.CreateBuilder()
                 .SetResponseType(PayloadType.COMPRESSABLE)
                     .SetResponseSize(314159)
@@ -351,12 +351,35 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("Passed!");
         }
 
+        public static async Task RunJwtTokenCredsAsync(TestService.TestServiceClient client)
+        {
+            Console.WriteLine("running jwt_token_creds");
+            var credential = await GoogleCredential.GetApplicationDefaultAsync();
+            // check this a credential with scope support, but don't add the scope.
+            Assert.IsTrue(credential.IsCreateScopedRequired);
+            client.HeaderInterceptor = OAuth2Interceptors.FromCredential(credential);
+
+            var request = SimpleRequest.CreateBuilder()
+                .SetResponseType(PayloadType.COMPRESSABLE)
+                    .SetResponseSize(314159)
+                    .SetPayload(CreateZerosPayload(271828))
+                    .SetFillUsername(true)
+                    .SetFillOauthScope(true)
+                    .Build();
+
+            var response = client.UnaryCall(request);
+
+            Assert.AreEqual(PayloadType.COMPRESSABLE, response.Payload.Type);
+            Assert.AreEqual(314159, response.Payload.Body.Length);
+            Assert.AreEqual(ServiceAccountUser, response.Username);
+            Console.WriteLine("Passed!");
+        }
+
         public static async Task RunOAuth2AuthTokenAsync(TestService.TestServiceClient client)
         {
             Console.WriteLine("running oauth2_auth_token");
             ITokenAccess credential = (await GoogleCredential.GetApplicationDefaultAsync()).CreateScoped(new[] { AuthScope });
-            Assert.IsTrue(await credential.RequestAccessTokenAsync(CancellationToken.None));
-            string oauth2Token = credential.Token.AccessToken;
+            string oauth2Token = await credential.GetAccessTokenForRequestAsync();
 
             client.HeaderInterceptor = OAuth2Interceptors.FromAccessToken(oauth2Token);
 
@@ -377,8 +400,7 @@ namespace Grpc.IntegrationTesting
             Console.WriteLine("running per_rpc_creds");
 
             ITokenAccess credential = (await GoogleCredential.GetApplicationDefaultAsync()).CreateScoped(new[] { AuthScope });
-            Assert.IsTrue(await credential.RequestAccessTokenAsync(CancellationToken.None));
-            string oauth2Token = credential.Token.AccessToken;
+            string oauth2Token = await credential.GetAccessTokenForRequestAsync();
             var headerInterceptor = OAuth2Interceptors.FromAccessToken(oauth2Token);
 
             var request = SimpleRequest.CreateBuilder()
@@ -387,7 +409,7 @@ namespace Grpc.IntegrationTesting
                 .Build();
 
             var headers = new Metadata();
-            headerInterceptor(headers);
+            headerInterceptor("", headers);
             var response = client.UnaryCall(request, headers: headers);
 
             Assert.AreEqual(AuthScopeResponse, response.OauthScope);

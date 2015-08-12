@@ -66,7 +66,7 @@ namespace Grpc.Auth
         public static MetadataInterceptorDelegate FromAccessToken(string oauth2Token)
         {
             Preconditions.CheckNotNull(oauth2Token);
-            return new MetadataInterceptorDelegate((metadata) =>
+            return new MetadataInterceptorDelegate((authUri, metadata) =>
             {
                 metadata.Add(OAuth2Interceptor.CreateBearerTokenHeader(oauth2Token));
             });
@@ -94,24 +94,20 @@ namespace Grpc.Auth
             /// </summary>
             /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            public string GetAccessToken(CancellationToken cancellationToken)
+            public string GetAccessToken(string authUri, CancellationToken cancellationToken)
             {
-                if (credential.Token == null || credential.Token.IsExpired(clock))
-                {
-                    // TODO(jtattermusch): Parallel requests will spawn multiple requests to refresh the token once the token expires.
-                    // TODO(jtattermusch): Rethink synchronous wait to obtain the result.
-                    if (!credential.RequestAccessTokenAsync(cancellationToken).Result)
-                    {
-                        throw new InvalidOperationException("The access token has expired but we can't refresh it");
-                    }
-                }
-                return credential.Token.AccessToken;
+                // TODO(jtattermusch): Rethink synchronous wait to obtain the result.
+                var accessToken = credential.GetAccessTokenForRequestAsync(authUri, cancellationToken: cancellationToken).GetAwaiter().GetResult();
+                return accessToken;
             }
 
-            public void InterceptHeaders(Metadata metadata)
+            public void InterceptHeaders(string authUri, Metadata metadata)
             {
-                var accessToken = GetAccessToken(CancellationToken.None);
+                var accessToken = GetAccessToken(authUri, CancellationToken.None);
                 metadata.Add(CreateBearerTokenHeader(accessToken));
+                foreach(var entry in metadata) {
+                    Console.WriteLine(entry);
+                }
             }
 
             public static Metadata.Entry CreateBearerTokenHeader(string accessToken)

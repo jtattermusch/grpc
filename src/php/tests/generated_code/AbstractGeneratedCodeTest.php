@@ -39,11 +39,25 @@ abstract class AbstractGeneratedCodeTest extends PHPUnit_Framework_TestCase {
   protected static $client;
   protected static $timeout;
 
+  public function testWaitForNotReady() {
+    $this->assertFalse(self::$client->waitForReady(1));
+  }
+
+  public function testWaitForReady() {
+    $this->assertTrue(self::$client->waitForReady(250000));
+  }
+
+  public function testGetTarget() {
+    $this->assertTrue(is_string(self::$client->getTarget()));
+  }
+
   public function testSimpleRequest() {
     $div_arg = new math\DivArgs();
     $div_arg->setDividend(7);
     $div_arg->setDivisor(4);
-    list($response, $status) = self::$client->Div($div_arg)->wait();
+    $call = self::$client->Div($div_arg);
+    $this->assertTrue(is_string($call->getPeer()));
+    list($response, $status) = $call->wait();
     $this->assertSame(1, $response->getQuotient());
     $this->assertSame(3, $response->getRemainder());
     $this->assertSame(\Grpc\STATUS_OK, $status->code);
@@ -53,6 +67,7 @@ abstract class AbstractGeneratedCodeTest extends PHPUnit_Framework_TestCase {
     $fib_arg = new math\FibArgs();
     $fib_arg->setLimit(7);
     $call = self::$client->Fib($fib_arg);
+    $this->assertTrue(is_string($call->getPeer()));
     $result_array = iterator_to_array($call->responses());
     $extract_num = function($num){
       return $num->getNum();
@@ -72,6 +87,7 @@ abstract class AbstractGeneratedCodeTest extends PHPUnit_Framework_TestCase {
       }
     };
     $call = self::$client->Sum($num_iter());
+    $this->assertTrue(is_string($call->getPeer()));
     list($response, $status) = $call->wait();
     $this->assertSame(21, $response->getNum());
     $this->assertSame(\Grpc\STATUS_OK, $status->code);
@@ -79,6 +95,7 @@ abstract class AbstractGeneratedCodeTest extends PHPUnit_Framework_TestCase {
 
   public function testBidiStreaming() {
     $call = self::$client->DivMany();
+    $this->assertTrue(is_string($call->getPeer()));
     for ($i = 0; $i < 7; $i++) {
       $div_arg = new math\DivArgs();
       $div_arg->setDividend(2 * $i + 1);

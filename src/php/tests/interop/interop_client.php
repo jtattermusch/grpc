@@ -271,7 +271,7 @@ function cancelAfterFirstResponse($stub) {
 }
 
 function timeoutOnSleepingServer($stub) {
-  $call = $stub->FullDuplexCall(array('timeout' => 500000));
+  $call = $stub->FullDuplexCall(array('timeout' => 1000));
   $request = new grpc\testing\StreamingOutputCallRequest();
   $request->setResponseType(grpc\testing\PayloadType::COMPRESSABLE);
   $response_parameters = new grpc\testing\ResponseParameters();
@@ -332,10 +332,7 @@ if (in_array($args['test_case'], array(
   $opts['update_metadata'] = $auth->getUpdateMetadataFunc();
 }
 
-$stub = new grpc\testing\TestServiceClient(
-    new Grpc\BaseStub(
-        $server_address,
-        $opts));
+$stub = new grpc\testing\TestServiceClient($server_address, $opts);
 
 echo "Connecting to $server_address\n";
 echo "Running test case $args[test_case]\n";
@@ -371,6 +368,11 @@ switch ($args['test_case']) {
   case 'jwt_token_creds':
     jwtTokenCreds($stub, $args);
     break;
+  case 'cancel_after_begin':
+    // Currently unimplementable with the current API design
+    // Specifically, in the ClientStreamingCall->start() method, the
+    // messages are sent immediately after metadata is sent. There is
+    // currently no way to cancel before messages are sent.
   default:
     exit(1);
 }

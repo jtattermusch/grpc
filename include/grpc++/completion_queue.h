@@ -36,8 +36,8 @@
 
 #include <grpc/support/time.h>
 #include <grpc++/impl/grpc_library.h>
-#include <grpc++/status.h>
-#include <grpc++/time.h>
+#include <grpc++/support/status.h>
+#include <grpc++/support/time.h>
 
 struct grpc_completion_queue;
 
@@ -63,8 +63,9 @@ template <class ServiceType, class RequestType, class ResponseType>
 class ServerStreamingHandler;
 template <class ServiceType, class RequestType, class ResponseType>
 class BidiStreamingHandler;
+class UnknownMethodHandler;
 
-class ChannelInterface;
+class Channel;
 class ClientContext;
 class CompletionQueue;
 class RpcMethod;
@@ -105,7 +106,8 @@ class CompletionQueue : public GrpcLibrary {
   // Returns false if the queue is ready for destruction, true if event
 
   bool Next(void** tag, bool* ok) {
-    return (AsyncNextInternal(tag, ok, gpr_inf_future) != SHUTDOWN);
+    return (AsyncNextInternal(tag, ok, gpr_inf_future(GPR_CLOCK_REALTIME)) !=
+            SHUTDOWN);
   }
 
   // Shutdown has to be called, and the CompletionQueue can only be
@@ -137,11 +139,11 @@ class CompletionQueue : public GrpcLibrary {
   friend class ServerStreamingHandler;
   template <class ServiceType, class RequestType, class ResponseType>
   friend class BidiStreamingHandler;
+  friend class UnknownMethodHandler;
   friend class ::grpc::Server;
   friend class ::grpc::ServerContext;
   template <class InputMessage, class OutputMessage>
-  friend Status BlockingUnaryCall(ChannelInterface* channel,
-                                  const RpcMethod& method,
+  friend Status BlockingUnaryCall(Channel* channel, const RpcMethod& method,
                                   ClientContext* context,
                                   const InputMessage& request,
                                   OutputMessage* result);

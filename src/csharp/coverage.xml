@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AnalyseParams>
+  <TargetExecutable>packages\NUnit.Runners.2.6.4\tools\nunit-console-x86.exe</TargetExecutable>
+  <TargetArguments>/domain:None -labels Grpc.IntegrationTesting/bin/Debug/Grpc.IntegrationTesting.dll</TargetArguments>
+  <!-- Grpc.Core.Tests/bin/Debug/Grpc.Core.Tests.dll Grpc.Examples.Tests/bin/Debug/Grpc.Examples.Tests.dll Grpc.HealthCheck.Tests/bin/Debug/Grpc.HealthCheck.Tests.dll Grpc.IntegrationTesting/bin/Debug/Grpc.IntegrationTesting.dll --> 
+  <TargetWorkingDir>.</TargetWorkingDir>
+  <Output>reports\index.html</Output>
+  <ReportType>html</ReportType>
+  <Filters>
+    <ExcludeFilters>
+      <FilterEntry>
+        <ModuleMask>*.Tests</ModuleMask>
+      </FilterEntry>
+      <FilterEntry>
+        <ModuleMask>*.IntegrationTesting</ModuleMask>
+      </FilterEntry>
+    </ExcludeFilters>
+  </Filters>
+</AnalyseParams>

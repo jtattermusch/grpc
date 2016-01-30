@@ -114,6 +114,7 @@ class CSharpExtArtifact:
                  'EMBED_OPENSSL': 'true',
                  'EMBED_ZLIB': 'true'}
       if self.platform == 'linux':
+        environ['CFLAGS'] = '-DGPR_USE_OLDEST_GLIBC'
         return create_docker_jobspec(self.name,
             'tools/dockerfile/grpc_artifact_linux_%s' % self.arch,
             'tools/run_tests/build_artifact_csharp.sh')

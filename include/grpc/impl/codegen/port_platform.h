@@ -144,7 +144,7 @@
 #define GPR_POSIX_WAKEUP_FD 1
 #define GPR_POSIX_SOCKET 1
 #define GPR_POSIX_SOCKETADDR 1
-#ifdef __GLIBC_PREREQ
+#if defined(__GLIBC_PREREQ) && !defined(GPR_USE_OLDEST_GLIBC)
 #if __GLIBC_PREREQ(2, 9)
 #define GPR_LINUX_EVENTFD 1
 #endif

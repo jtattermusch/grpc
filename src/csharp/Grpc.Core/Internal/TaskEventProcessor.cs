@@ -86,7 +86,7 @@ namespace Grpc.Core.Internal
         private void MaintainPollers(int extraPollers)
         {
             int origPollerCount = Interlocked.Exchange(ref activePollerCount, desiredPollerCount);
-            int pollersToStart = Math.Min(0, desiredPollerCount - origPollerCount) + extraPollers;
+            int pollersToStart = Math.Max(0, desiredPollerCount - origPollerCount) + extraPollers;
 
             for (int i = 0; i < pollersToStart; i++)
             {

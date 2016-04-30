@@ -61,6 +61,7 @@ namespace Grpc.Core.Internal
             this.desiredPollerCount = desiredPollerCount;
             this.cq = CompletionQueueSafeHandle.Create();
 
+            IncreaseThreadpoolSize(desiredPollerCount);
             MaintainPollers(0);
         }
 
@@ -78,6 +79,18 @@ namespace Grpc.Core.Internal
         public CompletionQueueSafeHandle CompletionQueue
         {
             get { return cq; }
+        }
+
+        /// <summary>
+        /// To prevent running out of thread pool threads on systems with fewer cores,
+        /// we need to lift the minimum thread pool size.
+        /// </summary>
+        private void IncreaseThreadpoolSize(int extraThreads)
+        {
+            int workerThreads;
+            int completionPortThreads;
+            ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMinThreads(workerThreads + extraThreads, completionPortThreads);
         }
 
         /// <summary>

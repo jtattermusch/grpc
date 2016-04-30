@@ -45,7 +45,7 @@ namespace Grpc.Core
     /// </summary>
     public class GrpcEnvironment
     {
-        const int THREAD_POOL_SIZE = 4;
+        const int ThreadPoolSize = 4;
 
         static object staticLock = new object();
         static GrpcEnvironment instance;
@@ -53,7 +53,7 @@ namespace Grpc.Core
 
         static ILogger logger = new ConsoleLogger();
 
-        readonly GrpcThreadPool threadPool;
+        readonly IEventProcessor eventProcessor;
         readonly CompletionRegistry completionRegistry;
         readonly DebugStats debugStats = new DebugStats();
         bool isClosed;
@@ -129,8 +129,7 @@ namespace Grpc.Core
         {
             GrpcNativeInit();
             completionRegistry = new CompletionRegistry(this);
-            threadPool = new GrpcThreadPool(this, THREAD_POOL_SIZE);
-            threadPool.Start();
+            eventProcessor = GrpcThreadPool.CreateStarted(this, ThreadPoolSize);
         }
 
         /// <summary>
@@ -151,7 +150,7 @@ namespace Grpc.Core
         {
             get
             {
-                return this.threadPool.CompletionQueue;
+                return this.eventProcessor.CompletionQueue;
             }
         }
 
@@ -194,7 +193,7 @@ namespace Grpc.Core
             {
                 throw new InvalidOperationException("Close has already been called");
             }
-            threadPool.Stop();
+            eventProcessor.Stop();
             GrpcNativeShutdown();
             isClosed = true;
 

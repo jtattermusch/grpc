@@ -43,7 +43,7 @@ namespace Grpc.Core.Internal
     /// <summary>
     /// Pool of threads polling on the same completion queue.
     /// </summary>
-    internal class GrpcThreadPool
+    internal class GrpcThreadPool : IEventProcessor
     {
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<GrpcThreadPool>();
 
@@ -54,13 +54,13 @@ namespace Grpc.Core.Internal
 
         CompletionQueueSafeHandle cq;
 
-        public GrpcThreadPool(GrpcEnvironment environment, int poolSize)
+        private GrpcThreadPool(GrpcEnvironment environment, int poolSize)
         {
             this.environment = environment;
             this.poolSize = poolSize;
         }
 
-        public void Start()
+        private void Start()
         {
             lock (myLock)
             {
@@ -134,6 +134,13 @@ namespace Grpc.Core.Internal
                 }
             }
             while (ev.type != GRPCCompletionType.Shutdown);
+        }
+
+        public static GrpcThreadPool CreateStarted(GrpcEnvironment environment, int poolSize)
+        {
+            var pool = new GrpcThreadPool(environment, poolSize);
+            pool.Start();
+            return pool;
         }
     }
 }

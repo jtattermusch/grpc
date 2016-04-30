@@ -135,6 +135,7 @@
     <Compile Include="Internal\UnimplementedCallInvoker.cs" />
     <Compile Include="Internal\InterceptingCallInvoker.cs" />
     <Compile Include="Internal\IEventProcessor.cs" />
+    <Compile Include="Internal\TaskEventProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Grpc.Core.nuspec" />

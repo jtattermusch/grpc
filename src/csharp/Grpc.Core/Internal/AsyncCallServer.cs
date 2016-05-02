@@ -33,6 +33,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -47,7 +48,7 @@ namespace Grpc.Core.Internal
     /// </summary>
     internal class AsyncCallServer<TRequest, TResponse> : AsyncCallBase<TResponse, TRequest>
     {
-        readonly TaskCompletionSource<object> finishedServersideTcs = new TaskCompletionSource<object>();
+        readonly TaskCompletionSource<TRequest> receiveCloseOnServerTcs = new TaskCompletionSource<TRequest>();
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         readonly Server server;
 
@@ -65,9 +66,9 @@ namespace Grpc.Core.Internal
         }
 
         /// <summary>
-        /// Starts a server side call.
+        /// Starts a server side call with streaming request.
         /// </summary>
-        public Task ServerSideCallAsync()
+        public Task ServerSideStreamingRequestCallAsync()
         {
             lock (myLock)
             {
@@ -75,8 +76,25 @@ namespace Grpc.Core.Internal
 
                 started = true;
 
-                call.StartServerSide(HandleFinishedServerside);
-                return finishedServersideTcs.Task;
+                call.StartServerSide(HandleReceiveCloseOnServer, false);
+                return receiveCloseOnServerTcs.Task;
+            }
+        }
+
+        /// <summary>
+        /// Starts a server side call with unary request.
+        /// </summary>
+        public Task<TRequest> ServerSideUnaryRequestCallAsync()
+        {
+            lock (myLock)
+            {
+                GrpcPreconditions.CheckNotNull(call);
+
+                started = true;
+                readingDone = true;
+
+                call.StartServerSide(HandleReceiveCloseOnServer, true);
+                return receiveCloseOnServerTcs.Task;
             }
         }
 
@@ -186,23 +204,37 @@ namespace Grpc.Core.Internal
         }
 
         /// <summary>
-        /// Handles the server side close completion.
+        /// Handles the completion of ReceiveCloseOnServer event.
         /// </summary>
-        private void HandleFinishedServerside(bool success, bool cancelled)
+        private void HandleReceiveCloseOnServer(bool success, bool cancelled, byte[] optionalUnaryRequest)
         {
+            TRequest msg = default(TRequest);
+            var deserializeException = success && optionalUnaryRequest != null ? TryDeserialize(optionalUnaryRequest, out msg) : null;
+
             lock (myLock)
             {
                 finished = true;
                 ReleaseResourcesIfPossible();
             }
-            // TODO(jtattermusch): handle error
 
             if (cancelled)
             {
                 cancellationTokenSource.Cancel();
             }
 
-            finishedServersideTcs.SetResult(null);
+            if (!success)
+            {
+                receiveCloseOnServerTcs.SetException(new IOException("Error receiving unary response on server"));
+                return;
+            }
+
+            if (deserializeException != null)
+            {
+                receiveCloseOnServerTcs.SetException(new IOException("Failed to deserialize request message.", deserializeException));
+                return;
+            }
+
+            receiveCloseOnServerTcs.SetResult(msg);
         }
     }
 }

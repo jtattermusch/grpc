@@ -208,7 +208,7 @@ namespace Grpc.Core.Internal.Tests
                 SendCompletionHandler = callback;
             }
 
-            public void StartServerSide(ReceivedCloseOnServerHandler callback)
+            public void StartServerSide(ReceivedCloseOnServerHandler callback, bool receiveUnaryRequest)
             {
                 ReceivedCloseOnServerHandler = callback;
             }

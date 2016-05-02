@@ -45,7 +45,7 @@ namespace Grpc.Core.Internal
 
     internal delegate void SendCompletionHandler(bool success);
 
-    internal delegate void ReceivedCloseOnServerHandler(bool success, bool cancelled);
+    internal delegate void ReceivedCloseOnServerHandler(bool success, bool cancelled, byte[] optionalReceivedMessage);
 
     /// <summary>
     /// Abstraction of a native call object.
@@ -80,6 +80,6 @@ namespace Grpc.Core.Internal
 
         void StartSendStatusFromServer(SendCompletionHandler callback, Grpc.Core.Status status, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata);
 
-        void StartServerSide(ReceivedCloseOnServerHandler callback);
+        void StartServerSide(ReceivedCloseOnServerHandler callback, bool receiveUnaryRequest);
     }
 }

@@ -165,13 +165,13 @@ namespace Grpc.Core.Internal
             }
         }
 
-        public void StartServerSide(ReceivedCloseOnServerHandler callback)
+        public void StartServerSide(ReceivedCloseOnServerHandler callback, bool receiveUnaryRequest)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, context.GetReceivedCloseOnServerCancelled()));
-                Native.grpcsharp_call_start_serverside(this, ctx).CheckOk();
+                completionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, context.GetReceivedCloseOnServerCancelled(), context.GetReceivedMessage()));
+                Native.grpcsharp_call_start_serverside(this, ctx, receiveUnaryRequest).CheckOk();
             }
         }
 

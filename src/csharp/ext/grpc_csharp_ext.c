@@ -753,17 +753,24 @@ grpcsharp_call_recv_message(grpc_call *call, grpcsharp_batch_context *ctx) {
 }
 
 GPR_EXPORT grpc_call_error GPR_CALLTYPE
-grpcsharp_call_start_serverside(grpc_call *call, grpcsharp_batch_context *ctx) {
+grpcsharp_call_start_serverside(grpc_call *call, grpcsharp_batch_context *ctx,
+                                int32_t recv_unary_request) {
   /* TODO: don't use magic number */
-  grpc_op ops[1];
+  grpc_op ops[2];
+  size_t nops = recv_unary_request ? 2 : 1;
   ops[0].op = GRPC_OP_RECV_CLOSE_ON_SERVER;
   ops[0].data.recv_close_on_server.cancelled =
       (&ctx->recv_close_on_server_cancelled);
   ops[0].flags = 0;
   ops[0].reserved = NULL;
+  if (recv_unary_request) {
+    ops[1].op = GRPC_OP_RECV_MESSAGE;
+    ops[1].data.recv_message = &(ctx->recv_message);
+    ops[1].flags = 0;
+    ops[1].reserved = NULL;
+  }
 
-  return grpc_call_start_batch(call, ops, sizeof(ops) / sizeof(ops[0]), ctx,
-                               NULL);
+  return grpc_call_start_batch(call, ops, nops, ctx, NULL);
 }
 
 GPR_EXPORT grpc_call_error GPR_CALLTYPE

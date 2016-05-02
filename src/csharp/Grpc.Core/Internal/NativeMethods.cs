@@ -440,7 +440,7 @@ namespace Grpc.Core.Internal
             public delegate GRPCCallError grpcsharp_call_recv_initial_metadata_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx);
             public delegate GRPCCallError grpcsharp_call_start_serverside_delegate(CallSafeHandle call,
-                BatchContextSafeHandle ctx);
+                BatchContextSafeHandle ctx, bool receiveUnaryRequest);
             public delegate GRPCCallError grpcsharp_call_send_initial_metadata_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
             public delegate GRPCCallError grpcsharp_call_set_credentials_delegate(CallSafeHandle call, CallCredentialsSafeHandle credentials);
@@ -630,7 +630,7 @@ namespace Grpc.Core.Internal
 
             [DllImport("grpc_csharp_ext.dll")]
             public static extern GRPCCallError grpcsharp_call_start_serverside(CallSafeHandle call,
-                BatchContextSafeHandle ctx);
+                BatchContextSafeHandle ctx, bool receiveUnaryRequest);
 
             [DllImport("grpc_csharp_ext.dll")]
             public static extern GRPCCallError grpcsharp_call_send_initial_metadata(CallSafeHandle call,

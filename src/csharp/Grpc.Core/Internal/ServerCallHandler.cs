@@ -70,18 +70,14 @@ namespace Grpc.Core.Internal
                 environment, newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call);
-            var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var requestTask = asyncCall.ServerSideUnaryRequestCallAsync();
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             Status status;
             var context = HandlerUtils.NewContext(newRpc, asyncCall.Peer, responseStream, asyncCall.CancellationToken);
             try
             {
-                GrpcPreconditions.CheckArgument(await requestStream.MoveNext().ConfigureAwait(false));
-                var request = requestStream.Current;
-                // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
-                GrpcPreconditions.CheckArgument(!await requestStream.MoveNext().ConfigureAwait(false));
+                var request = await requestTask.ConfigureAwait(false);
                 var result = await handler(request, context).ConfigureAwait(false);
                 status = context.Status;
                 await responseStream.WriteAsync(result).ConfigureAwait(false);
@@ -99,7 +95,6 @@ namespace Grpc.Core.Internal
             {
                 // Call has been already cancelled.
             }
-            await finishedTask.ConfigureAwait(false);
         }
     }
 
@@ -126,18 +121,14 @@ namespace Grpc.Core.Internal
                 environment, newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call);
-            var finishedTask = asyncCall.ServerSideCallAsync();
-            var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
+            var requestTask = asyncCall.ServerSideUnaryRequestCallAsync();
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
             Status status;
             var context = HandlerUtils.NewContext(newRpc, asyncCall.Peer, responseStream, asyncCall.CancellationToken);
             try
             {
-                GrpcPreconditions.CheckArgument(await requestStream.MoveNext().ConfigureAwait(false));
-                var request = requestStream.Current;
-                // TODO(jtattermusch): we need to read the full stream so that native callhandle gets deallocated.
-                GrpcPreconditions.CheckArgument(!await requestStream.MoveNext().ConfigureAwait(false));
+                var request = await requestTask.ConfigureAwait(false);
                 await handler(request, responseStream, context).ConfigureAwait(false);
                 status = context.Status;
             }
@@ -155,7 +146,6 @@ namespace Grpc.Core.Internal
             {
                 // Call has been already cancelled.
             }
-            await finishedTask.ConfigureAwait(false);
         }
     }
 
@@ -182,7 +172,7 @@ namespace Grpc.Core.Internal
                 environment, newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            var finishedTask = asyncCall.ServerSideStreamingRequestCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -242,7 +232,7 @@ namespace Grpc.Core.Internal
                 environment, newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            var finishedTask = asyncCall.ServerSideStreamingRequestCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -281,7 +271,7 @@ namespace Grpc.Core.Internal
                 (payload) => payload, (payload) => payload, environment, newRpc.Server);
             
             asyncCall.Initialize(newRpc.Call);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            var finishedTask = asyncCall.ServerSideStreamingRequestCallAsync();
             var responseStream = new ServerResponseStream<byte[], byte[]>(asyncCall);
 
             await responseStream.WriteStatusAsync(new Status(StatusCode.Unimplemented, ""), Metadata.Empty).ConfigureAwait(false);

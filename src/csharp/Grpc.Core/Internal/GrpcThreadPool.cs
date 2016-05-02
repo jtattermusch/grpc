@@ -90,7 +90,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        internal CompletionQueueSafeHandle CompletionQueue
+        public CompletionQueueSafeHandle CompletionQueue
         {
             get
             {

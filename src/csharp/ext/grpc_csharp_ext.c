@@ -244,20 +244,6 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_destroy(grpcsharp_batch_con
   gpr_free(ctx);
 }
 
-GPR_EXPORT const grpc_metadata_array *GPR_CALLTYPE
-grpcsharp_batch_context_recv_initial_metadata(
-    const grpcsharp_batch_context *ctx) {
-  return &(ctx->recv_initial_metadata);
-}
-
-GPR_EXPORT intptr_t GPR_CALLTYPE grpcsharp_batch_context_recv_message_length(
-    const grpcsharp_batch_context *ctx) {
-  if (!ctx->recv_message) {
-    return -1;
-  }
-  return (intptr_t)grpc_byte_buffer_length(ctx->recv_message);
-}
-
 /*
  * Copies data from recv_message to a buffer. Fatal error occurs if
  * buffer is too small.
@@ -278,67 +264,6 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_byte_buffer_read(
     offset += len;
     gpr_slice_unref(slice);
   }
-}
-
-/*
- * Copies data from recv_message to a buffer. Fatal error occurs if
- * buffer is too small.
- */
-GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_recv_message_to_buffer(
-    const grpcsharp_batch_context *ctx, char *buffer, size_t buffer_len) {
-  grpcsharp_byte_buffer_read(ctx->recv_message, buffer, buffer_len);
-}
-
-GPR_EXPORT grpc_status_code GPR_CALLTYPE
-grpcsharp_batch_context_recv_status_on_client_status(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->recv_status_on_client.status;
-}
-
-GPR_EXPORT const char *GPR_CALLTYPE
-grpcsharp_batch_context_recv_status_on_client_details(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->recv_status_on_client.status_details;
-}
-
-GPR_EXPORT const grpc_metadata_array *GPR_CALLTYPE
-grpcsharp_batch_context_recv_status_on_client_trailing_metadata(
-    const grpcsharp_batch_context *ctx) {
-  return &(ctx->recv_status_on_client.trailing_metadata);
-}
-
-GPR_EXPORT grpc_call *GPR_CALLTYPE grpcsharp_batch_context_server_rpc_new_call(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->server_rpc_new.call;
-}
-
-GPR_EXPORT const char *GPR_CALLTYPE
-grpcsharp_batch_context_server_rpc_new_method(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->server_rpc_new.call_details.method;
-}
-
-GPR_EXPORT const char *GPR_CALLTYPE grpcsharp_batch_context_server_rpc_new_host(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->server_rpc_new.call_details.host;
-}
-
-GPR_EXPORT gpr_timespec GPR_CALLTYPE
-grpcsharp_batch_context_server_rpc_new_deadline(
-    const grpcsharp_batch_context *ctx) {
-  return ctx->server_rpc_new.call_details.deadline;
-}
-
-GPR_EXPORT const grpc_metadata_array *GPR_CALLTYPE
-grpcsharp_batch_context_server_rpc_new_request_metadata(
-    const grpcsharp_batch_context *ctx) {
-  return &(ctx->server_rpc_new.request_metadata);
-}
-
-GPR_EXPORT int32_t GPR_CALLTYPE
-grpcsharp_batch_context_recv_close_on_server_cancelled(
-    const grpcsharp_batch_context *ctx) {
-  return (int32_t) ctx->recv_close_on_server_cancelled;
 }
 
 /* Init & shutdown */

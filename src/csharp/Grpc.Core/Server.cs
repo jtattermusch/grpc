@@ -285,7 +285,7 @@ namespace Grpc.Core
         /// <summary>
         /// Handles the native callback.
         /// </summary>
-        private void HandleNewServerRpc(bool success, BatchContextSafeHandle ctx)
+        private void HandleNewServerRpc(bool success, BatchContext ctx)
         {
 			Task.Run(() => AllowOneRpc());
 
@@ -304,7 +304,7 @@ namespace Grpc.Core
         /// <summary>
         /// Handles native callback.
         /// </summary>
-        private void HandleServerShutdown(bool success, BatchContextSafeHandle ctx)
+        private void HandleServerShutdown(bool success, BatchContext ctx)
         {
             shutdownTcs.SetResult(null);
         }

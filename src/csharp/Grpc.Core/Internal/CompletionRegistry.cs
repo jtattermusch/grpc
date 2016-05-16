@@ -40,9 +40,9 @@ using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
 {
-    internal delegate void OpCompletionDelegate(bool success);
+    internal delegate void OpCompletionDelegate(BatchContext batchContext);
 
-    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx);
+    internal delegate void BatchCompletionDelegate(bool success, BatchContext ctx);
 
     internal class CompletionRegistry
     {
@@ -64,7 +64,7 @@ namespace Grpc.Core.Internal
 
         public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
         {
-            OpCompletionDelegate opCallback = ((success) => HandleBatchCompletion(success, ctx, callback));
+            OpCompletionDelegate opCallback = ((batchContext) => HandleBatchCompletion(batchContext, ctx, callback));
             Register(ctx.Handle, opCallback);
         }
 
@@ -76,11 +76,11 @@ namespace Grpc.Core.Internal
             return value;
         }
 
-        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        private static void HandleBatchCompletion(BatchContext batchContext, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
         {
             try
             {
-                callback(success, ctx);
+                callback(batchContext.cqEvent.success != 0, batchContext);
             }
             catch (Exception e)
             {

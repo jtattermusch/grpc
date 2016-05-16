@@ -54,6 +54,11 @@ namespace Grpc.Core.Internal
         {
         }
 
+        internal CallSafeHandle(IntPtr handle)
+        {
+            this.SetHandle(handle);
+        }
+
         public void Initialize(CompletionRegistry completionRegistry, CompletionQueueSafeHandle completionQueue)
         {
             this.completionRegistry = completionRegistry;

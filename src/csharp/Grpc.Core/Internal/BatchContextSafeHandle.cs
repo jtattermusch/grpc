@@ -227,6 +227,22 @@ namespace Grpc.Core.Internal
             Native.grpcsharp_byte_buffer_read(recvMessage, data, recvMessageLength);
             return data;
         }
+
+        public bool GetReceivedCloseOnServerCancelled()
+        {
+            return recvCloseOnServerCancelled != 0;
+        }
+            
+        // Gets data of server_rpc_new completion.
+        public ServerRpcNew GetServerRpcNew(Server server)
+        {
+            var call = new CallSafeHandle(serverRpcNew.call);  // TODO:
+            var method = Marshal.PtrToStringAnsi(serverRpcNew.callDetails.method);
+            var host = Marshal.PtrToStringAnsi(serverRpcNew.callDetails.host);
+            var deadline = serverRpcNew.callDetails.deadline;
+            var metadata = MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(serverRpcNew.requestMetadata);
+            return new ServerRpcNew(server, call, method, host, deadline, metadata);
+        }
 	}
 
     /// <summary>

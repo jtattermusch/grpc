@@ -128,7 +128,7 @@ namespace Grpc.Core.Tests
                 });
         }
 
-        private void Handler(bool success)
+        private void Handler(BatchContext batchContext)
         {
             counter++;
         }

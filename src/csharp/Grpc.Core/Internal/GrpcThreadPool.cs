@@ -125,7 +125,7 @@ namespace Grpc.Core.Internal
                     try
                     {
                         var callback = environment.CompletionRegistry.Extract(tag);
-                        callback(success);
+                        callback(batchContext);
                     }
                     catch (Exception e)
                     {

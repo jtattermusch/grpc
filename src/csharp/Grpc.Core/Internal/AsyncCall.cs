@@ -120,8 +120,7 @@ namespace Grpc.Core.Internal
                         using (profiler.NewScope("AsyncCall.UnaryCall.HandleBatch"))
                         {
 							var clientStatus = extendedEvent.GetReceivedStatusOnClient();
-							// TODO: read message using extendedEvent
-							var receivedMessage = ctx.GetReceivedMessage();
+							var receivedMessage = extendedEvent.GetReceivedMessage();
 							var initialMetadata = extendedEvent.GetReceivedInitialMetadata();
 							HandleUnaryResponse(success, clientStatus, receivedMessage, initialMetadata);
                         }

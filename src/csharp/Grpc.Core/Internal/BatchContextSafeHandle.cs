@@ -126,6 +126,7 @@ namespace Grpc.Core.Internal
 	{
 		public MetadataArray recvInitialMetadata;
 		public IntPtr recvMessage;
+		public UIntPtr recvMessageLength;
 		public RecvStatusOnClient recvStatusOnClient;
 		public int recvCloseOnServerCancelled;
 		public ServerRpcNewNative serverRpcNew;

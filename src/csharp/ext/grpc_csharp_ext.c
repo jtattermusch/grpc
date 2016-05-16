@@ -71,6 +71,7 @@ grpc_byte_buffer *string_to_byte_buffer(const char *buffer, size_t len) {
 typedef struct grpcsharp_batch_context {
   grpc_metadata_array recv_initial_metadata;
   grpc_byte_buffer *recv_message;
+  size_t recv_message_length;  /* needs to be set in pluck/next */
   struct {
     grpc_metadata_array trailing_metadata;
     grpc_status_code status;
@@ -265,13 +266,13 @@ GPR_EXPORT intptr_t GPR_CALLTYPE grpcsharp_batch_context_recv_message_length(
  * Copies data from recv_message to a buffer. Fatal error occurs if
  * buffer is too small.
  */
-GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_recv_message_to_buffer(
-    const grpcsharp_batch_context *ctx, char *buffer, size_t buffer_len) {
+GPR_EXPORT void GPR_CALLTYPE grpcsharp_byte_buffer_read(
+    grpc_byte_buffer *bb, char *buffer, size_t buffer_len) {
   grpc_byte_buffer_reader reader;
   gpr_slice slice;
   size_t offset = 0;
 
-  grpc_byte_buffer_reader_init(&reader, ctx->recv_message);
+  grpc_byte_buffer_reader_init(&reader, bb);
 
   while (grpc_byte_buffer_reader_next(&reader, &slice)) {
     size_t len = GPR_SLICE_LENGTH(slice);
@@ -281,6 +282,15 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_recv_message_to_buffer(
     offset += len;
     gpr_slice_unref(slice);
   }
+}
+
+/*
+ * Copies data from recv_message to a buffer. Fatal error occurs if
+ * buffer is too small.
+ */
+GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_recv_message_to_buffer(
+    const grpcsharp_batch_context *ctx, char *buffer, size_t buffer_len) {
+  grpcsharp_byte_buffer_read(ctx->recv_message, buffer, buffer_len);
 }
 
 GPR_EXPORT grpc_status_code GPR_CALLTYPE
@@ -367,9 +377,15 @@ grpcsharp_completion_queue_next(grpc_completion_queue *cq) {
 GPR_EXPORT grpcsharp_extended_event GPR_CALLTYPE
 grpcsharp_completion_queue_pluck(grpc_completion_queue *cq, void *tag) {
   grpcsharp_extended_event ext_ev;
+  grpcsharp_batch_context* ctx;
   ext_ev.ev = grpc_completion_queue_pluck(cq, tag,
                                           gpr_inf_future(GPR_CLOCK_REALTIME), NULL);
-  ext_ev.batch_context = *(grpcsharp_batch_context*) tag;
+  ctx = (grpcsharp_batch_context*) tag;
+  /* needs to be done for pluck as well */
+  if (ctx->recv_message) {
+    ctx->recv_message_length = grpc_byte_buffer_length(ctx->recv_message);
+  }
+  ext_ev.batch_context = *ctx;
   return ext_ev;
 }
 

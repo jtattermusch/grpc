@@ -64,6 +64,8 @@ namespace Grpc.Core.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct CompletionQueueExtendedEvent
 	{
+		static readonly NativeMethods Native = NativeMethods.Get();
+
 		public CompletionQueueEvent ev;
 		public BatchContext batchContext;
 
@@ -81,6 +83,24 @@ namespace Grpc.Core.Internal
 		public Metadata GetReceivedInitialMetadata()
 		{
 			return MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(batchContext.recvInitialMetadata);
+		}
+
+		// Gets data of recv_message completion.
+		public byte[] GetReceivedMessage()
+		{
+			if (batchContext.recvMessage == IntPtr.Zero)
+			{
+				return null;
+			}
+
+			ulong len = batchContext.recvMessageLength.ToUInt64();
+			byte[] data = new byte[len];
+			if (len == 0)
+			{
+				return data;
+			}
+			Native.grpcsharp_byte_buffer_read(batchContext.recvMessage, data, batchContext.recvMessageLength);
+			return data;
 		}
 	}
 }

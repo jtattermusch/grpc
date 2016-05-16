@@ -57,12 +57,12 @@ namespace Grpc.Core.Internal.Tests
             GrpcEnvironment.AddRef();
             var cq = CompletionQueueSafeHandle.Create();
             cq.Shutdown();
-            var ev = cq.Next();
+            var batchContext = cq.Next();
             cq.Dispose();
             GrpcEnvironment.Release();
-            Assert.AreEqual(GRPCCompletionType.Shutdown, ev.type);
-            Assert.AreNotEqual(IntPtr.Zero, ev.success);
-            Assert.AreEqual(IntPtr.Zero, ev.tag);
+            Assert.AreEqual(GRPCCompletionType.Shutdown, batchContext.cqEvent.type);
+            Assert.AreNotEqual(IntPtr.Zero, batchContext.cqEvent.success);
+            Assert.AreEqual(IntPtr.Zero, batchContext.cqEvent.tag);
         }
     }
 }

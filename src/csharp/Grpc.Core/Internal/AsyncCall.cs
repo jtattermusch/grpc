@@ -112,16 +112,16 @@ namespace Grpc.Core.Internal
                 {
                     call.StartUnary(ctx, payload, metadataArray, GetWriteFlagsForCall());
 
-                    var extendedEvent = cq.Pluck(ctx.Handle);
+                    var batchContext = cq.Pluck(ctx.Handle);
 
-                    bool success = (extendedEvent.ev.success != 0);
+                    bool success = (batchContext.cqEvent.success != 0);
                     try
                     {
                         using (profiler.NewScope("AsyncCall.UnaryCall.HandleBatch"))
                         {
-							var clientStatus = extendedEvent.GetReceivedStatusOnClient();
-							var receivedMessage = extendedEvent.GetReceivedMessage();
-							var initialMetadata = extendedEvent.GetReceivedInitialMetadata();
+							var clientStatus = batchContext.GetReceivedStatusOnClient();
+                            var receivedMessage = batchContext.GetReceivedMessage();
+                            var initialMetadata = batchContext.GetReceivedInitialMetadata();
 							HandleUnaryResponse(success, clientStatus, receivedMessage, initialMetadata);
                         }
                     }

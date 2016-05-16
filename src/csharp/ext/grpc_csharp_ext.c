@@ -69,6 +69,7 @@ grpc_byte_buffer *string_to_byte_buffer(const char *buffer, size_t len) {
  * Helper to maintain lifetime of batch op inputs and store batch op outputs.
  */
 typedef struct grpcsharp_batch_context {
+  grpc_event cq_event;
   grpc_metadata_array recv_initial_metadata;
   grpc_byte_buffer *recv_message;
   size_t recv_message_length;  /* needs to be set in pluck/next */
@@ -91,11 +92,6 @@ typedef struct grpcsharp_batch_context {
     char *status_details;
   } send_status_from_server;
 } grpcsharp_batch_context;
-
-typedef struct grpcsharp_extended_event {
-  grpc_event ev;
-  grpcsharp_batch_context batch_context;
-} grpcsharp_extended_event;
 
 GPR_EXPORT grpcsharp_batch_context *GPR_CALLTYPE grpcsharp_batch_context_create() {
   grpcsharp_batch_context *ctx = gpr_malloc(sizeof(grpcsharp_batch_context));
@@ -239,7 +235,7 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_destroy(grpcsharp_batch_con
   grpc_call_details_destroy(&(ctx->server_rpc_new.call_details));
   grpcsharp_metadata_array_destroy_metadata_only(
       &(ctx->server_rpc_new.request_metadata));
-    
+
   grpcsharp_metadata_array_destroy_metadata_including_entries(
       &(ctx->send_initial_metadata));
 
@@ -368,25 +364,39 @@ grpcsharp_completion_queue_destroy(grpc_completion_queue *cq) {
   grpc_completion_queue_destroy(cq);
 }
 
-GPR_EXPORT grpc_event GPR_CALLTYPE
-grpcsharp_completion_queue_next(grpc_completion_queue *cq) {
-  return grpc_completion_queue_next(cq, gpr_inf_future(GPR_CLOCK_REALTIME),
-                                    NULL);
+/* Extends grcp_event into an batch context */
+static grpcsharp_batch_context grpcsharp_extend_event(grpc_event ev) {
+  grpcsharp_batch_context result;
+  grpcsharp_batch_context* ctx;
+  ctx = (grpcsharp_batch_context*) ev.tag;
+  if (ctx) {
+    ctx->cq_event = ev;
+    if (ctx->recv_message) {
+      /* looking up recv message length saves one more call into C core later. */
+      ctx->recv_message_length = grpc_byte_buffer_length(ctx->recv_message);
+    }
+    result = *ctx;
+  } else {
+    memset(&result, 0, sizeof(grpcsharp_batch_context));
+    result.cq_event = ev;
+  }
+  return result;
 }
 
-GPR_EXPORT grpcsharp_extended_event GPR_CALLTYPE
+GPR_EXPORT grpcsharp_batch_context GPR_CALLTYPE
+grpcsharp_completion_queue_next(grpc_completion_queue *cq) {
+  grpc_event ev;
+  ev = grpc_completion_queue_next(cq, gpr_inf_future(GPR_CLOCK_REALTIME),
+                                  NULL);
+  return grpcsharp_extend_event(ev);
+}
+
+GPR_EXPORT grpcsharp_batch_context GPR_CALLTYPE
 grpcsharp_completion_queue_pluck(grpc_completion_queue *cq, void *tag) {
-  grpcsharp_extended_event ext_ev;
-  grpcsharp_batch_context* ctx;
-  ext_ev.ev = grpc_completion_queue_pluck(cq, tag,
-                                          gpr_inf_future(GPR_CLOCK_REALTIME), NULL);
-  ctx = (grpcsharp_batch_context*) tag;
-  /* needs to be done for pluck as well */
-  if (ctx->recv_message) {
-    ctx->recv_message_length = grpc_byte_buffer_length(ctx->recv_message);
-  }
-  ext_ev.batch_context = *ctx;
-  return ext_ev;
+  grpc_event ev;
+  ev = grpc_completion_queue_pluck(cq, tag,
+                                   gpr_inf_future(GPR_CLOCK_REALTIME), NULL);
+  return grpcsharp_extend_event(ev);
 }
 
 /* Channel */

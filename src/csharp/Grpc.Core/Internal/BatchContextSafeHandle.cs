@@ -124,6 +124,9 @@ namespace Grpc.Core.Internal
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct BatchContext
 	{
+        static readonly NativeMethods Native = NativeMethods.Get();
+
+        public CompletionQueueEvent cqEvent;
 		public MetadataArray recvInitialMetadata;
 		public IntPtr recvMessage;
 		public UIntPtr recvMessageLength;
@@ -190,6 +193,40 @@ namespace Grpc.Core.Internal
 			public uint flags;
 			public IntPtr reserved;
 		}
+
+        // Gets data of recv_status_on_client completion.
+        public ClientSideStatus GetReceivedStatusOnClient()
+        {
+            string details = Marshal.PtrToStringAnsi(recvStatusOnClient.statusDetails);
+            var status = new Status((StatusCode) recvStatusOnClient.status, details);
+            var metadata = MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(recvStatusOnClient.trailingMetadata);
+
+            return new ClientSideStatus(status, metadata);
+        }
+
+        // Gets data of recv_initial_metadata completion.
+        public Metadata GetReceivedInitialMetadata()
+        {
+            return MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(recvInitialMetadata);
+        }
+
+        // Gets data of recv_message completion.
+        public byte[] GetReceivedMessage()
+        {
+            if (recvMessage == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            ulong len = recvMessageLength.ToUInt64();
+            byte[] data = new byte[len];
+            if (len == 0)
+            {
+                return data;
+            }
+            Native.grpcsharp_byte_buffer_read(recvMessage, data, recvMessageLength);
+            return data;
+        }
 	}
 
     /// <summary>

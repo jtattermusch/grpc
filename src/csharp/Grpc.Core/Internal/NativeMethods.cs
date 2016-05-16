@@ -479,8 +479,8 @@ namespace Grpc.Core.Internal
 
             public delegate CompletionQueueSafeHandle grpcsharp_completion_queue_create_delegate();
             public delegate void grpcsharp_completion_queue_shutdown_delegate(CompletionQueueSafeHandle cq);
-            public delegate CompletionQueueEvent grpcsharp_completion_queue_next_delegate(CompletionQueueSafeHandle cq);
-            public delegate CompletionQueueExtendedEvent grpcsharp_completion_queue_pluck_delegate(CompletionQueueSafeHandle cq, IntPtr tag);
+            public delegate BatchContext grpcsharp_completion_queue_next_delegate(CompletionQueueSafeHandle cq);
+            public delegate BatchContext grpcsharp_completion_queue_pluck_delegate(CompletionQueueSafeHandle cq, IntPtr tag);
             public delegate void grpcsharp_completion_queue_destroy_delegate(IntPtr cq);
 
             public delegate void gprsharp_free_delegate(IntPtr ptr);
@@ -724,10 +724,10 @@ namespace Grpc.Core.Internal
             public static extern void grpcsharp_completion_queue_shutdown(CompletionQueueSafeHandle cq);
 
             [DllImport("grpc_csharp_ext.dll")]
-            public static extern CompletionQueueEvent grpcsharp_completion_queue_next(CompletionQueueSafeHandle cq);
+            public static extern BatchContext grpcsharp_completion_queue_next(CompletionQueueSafeHandle cq);
 
             [DllImport("grpc_csharp_ext.dll")]
-            public static extern CompletionQueueExtendedEvent grpcsharp_completion_queue_pluck(CompletionQueueSafeHandle cq, IntPtr tag);
+            public static extern BatchContext grpcsharp_completion_queue_pluck(CompletionQueueSafeHandle cq, IntPtr tag);
 
             [DllImport("grpc_csharp_ext.dll")]
             public static extern void grpcsharp_completion_queue_destroy(IntPtr cq);

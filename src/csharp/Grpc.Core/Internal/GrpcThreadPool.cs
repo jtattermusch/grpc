@@ -114,14 +114,14 @@ namespace Grpc.Core.Internal
         /// </summary>
         private void RunHandlerLoop()
         {
-            CompletionQueueEvent ev;
+            BatchContext batchContext;
             do
             {
-                ev = cq.Next();
-                if (ev.type == GRPCCompletionType.OpComplete)
+                batchContext = cq.Next();
+                if (batchContext.cqEvent.type == GRPCCompletionType.OpComplete)
                 {
-                    bool success = (ev.success != 0);
-                    IntPtr tag = ev.tag;
+                    bool success = (batchContext.cqEvent.success != 0);
+                    IntPtr tag = batchContext.cqEvent.tag;
                     try
                     {
                         var callback = environment.CompletionRegistry.Extract(tag);
@@ -133,7 +133,7 @@ namespace Grpc.Core.Internal
                     }
                 }
             }
-            while (ev.type != GRPCCompletionType.Shutdown);
+            while (batchContext.cqEvent.type != GRPCCompletionType.Shutdown);
         }
     }
 }

@@ -85,6 +85,30 @@ namespace Grpc.Core.Internal
             return metadata;
         }
 
+		/// <summary>
+		/// Reads metadata from grpc_metadata_array struct.
+		/// </summary>
+		public static Metadata ReadMetadataFromStructUnsafe(BatchContext.MetadataArray metadataArray)
+		{
+			long count = (long) metadataArray.count.ToUInt64();
+			if (count == 0)
+			{
+				return new Metadata();
+			}
+				
+			var metadata = new Metadata();
+			for (long i = 0; i < count; i++) {
+				var metadataPtr = new IntPtr(metadataArray.metadata.ToInt64() + Marshal.SizeOf<BatchContext.MetadataNative>() * i);
+				var metadataNative = Marshal.PtrToStructure<BatchContext.MetadataNative>(metadataPtr);
+
+				string key = Marshal.PtrToStringAnsi(metadataNative.key);
+				var bytes = new byte[metadataNative.valueLength.ToUInt64()];
+				Marshal.Copy(metadataNative.value, bytes, 0, bytes.Length);
+				metadata.Add (Metadata.Entry.CreateUnsafe (key, bytes));
+			}
+			return metadata;
+		}
+
         internal IntPtr Handle
         {
             get

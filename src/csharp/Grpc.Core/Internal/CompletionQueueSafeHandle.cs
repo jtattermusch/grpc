@@ -61,7 +61,7 @@ namespace Grpc.Core.Internal
             return Native.grpcsharp_completion_queue_next(this);
         }
 
-        public CompletionQueueEvent Pluck(IntPtr tag)
+        public CompletionQueueExtendedEvent Pluck(IntPtr tag)
         {
             using (Profilers.ForCurrentThread().NewScope("CompletionQueueSafeHandle.Pluck"))
             {

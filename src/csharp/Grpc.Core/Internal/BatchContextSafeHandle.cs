@@ -121,6 +121,76 @@ namespace Grpc.Core.Internal
         }
     }
 
+	[StructLayout(LayoutKind.Sequential)]
+	internal struct BatchContext
+	{
+		public MetadataArray recvInitialMetadata;
+		public IntPtr recvMessage;
+		public RecvStatusOnClient recvStatusOnClient;
+		public int recvCloseOnServerCancelled;
+		public ServerRpcNewNative serverRpcNew;
+
+		MetadataArray sendInitialMetadata;
+		IntPtr sendMessage;
+	    MetadataArray trailingMetadata;  // send_status_from_server
+	    IntPtr statusDetails;  // send_status_from_server
+
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct RecvStatusOnClient
+		{
+			public MetadataArray trailingMetadata;
+			public int status;
+			public IntPtr statusDetails;
+			public UIntPtr statusDetailsCapacity;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct ServerRpcNewNative
+		{
+			public IntPtr call;
+			public CallDetails callDetails;
+			public MetadataArray requestMetadata;
+		}
+
+
+		// corresponds to struct grpc_medatata
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct MetadataNative
+		{
+			public IntPtr key;
+		    public IntPtr value;
+			public UIntPtr valueLength;
+			public uint flags;
+
+			IntPtr obfuscated0;
+			IntPtr obfuscated1;
+			IntPtr obfuscated2;
+			IntPtr obfuscated3;
+		}
+
+		// corresponds to struct grpc_medatata_array
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct MetadataArray
+		{
+			public UIntPtr count;
+			public UIntPtr capacity;
+			public IntPtr metadata;
+		}
+
+		// corresponds to grpc_call_details
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct CallDetails
+		{
+			public IntPtr method;
+			public UIntPtr methodCapacity;
+			public IntPtr host;
+			public UIntPtr hostCapacity;
+			public Timespec deadline;
+			public uint flags;
+			public IntPtr reserved;
+		}
+	}
+
     /// <summary>
     /// Status + metadata received on client side when call finishes.
     /// (when receive_status_on_client operation finishes).

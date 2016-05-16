@@ -69,12 +69,6 @@ grpc_byte_buffer *string_to_byte_buffer(const char *buffer, size_t len) {
  * Helper to maintain lifetime of batch op inputs and store batch op outputs.
  */
 typedef struct grpcsharp_batch_context {
-  grpc_metadata_array send_initial_metadata;
-  grpc_byte_buffer *send_message;
-  struct {
-    grpc_metadata_array trailing_metadata;
-    char *status_details;
-  } send_status_from_server;
   grpc_metadata_array recv_initial_metadata;
   grpc_byte_buffer *recv_message;
   struct {
@@ -89,7 +83,18 @@ typedef struct grpcsharp_batch_context {
     grpc_call_details call_details;
     grpc_metadata_array request_metadata;
   } server_rpc_new;
+  grpc_metadata_array send_initial_metadata;
+  grpc_byte_buffer *send_message;
+  struct {
+    grpc_metadata_array trailing_metadata;
+    char *status_details;
+  } send_status_from_server;
 } grpcsharp_batch_context;
+
+typedef struct grpcsharp_extended_event {
+  grpc_event ev;
+  grpcsharp_batch_context batch_context;
+} grpcsharp_extended_event;
 
 GPR_EXPORT grpcsharp_batch_context *GPR_CALLTYPE grpcsharp_batch_context_create() {
   grpcsharp_batch_context *ctx = gpr_malloc(sizeof(grpcsharp_batch_context));
@@ -213,10 +218,6 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_destroy(grpcsharp_batch_con
   if (!ctx) {
     return;
   }
-  grpcsharp_metadata_array_destroy_metadata_including_entries(
-      &(ctx->send_initial_metadata));
-
-  grpc_byte_buffer_destroy(ctx->send_message);
 
   grpcsharp_metadata_array_destroy_metadata_including_entries(
       &(ctx->send_status_from_server.trailing_metadata));
@@ -237,6 +238,11 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_destroy(grpcsharp_batch_con
   grpc_call_details_destroy(&(ctx->server_rpc_new.call_details));
   grpcsharp_metadata_array_destroy_metadata_only(
       &(ctx->server_rpc_new.request_metadata));
+    
+  grpcsharp_metadata_array_destroy_metadata_including_entries(
+      &(ctx->send_initial_metadata));
+
+  grpc_byte_buffer_destroy(ctx->send_message);
 
   gpr_free(ctx);
 }
@@ -358,10 +364,13 @@ grpcsharp_completion_queue_next(grpc_completion_queue *cq) {
                                     NULL);
 }
 
-GPR_EXPORT grpc_event GPR_CALLTYPE
+GPR_EXPORT grpcsharp_extended_event GPR_CALLTYPE
 grpcsharp_completion_queue_pluck(grpc_completion_queue *cq, void *tag) {
-  return grpc_completion_queue_pluck(cq, tag,
-                                     gpr_inf_future(GPR_CLOCK_REALTIME), NULL);
+  grpcsharp_extended_event ext_ev;
+  ext_ev.ev = grpc_completion_queue_pluck(cq, tag,
+                                          gpr_inf_future(GPR_CLOCK_REALTIME), NULL);
+  ext_ev.batch_context = *(grpcsharp_batch_context*) tag;
+  return ext_ev;
 }
 
 /* Channel */

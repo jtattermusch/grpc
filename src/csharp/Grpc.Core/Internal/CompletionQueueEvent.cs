@@ -56,4 +56,31 @@ namespace Grpc.Core.Internal
             }
         }
     }
+
+	/// <summary>
+	/// Extension of <c>CompletionQueueEvent</c> that allows returning of batch context contents by value
+	/// directly from <c>CompletionQueue.Next()</c> or <c>CompletionQueue.Pluck()</c>.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	internal struct CompletionQueueExtendedEvent
+	{
+		public CompletionQueueEvent ev;
+		public BatchContext batchContext;
+
+		// Gets data of recv_status_on_client completion.
+		public ClientSideStatus GetReceivedStatusOnClient()
+		{
+			string details = Marshal.PtrToStringAnsi(batchContext.recvStatusOnClient.statusDetails);
+			var status = new Status((StatusCode) batchContext.recvStatusOnClient.status, details);
+			var metadata = MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(batchContext.recvStatusOnClient.trailingMetadata);
+
+			return new ClientSideStatus(status, metadata);
+		}
+
+		// Gets data of recv_initial_metadata completion.
+		public Metadata GetReceivedInitialMetadata()
+		{
+			return MetadataArraySafeHandle.ReadMetadataFromStructUnsafe(batchContext.recvInitialMetadata);
+		}
+	}
 }

@@ -37,33 +37,73 @@ using Grpc.Core;
 namespace Grpc.Core.Internal
 {
     /// <summary>
-    /// grpcsharp_batch_context
+    /// Details of a newly received RPC.
     /// </summary>
-    internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid
+    internal struct ServerRpcNew
     {
-        static readonly NativeMethods Native = NativeMethods.Get();
+        readonly Server server;
+        readonly CallSafeHandle call;
+        readonly string method;
+        readonly string host;
+        readonly Timespec deadline;
+        readonly Metadata requestMetadata;
 
-        private BatchContextSafeHandle()
+        public ServerRpcNew(Server server, CallSafeHandle call, string method, string host, Timespec deadline, Metadata requestMetadata)
         {
+            this.server = server;
+            this.call = call;
+            this.method = method;
+            this.host = host;
+            this.deadline = deadline;
+            this.requestMetadata = requestMetadata;
         }
 
-        public static BatchContextSafeHandle Create()
-        {
-            return Native.grpcsharp_batch_context_create();
-        }
-
-        public IntPtr Handle
+        public Server Server
         {
             get
             {
-                return handle;
+                return this.server;
             }
         }
-            
-        protected override bool ReleaseHandle()
+
+        public CallSafeHandle Call
         {
-            Native.grpcsharp_batch_context_destroy(handle);
-            return true;
+            get
+            {
+                return this.call;
+            }
+        }
+
+        public string Method
+        {
+            get
+            {
+                return this.method;
+            }
+        }
+
+        public string Host
+        {
+            get
+            {
+                return this.host;
+            }
+        }
+
+        public Timespec Deadline
+        {
+            get
+            {
+                return this.deadline;
+            }
+        }
+
+        public Metadata RequestMetadata
+        {
+            get
+            {
+                return this.requestMetadata;
+            }
         }
     }
 }

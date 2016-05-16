@@ -37,33 +37,34 @@ using Grpc.Core;
 namespace Grpc.Core.Internal
 {
     /// <summary>
-    /// grpcsharp_batch_context
+    /// Status + metadata received on client side when call finishes.
+    /// (when receive_status_on_client operation finishes).
     /// </summary>
-    internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid
+    internal struct ClientSideStatus
     {
-        static readonly NativeMethods Native = NativeMethods.Get();
+        readonly Status status;
+        readonly Metadata trailers;
 
-        private BatchContextSafeHandle()
+        public ClientSideStatus(Status status, Metadata trailers)
         {
+            this.status = status;
+            this.trailers = trailers;
         }
 
-        public static BatchContextSafeHandle Create()
-        {
-            return Native.grpcsharp_batch_context_create();
-        }
-
-        public IntPtr Handle
+        public Status Status
         {
             get
             {
-                return handle;
-            }
+                return this.status;
+            }    
         }
-            
-        protected override bool ReleaseHandle()
+
+        public Metadata Trailers
         {
-            Native.grpcsharp_batch_context_destroy(handle);
-            return true;
+            get
+            {
+                return this.trailers;
+            }
         }
     }
 }

@@ -64,25 +64,10 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Reads metadata from pointer to grpc_metadata_array
         /// </summary>
-        public static Metadata ReadMetadataFromPtrUnsafe(IntPtr metadataArray)
+        public static Metadata ReadMetadataFromPtrUnsafe(IntPtr metadataArrayPtr)
         {
-            if (metadataArray == IntPtr.Zero)
-            {
-                return null;
-            }
-
-            ulong count = Native.grpcsharp_metadata_array_count(metadataArray).ToUInt64();
-
-            var metadata = new Metadata();
-            for (ulong i = 0; i < count; i++)
-            {
-                var index = new UIntPtr(i);
-                string key = Marshal.PtrToStringAnsi(Native.grpcsharp_metadata_array_get_key(metadataArray, index));
-                var bytes = new byte[Native.grpcsharp_metadata_array_get_value_length(metadataArray, index).ToUInt64()];
-                Marshal.Copy(Native.grpcsharp_metadata_array_get_value(metadataArray, index), bytes, 0, bytes.Length);
-                metadata.Add(Metadata.Entry.CreateUnsafe(key, bytes));
-            }
-            return metadata;
+            var metadataArray = Marshal.PtrToStructure<BatchContext.MetadataArray>(metadataArrayPtr);
+            return ReadMetadataFromStructUnsafe(metadataArray);
         }
 
 		/// <summary>

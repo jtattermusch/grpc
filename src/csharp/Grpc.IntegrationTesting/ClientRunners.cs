@@ -42,6 +42,7 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Core.Logging;
+using Grpc.Core.Profiling;
 using Grpc.Core.Utils;
 using NUnit.Framework;
 using Grpc.Testing;
@@ -54,6 +55,12 @@ namespace Grpc.IntegrationTesting
     public class ClientRunners
     {
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<ClientRunners>();
+
+        public static BasicProfiler ProfilerForClients
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Creates a started client runner.
@@ -125,6 +132,8 @@ namespace Grpc.IntegrationTesting
         readonly List<Task> runnerTasks;
         readonly CancellationTokenSource stoppedCts = new CancellationTokenSource();
         readonly WallClockStopwatch wallClockStopwatch = new WallClockStopwatch();
+
+        int statsResetCount;
         
         public ClientRunnerImpl(List<Channel> channels, ClientType clientType, RpcType rpcType, int outstandingRpcsPerChannel, LoadParams loadParams, PayloadConfig payloadConfig, HistogramParams histogramParams)
         {
@@ -152,6 +161,11 @@ namespace Grpc.IntegrationTesting
             var histogramData = histogram.GetSnapshot(reset);
             var secondsElapsed = wallClockStopwatch.GetElapsedSnapshot(reset).TotalSeconds;
 
+            if (reset)
+            {
+                statsResetCount++;
+            }
+
             // TODO: populate user time and system time
             return new ClientStats
             {
@@ -177,12 +191,26 @@ namespace Grpc.IntegrationTesting
 
         private void RunUnary(Channel channel, IInterarrivalTimer timer)
         {
+            var profiler = ClientRunners.ProfilerForClients;
+            if (profiler != null)
+            {
+                Profilers.SetForCurrentThread(profiler);
+            }
+
+            bool profilerReset = false;
+
             var client = BenchmarkService.NewClient(channel);
             var request = CreateSimpleRequest();
             var stopwatch = new Stopwatch();
 
             while (!stoppedCts.Token.IsCancellationRequested)
             {
+                if (profiler != null && !profilerReset && statsResetCount > 0)
+                {
+                    profiler.Reset();
+                    profilerReset = true;
+                }
+
                 stopwatch.Restart();
                 client.UnaryCall(request);
                 stopwatch.Stop();
@@ -192,6 +220,7 @@ namespace Grpc.IntegrationTesting
 
                 timer.WaitForNext();
             }
+
         }
 
         private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer)

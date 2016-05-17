@@ -31,7 +31,7 @@
 
 WARMUP_SECONDS=5
 JAVA_WARMUP_SECONDS=15  # Java needs more warmup time for JIT to kick in.
-BENCHMARK_SECONDS=30
+BENCHMARK_SECONDS=5
 
 SMOKETEST='smoketest'
 

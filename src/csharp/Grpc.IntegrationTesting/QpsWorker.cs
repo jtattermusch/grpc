@@ -90,6 +90,8 @@ namespace Grpc.IntegrationTesting
 
         private async Task RunAsync()
         {
+            var profiler = new Grpc.Core.Profiling.BasicProfiler();
+            ClientRunners.ProfilerForClients = profiler;
             string host = "0.0.0.0";
             int port = options.DriverPort;
 
@@ -106,6 +108,7 @@ namespace Grpc.IntegrationTesting
             server.Start();
             await tcs.Task;
             await server.ShutdownAsync();
+            profiler.Dump("../../../../../latency_trace_csharp.txt");
         }
     }
 }

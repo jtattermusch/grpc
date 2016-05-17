@@ -40,7 +40,7 @@ namespace Grpc.Core.Profiling
 {
     // Allows declaring Begin and End of a profiler scope with a using statement.
     // declared as struct for better performance.
-    internal struct ProfilerScope : IDisposable
+    public struct ProfilerScope : IDisposable
     {
         readonly IProfiler profiler;
         readonly string tag;

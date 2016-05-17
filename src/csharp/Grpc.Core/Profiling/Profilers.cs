@@ -38,7 +38,7 @@ using Grpc.Core.Internal;
 
 namespace Grpc.Core.Profiling
 {
-    internal static class Profilers
+    public static class Profilers
     {
         static readonly NopProfiler DefaultProfiler = new NopProfiler();
         static readonly ThreadLocal<IProfiler> profilers = new ThreadLocal<IProfiler>();
@@ -75,12 +75,12 @@ namespace Grpc.Core.Profiling
     }
 
     // Profiler using Timespec.PreciseNow
-    internal class BasicProfiler : IProfiler
+    public class BasicProfiler : IProfiler
     {
         ProfilerEntry[] entries;
         int count;
 
-        public BasicProfiler() : this(1024*1024)
+        public BasicProfiler() : this(1024*1024*16)
         {
         }
 

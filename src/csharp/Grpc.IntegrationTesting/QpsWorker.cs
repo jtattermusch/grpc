@@ -90,12 +90,25 @@ namespace Grpc.IntegrationTesting
 
         private async Task RunAsync()
         {
+            
+
+
             var profiler = new Grpc.Core.Profiling.BasicProfiler();
             ClientRunners.ProfilerForClients = profiler;
             string host = "0.0.0.0";
             int port = options.DriverPort;
 
             var tcs = new TaskCompletionSource<object>();
+
+            var spinner = new System.Threading.Thread(
+                () => {
+                var sw = new System.Threading.SpinWait();
+                while(!tcs.Task.IsCompleted) {
+                    sw.SpinOnce();
+                }
+            });
+            spinner.Start();
+
             var workerServiceImpl = new WorkerServiceImpl(() => { Task.Run(() => tcs.SetResult(null)); });
                 
             var server = new Server

@@ -74,6 +74,10 @@ class QpsWorkerJob:
 def create_qpsworker_job(language, shortname=None,
                          port=10000, remote_host=None):
   # TODO: support more languages
+  #if port == 10010:
+  #  # for C++ client
+  #  cmdline = language.worker_cmdline(config='basicprof') + ['--driver_port=%s' % port]
+  #else:
   cmdline = language.worker_cmdline() + ['--driver_port=%s' % port]
   if remote_host:
     user_at_host = '%s@%s' % (_REMOTE_HOST_USERNAME, remote_host)

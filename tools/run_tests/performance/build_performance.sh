@@ -42,6 +42,9 @@ CONFIG=${CONFIG:-opt}
 # this build will be reused.
 make CONFIG=${CONFIG} EMBED_OPENSSL=true EMBED_ZLIB=true qps_worker qps_json_driver -j8
 
+# TODO(jtattermusch): enable/disable basicprof compilation...
+make CONFIG=basicprof EMBED_OPENSSL=true EMBED_ZLIB=true qps_worker grpc_csharp_ext -j8
+
 for language in $@
 do
   case "$language" in

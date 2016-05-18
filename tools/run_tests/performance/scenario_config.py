@@ -171,8 +171,8 @@ class CXXLanguage:
   def __init__(self):
     self.safename = 'cxx'
 
-  def worker_cmdline(self):
-    return ['bins/opt/qps_worker']
+  def worker_cmdline(self, config='opt'):
+    return ['bins/%s/qps_worker' % config]
 
   def worker_port_offset(self):
     return 0

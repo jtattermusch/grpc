@@ -103,7 +103,7 @@ tools/run_tests/run_tests.py -l csharp
 ON .NET CORE SUPPORT
 ------------------
 
-We are committed to providing full support for (.NET Core)[https://dotnet.github.io/] in near future,
+We are committed to providing full support for [.NET Core](https://dotnet.github.io/) in near future,
 but currently, the support is for .NET Core is experimental/work-in-progress.
 
 DOCUMENTATION

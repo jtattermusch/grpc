@@ -40,7 +40,7 @@ namespace Grpc.Core.Tests
 {
     public class AppDomainUnloadTest
     {
-#if DOTNET5_4
+#if !NET45
         [Test]
         [Ignore("Not supported for CoreCLR")]
         public void AppDomainUnloadHookCanCleanupAbandonedCall()

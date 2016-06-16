@@ -40,80 +40,79 @@ using System.Threading.Tasks;
 using Grpc.Core;
 using Grpc.Core.Utils;
 using Grpc.Testing;
-using Moq;
 using NUnit.Framework;
 
 namespace Grpc.IntegrationTesting
 {
     public class MetadataCredentialsTest
     {
-        const string Host = "localhost";
-        Server server;
-        Channel channel;
-        TestService.TestServiceClient client;
-        List<ChannelOption> options;
-        Mock<TestService.TestServiceBase> serviceMock;
-        AsyncAuthInterceptor asyncAuthInterceptor;
+        //const string Host = "localhost";
+        //Server server;
+        //Channel channel;
+        //TestService.TestServiceClient client;
+        //List<ChannelOption> options;
+        //Mock<TestService.TestServiceBase> serviceMock;
+        //AsyncAuthInterceptor asyncAuthInterceptor;
 
-        [SetUp]
-        public void Init()
-        {
-            serviceMock = new Mock<TestService.TestServiceBase>();
-            serviceMock.Setup(m => m.UnaryCall(It.IsAny<SimpleRequest>(), It.IsAny<ServerCallContext>()))
-                .Returns(new Func<SimpleRequest, ServerCallContext, Task<SimpleResponse>>(UnaryCallHandler));
+        //[SetUp]
+        //public void Init()
+        //{
+        //    serviceMock = new Mock<TestService.TestServiceBase>();
+        //    serviceMock.Setup(m => m.UnaryCall(It.IsAny<SimpleRequest>(), It.IsAny<ServerCallContext>()))
+        //        .Returns(new Func<SimpleRequest, ServerCallContext, Task<SimpleResponse>>(UnaryCallHandler));
 
-            server = new Server
-            {
-                Services = { TestService.BindService(serviceMock.Object) },
-                Ports = { { Host, ServerPort.PickUnused, TestCredentials.CreateSslServerCredentials() } }
-            };
-            server.Start();
+        //    server = new Server
+        //    {
+        //        Services = { TestService.BindService(serviceMock.Object) },
+        //        Ports = { { Host, ServerPort.PickUnused, TestCredentials.CreateSslServerCredentials() } }
+        //    };
+        //    server.Start();
 
-            options = new List<ChannelOption>
-            {
-                new ChannelOption(ChannelOptions.SslTargetNameOverride, TestCredentials.DefaultHostOverride)
-            };
+        //    options = new List<ChannelOption>
+        //    {
+        //        new ChannelOption(ChannelOptions.SslTargetNameOverride, TestCredentials.DefaultHostOverride)
+        //    };
 
-            asyncAuthInterceptor = new AsyncAuthInterceptor(async (context, metadata) =>
-            {
-                await Task.Delay(100).ConfigureAwait(false);  // make sure the operation is asynchronous.
-                metadata.Add("authorization", "SECRET_TOKEN");
-            });
-        }
+        //    asyncAuthInterceptor = new AsyncAuthInterceptor(async (context, metadata) =>
+        //    {
+        //        await Task.Delay(100).ConfigureAwait(false);  // make sure the operation is asynchronous.
+        //        metadata.Add("authorization", "SECRET_TOKEN");
+        //    });
+        //}
 
-        [TearDown]
-        public void Cleanup()
-        {
-            channel.ShutdownAsync().Wait();
-            server.ShutdownAsync().Wait();
-        }
+        //[TearDown]
+        //public void Cleanup()
+        //{
+        //    channel.ShutdownAsync().Wait();
+        //    server.ShutdownAsync().Wait();
+        //}
 
-        [Test]
-        public void MetadataCredentials()
-        {
-            var channelCredentials = ChannelCredentials.Create(TestCredentials.CreateSslCredentials(),
-                CallCredentials.FromInterceptor(asyncAuthInterceptor));
-            channel = new Channel(Host, server.Ports.Single().BoundPort, channelCredentials, options);
-            client = TestService.NewClient(channel);
+        //[Test]
+        //public void MetadataCredentials()
+        //{
+        //    var channelCredentials = ChannelCredentials.Create(TestCredentials.CreateSslCredentials(),
+        //        CallCredentials.FromInterceptor(asyncAuthInterceptor));
+        //    channel = new Channel(Host, server.Ports.Single().BoundPort, channelCredentials, options);
+        //    client = TestService.NewClient(channel);
 
-            client.UnaryCall(new SimpleRequest {});
-        }
+        //    client.UnaryCall(new SimpleRequest {});
+        //}
 
-        [Test]
-        public void MetadataCredentials_PerCall()
-        {
-            channel = new Channel(Host, server.Ports.Single().BoundPort, TestCredentials.CreateSslCredentials(), options);
-            client = TestService.NewClient(channel);
+        //[Test]
+        //public void MetadataCredentials_PerCall()
+        //{
+        //    channel = new Channel(Host, server.Ports.Single().BoundPort, TestCredentials.CreateSslCredentials(), options);
+        //    client = TestService.NewClient(channel);
 
-            var callCredentials = CallCredentials.FromInterceptor(asyncAuthInterceptor);
-            client.UnaryCall(new SimpleRequest { }, new CallOptions(credentials: callCredentials));
-        }
+        //    var callCredentials = CallCredentials.FromInterceptor(asyncAuthInterceptor);
+        //    client.UnaryCall(new SimpleRequest { }, new CallOptions(credentials: callCredentials));
+        //}
 
-        private Task<SimpleResponse> UnaryCallHandler(SimpleRequest request, ServerCallContext context)
-        {
-            var authToken = context.RequestHeaders.First((entry) => entry.Key == "authorization").Value;
-            Assert.AreEqual("SECRET_TOKEN", authToken);
-            return Task.FromResult(new SimpleResponse());
-        }
+        //private Task<SimpleResponse> UnaryCallHandler(SimpleRequest request, ServerCallContext context)
+        //{
+        //    var authToken = context.RequestHeaders.First((entry) => entry.Key == "authorization").Value;
+        //    Assert.AreEqual("SECRET_TOKEN", authToken);
+        //    return Task.FromResult(new SimpleResponse());
+        //}
     }
 }

@@ -45,7 +45,7 @@ namespace Grpc.Core.Tests
 {
     public class SanityTest
     {
-#if !DOTNET5_4
+#if NET45
         /// <summary>
         /// Because we depend on a native library, sometimes when things go wrong, the
         /// entire NUnit test process crashes. To be able to track down problems better,

@@ -42,6 +42,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using Grpc.Core;
+using Grpc.Core.Profiling;
 using Grpc.Core.Utils;
 using Grpc.Testing;
 using NUnit.Framework;
@@ -76,6 +77,10 @@ namespace Grpc.IntegrationTesting
 
         private async Task RunAsync()
         {
+            var profiler = new BasicProfiler();
+            ClientRunners.AddProfiler(profiler);
+
+
             string host = "0.0.0.0";
             int port = options.DriverPort;
 
@@ -92,6 +97,8 @@ namespace Grpc.IntegrationTesting
             server.Start();
             await tcs.Task;
             await server.ShutdownAsync();
+
+            profiler.Dump ("latency.txt");
         }
     }
 }

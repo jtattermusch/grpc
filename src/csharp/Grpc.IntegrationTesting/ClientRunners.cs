@@ -241,22 +241,51 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)
+        private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram, BasicProfiler optionalProfiler)
         {
-            var client = new BenchmarkService.BenchmarkServiceClient(channel);
+            //var client = new BenchmarkService.BenchmarkServiceClient(channel);
             var request = CreateSimpleRequest();
             var stopwatch = new Stopwatch();
 
             while (!stoppedCts.Token.IsCancellationRequested)
             {
+                if (optionalProfiler != null)
+                {
+                    Profilers.SetForCurrentThread(optionalProfiler);
+                }
                 stopwatch.Restart();
-                await client.UnaryCallAsync(request);
+
+                var tcs = new TaskCompletionSource<object>();
+
+                try {
+                    
+                    var call = new HardwiredUnaryCallAsync(channel, new byte[0],
+                    (response) =>
+                    {
+                            tcs.SetResult(response);
+                    },
+                    (rpcException) =>
+                    {
+                            tcs.SetException(rpcException); 
+                    }, optionalProfiler);
+                    
+                } catch(Exception e) {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+                if (optionalProfiler != null)
+                {
+                    optionalProfiler.Begin("EndOfStartCallToNext");
+                }
+                await tcs.Task;
+
                 stopwatch.Stop();
+
 
                 // spec requires data point in nanoseconds.
                 histogram.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);
 
-                await timer.WaitForNextAsync();
+                //await timer.WaitForNextAsync();
             }
         }
 
@@ -336,7 +365,7 @@ namespace Grpc.IntegrationTesting
                 switch (rpcType)
                 {
                     case RpcType.Unary:
-                        return RunUnaryAsync(channel, timer, histogram);
+                        return RunUnaryAsync(channel, timer, histogram, optionalProfiler);
                     case RpcType.Streaming:
                         return RunStreamingPingPongAsync(channel, timer, histogram);
                 }

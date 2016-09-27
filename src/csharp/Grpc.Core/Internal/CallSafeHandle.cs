@@ -65,6 +65,7 @@ namespace Grpc.Core.Internal
 
         public void StartUnary(UnaryResponseClientHandler callback, byte[] payload, MetadataArraySafeHandle metadataArray, WriteFlags writeFlags)
         {
+            using (Profilers.ForCurrentThread().NewScope("CallSafeHandle.StartUnary"))
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();

@@ -127,7 +127,7 @@ namespace Grpc.Core.Profiling
         }
 
         // NOT THREADSAFE!
-        void AddEntry(ProfilerEntry entry) {
+        internal void AddEntry(ProfilerEntry entry) {
             entries[count++] = entry;
         }
     }

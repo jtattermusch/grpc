@@ -38,7 +38,7 @@ using Grpc.Core.Internal;
 
 namespace Grpc.Core.Profiling
 {
-    internal interface IProfiler 
+    public interface IProfiler 
     {
         void Begin(string tag);
 

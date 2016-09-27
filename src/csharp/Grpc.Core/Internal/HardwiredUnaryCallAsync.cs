@@ -32,6 +32,7 @@
 #endregion
 
 using System;
+using Grpc.Core.Profiling;
 
 namespace Grpc.Core.Internal
 {
@@ -41,16 +42,21 @@ namespace Grpc.Core.Internal
         private CallSafeHandle nativeCall;
         private Action<byte[]> okCallback;
         private Action<RpcException> errorCallback;
+        private IProfiler optionalProfiler;
 
-        public HardwiredUnaryCallAsync(Channel channel, byte[] request, Action<byte[]> okCallback, Action<RpcException> errorCallback)
+        public HardwiredUnaryCallAsync(Channel channel, byte[] request, Action<byte[]> okCallback, Action<RpcException> errorCallback, IProfiler optionalProfiler)
         {
-            this.okCallback = okCallback;
-            this.errorCallback = errorCallback;
-            this.nativeCall = channel.Handle.CreateCall(CallSafeHandle.NullInstance, ContextPropagationToken.DefaultMask,
-                channel.CompletionQueue, "/grpc.testing.BenchmarkService/UnaryCall", null, Timespec.InfFuture, null);
-            using (var metadataArray = MetadataArraySafeHandle.Create(Metadata.Empty))
+            using (Profilers.ForCurrentThread().NewScope("HardwiredUnaryCallAsync"))
             {
-                nativeCall.StartUnary(HandleUnaryResponse, request, metadataArray, default(WriteFlags));
+                this.okCallback = okCallback;
+                this.errorCallback = errorCallback;
+                this.optionalProfiler = optionalProfiler;
+                this.nativeCall = channel.Handle.CreateCall(CallSafeHandle.NullInstance, ContextPropagationToken.DefaultMask,
+                    channel.CompletionQueue, "/grpc.testing.BenchmarkService/UnaryCall", null, Timespec.InfFuture, null);
+                using (var metadataArray = MetadataArraySafeHandle.Create(Metadata.Empty))
+                {
+                    nativeCall.StartUnary(HandleUnaryResponse, request, metadataArray, default(WriteFlags));
+                }
             }
         }
 
@@ -59,6 +65,10 @@ namespace Grpc.Core.Internal
         /// </summary>
         private void HandleUnaryResponse(bool success, ClientSideStatus receivedStatus, byte[] receivedMessage, Metadata responseHeaders)
         {
+            if (optionalProfiler != null)
+            {
+                optionalProfiler.Begin("HardwiredUnaryCallAsync.HandleUnaryResponse");
+            }
             // NOTE: because this event is a result of batch containing GRPC_OP_RECV_STATUS_ON_CLIENT,
             // success will be always set to true.
 
@@ -77,6 +87,11 @@ namespace Grpc.Core.Internal
             {
                 errorCallback(new RpcException(status));
                 return;
+            }
+
+            if (optionalProfiler != null)
+            {
+                optionalProfiler.End("HardwiredUnaryCallAsync.HandleUnaryResponse");
             }
 
             okCallback(receivedMessage);

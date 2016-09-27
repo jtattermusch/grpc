@@ -66,6 +66,8 @@ namespace Grpc.IntegrationTesting
 
         public static void Run(string[] args)
         {
+            //GrpcEnvironment.SetThreadPoolSize(1);
+            //GrpcEnvironment.SetCompletionQueueCount(1);
             var parserResult = Parser.Default.ParseArguments<ServerOptions>(args)
                 .WithNotParsed((x) => Environment.Exit(1))
                 .WithParsed(options =>

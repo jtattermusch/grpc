@@ -42,7 +42,7 @@ namespace Grpc.Core.Internal
         private Action<byte[]> okCallback;
         private Action<RpcException> errorCallback;
 
-        public HardwiredUnaryCallAsync(Channel channel, Action<byte[]> okCallback, Action<RpcException> errorCallback)
+        public HardwiredUnaryCallAsync(Channel channel, byte[] request, Action<byte[]> okCallback, Action<RpcException> errorCallback)
         {
             this.okCallback = okCallback;
             this.errorCallback = errorCallback;
@@ -50,7 +50,7 @@ namespace Grpc.Core.Internal
                 channel.CompletionQueue, "/grpc.testing.BenchmarkService/UnaryCall", null, Timespec.InfFuture, null);
             using (var metadataArray = MetadataArraySafeHandle.Create(Metadata.Empty))
             {
-                nativeCall.StartUnary(HandleUnaryResponse, new byte[0], metadataArray, default(WriteFlags));
+                nativeCall.StartUnary(HandleUnaryResponse, request, metadataArray, default(WriteFlags));
             }
         }
 

@@ -254,7 +254,7 @@ namespace Grpc.IntegrationTesting
                 var tcs = new TaskCompletionSource<object>();
 
                 try {
-                    var call = new HardwiredUnaryCallAsync(channel,
+                    var call = new HardwiredUnaryCallAsync(channel, new byte[0],
                     (response) =>
                     {
                             tcs.SetResult(response);
@@ -275,7 +275,7 @@ namespace Grpc.IntegrationTesting
                 // spec requires data point in nanoseconds.
                 histogram.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);
 
-                await timer.WaitForNextAsync();
+                //await timer.WaitForNextAsync();
             }
         }
 

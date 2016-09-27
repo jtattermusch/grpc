@@ -70,10 +70,9 @@ namespace Grpc.Core.Internal
             {
                 var ctx = BatchContextSafeHandle.Create();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, 
-
-                    new ClientSideStatus(new Status(StatusCode.OK, ""), new Metadata())/*context.GetReceivedStatusOnClient()*/,
-                    new byte[0] /*context.GetReceivedMessage()*/,
-                    new Metadata()/*context.GetReceivedInitialMetadata()*/));
+                    context.GetReceivedStatusOnClient(),
+                    context.GetReceivedMessage(),
+                    context.GetReceivedInitialMetadata()));
                 Native.grpcsharp_call_start_unary(this, ctx, payload, new UIntPtr((ulong)payload.Length), metadataArray, writeFlags)
                     .CheckOk();
             }

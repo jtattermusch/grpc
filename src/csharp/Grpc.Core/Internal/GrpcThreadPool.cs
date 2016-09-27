@@ -48,6 +48,7 @@ namespace Grpc.Core.Internal
     internal class GrpcThreadPool
     {
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<GrpcThreadPool>();
+        static readonly ThreadLocal<Timespec> lastNextWakeupTime = new ThreadLocal<Timespec>();
 
         readonly GrpcEnvironment environment;
         readonly object myLock = new object();
@@ -138,6 +139,16 @@ namespace Grpc.Core.Internal
             }
         }
 
+        // Returns Timespec.PreciseNow taken just after cq.Next() has woken up on this thread for the last time.
+        internal static Timespec? GetLastNextWakeUpTime()
+        {
+            if (!lastNextWakeupTime.IsValueCreated)
+            {
+                return null;
+            }
+            return lastNextWakeupTime.Value;
+        }
+
         private Thread CreateAndStartThread(int threadIndex)
         {
             var cqIndex = threadIndex % completionQueues.Count;
@@ -160,9 +171,10 @@ namespace Grpc.Core.Internal
             do
             {
                 Profilers.ForCurrentThread().End("EndOfStartCallToNext");
-                Profilers.ForCurrentThread().Begin("NextStartToHandler");
+                Profilers.ForCurrentThread().Begin("cq.Next");
                 Profilers.SetForCurrentThread(null);
                 ev = cq.Next();
+                lastNextWakeupTime.Value = Timespec.PreciseNow;
                 if (ev.type == CompletionQueueEvent.CompletionType.OpComplete)
                 {
                     bool success = (ev.success != 0);

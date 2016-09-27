@@ -65,9 +65,17 @@ namespace Grpc.Core.Internal
         /// </summary>
         private void HandleUnaryResponse(bool success, ClientSideStatus receivedStatus, byte[] receivedMessage, Metadata responseHeaders)
         {
+            var nextWakeupTimestamp = GrpcThreadPool.GetLastNextWakeUpTime().Value;
+
             if (optionalProfiler != null)
             {
-                optionalProfiler.End("NextStartToHandler");
+                var bp = optionalProfiler as BasicProfiler;
+                if (bp != null)
+                {
+                    bp.AddEntry(new ProfilerEntry(nextWakeupTimestamp, ProfilerEntry.Type.END, "cq.Next"));
+                    bp.AddEntry(new ProfilerEntry(nextWakeupTimestamp, ProfilerEntry.Type.BEGIN, "ProcessCqEvent"));
+                    bp.End("ProcessCqEvent");
+                }
                 optionalProfiler.Begin("HardwiredUnaryCallAsync.HandleUnaryResponse");
             }
             // NOTE: because this event is a result of batch containing GRPC_OP_RECV_STATUS_ON_CLIENT,

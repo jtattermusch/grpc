@@ -243,15 +243,34 @@ namespace Grpc.IntegrationTesting
 
         private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)
         {
-            var client = new BenchmarkService.BenchmarkServiceClient(channel);
+            //var client = new BenchmarkService.BenchmarkServiceClient(channel);
             var request = CreateSimpleRequest();
             var stopwatch = new Stopwatch();
 
             while (!stoppedCts.Token.IsCancellationRequested)
             {
                 stopwatch.Restart();
-                await client.UnaryCallAsync(request);
+
+                var tcs = new TaskCompletionSource<object>();
+
+                try {
+                    var call = new HardwiredUnaryCallAsync(channel,
+                    (response) =>
+                    {
+                            tcs.SetResult(response);
+                    },
+                    (rpcException) =>
+                    {
+                            tcs.SetException(rpcException); 
+                    });
+                } catch(Exception e) {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+                await tcs.Task;
+
                 stopwatch.Stop();
+
 
                 // spec requires data point in nanoseconds.
                 histogram.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);

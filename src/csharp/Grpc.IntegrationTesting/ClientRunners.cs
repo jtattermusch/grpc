@@ -140,9 +140,9 @@ namespace Grpc.IntegrationTesting
         readonly ClientType clientType;
         readonly RpcType rpcType;
         readonly PayloadConfig payloadConfig;
-        readonly Histogram histogram;
 
         readonly List<Task> runnerTasks;
+        readonly List<Histogram> histograms;
         readonly CancellationTokenSource stoppedCts = new CancellationTokenSource();
         readonly WallClockStopwatch wallClockStopwatch = new WallClockStopwatch();
         readonly AtomicCounter statsResetCount = new AtomicCounter();
@@ -155,23 +155,29 @@ namespace Grpc.IntegrationTesting
             this.clientType = clientType;
             this.rpcType = rpcType;
             this.payloadConfig = payloadConfig;
-            this.histogram = new Histogram(histogramParams.Resolution, histogramParams.MaxPossible);
 
             this.runnerTasks = new List<Task>();
+            this.histograms = new List<Histogram>();
             foreach (var channel in this.channels)
             {
                 for (int i = 0; i < outstandingRpcsPerChannel; i++)
                 {
                     var timer = CreateTimer(loadParams, 1.0 / this.channels.Count / outstandingRpcsPerChannel);
                     var optionalProfiler = profilerFactory();
-                    this.runnerTasks.Add(RunClientAsync(channel, timer, optionalProfiler));
+                    var histogram = new Histogram(histogramParams.Resolution, histogramParams.MaxPossible);
+                    this.runnerTasks.Add(RunClientAsync(channel, timer, histogram, optionalProfiler));
+                    this.histograms.Add(histogram);
                 }
             }
         }
 
         public ClientStats GetStats(bool reset)
         {
-            var histogramData = histogram.GetSnapshot(reset);
+            var histogramData = histograms[0].GetSnapshot(reset);
+            for (int i = 1; i < histograms.Count; i++)
+            {
+                histogramData = Histogram.MergeSnapshots(histogramData, histograms[i].GetSnapshot(reset));
+            }
             var secondsElapsed = wallClockStopwatch.GetElapsedSnapshot(reset).TotalSeconds;
 
             if (reset)
@@ -202,7 +208,7 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private void RunUnary(Channel channel, IInterarrivalTimer timer, BasicProfiler optionalProfiler)
+        private void RunUnary(Channel channel, IInterarrivalTimer timer, Histogram histogram, BasicProfiler optionalProfiler)
         {
             if (optionalProfiler != null)
             {
@@ -235,7 +241,7 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer)
+        private async Task RunUnaryAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)
         {
             var client = new BenchmarkService.BenchmarkServiceClient(channel);
             var request = CreateSimpleRequest();
@@ -254,7 +260,7 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private async Task RunStreamingPingPongAsync(Channel channel, IInterarrivalTimer timer)
+        private async Task RunStreamingPingPongAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)
         {
             var client = new BenchmarkService.BenchmarkServiceClient(channel);
             var request = CreateSimpleRequest();
@@ -281,7 +287,7 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private async Task RunGenericStreamingAsync(Channel channel, IInterarrivalTimer timer)
+        private async Task RunGenericStreamingAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)
         {
             var request = CreateByteBufferRequest();
             var stopwatch = new Stopwatch();
@@ -309,13 +315,13 @@ namespace Grpc.IntegrationTesting
             }
         }
 
-        private Task RunClientAsync(Channel channel, IInterarrivalTimer timer, BasicProfiler optionalProfiler)
+        private Task RunClientAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram, BasicProfiler optionalProfiler)
         {
             if (payloadConfig.PayloadCase == PayloadConfig.PayloadOneofCase.BytebufParams)
             {
                 GrpcPreconditions.CheckArgument(clientType == ClientType.AsyncClient, "Generic client only supports async API");
                 GrpcPreconditions.CheckArgument(rpcType == RpcType.Streaming, "Generic client only supports streaming calls");
-                return RunGenericStreamingAsync(channel, timer);
+                return RunGenericStreamingAsync(channel, timer, histogram);
             }
 
             GrpcPreconditions.CheckNotNull(payloadConfig.SimpleParams);
@@ -323,16 +329,16 @@ namespace Grpc.IntegrationTesting
             {
                 GrpcPreconditions.CheckArgument(rpcType == RpcType.Unary, "Sync client can only be used for Unary calls in C#");
                 // create a dedicated thread for the synchronous client
-                return Task.Factory.StartNew(() => RunUnary(channel, timer, optionalProfiler), TaskCreationOptions.LongRunning);
+                return Task.Factory.StartNew(() => RunUnary(channel, timer, histogram, optionalProfiler), TaskCreationOptions.LongRunning);
             }
             else if (clientType == ClientType.AsyncClient)
             {
                 switch (rpcType)
                 {
                     case RpcType.Unary:
-                        return RunUnaryAsync(channel, timer);
+                        return RunUnaryAsync(channel, timer, histogram);
                     case RpcType.Streaming:
-                        return RunStreamingPingPongAsync(channel, timer);
+                        return RunStreamingPingPongAsync(channel, timer, histogram);
                 }
             }
             throw new ArgumentException("Unsupported configuration.");

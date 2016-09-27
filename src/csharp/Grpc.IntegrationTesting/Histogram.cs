@@ -96,6 +96,20 @@ namespace Grpc.IntegrationTesting
             }
         }
 
+        public static HistogramData MergeSnapshots(HistogramData data1, HistogramData data2)
+        {
+            GrpcPreconditions.CheckArgument(data1.Bucket.Count == data2.Bucket.Count);
+            return new HistogramData
+            {
+                Count = data1.Count + data2.Count,
+                Sum = data1.Sum + data2.Sum,
+                SumOfSquares = data1.SumOfSquares + data2.SumOfSquares,
+                MinSeen = Math.Min(data1.MinSeen, data2.MinSeen),
+                MaxSeen = Math.Max(data1.MaxSeen, data2.MaxSeen),
+                Bucket = { data1.Bucket.Zip(data2.Bucket, (bucket1, bucket2) => bucket1 + bucket2) }
+            };
+        }
+
         /// <summary>
         /// Finds bucket index to which given observation should go.
         /// </summary>

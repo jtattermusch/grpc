@@ -273,7 +273,10 @@ namespace Grpc.IntegrationTesting
                     Console.WriteLine(e.StackTrace);
                     throw;
                 }
-                Profilers.SetForCurrentThread(null);
+                if (optionalProfiler != null)
+                {
+                    optionalProfiler.Begin("EndOfStartCallToNext");
+                }
                 await tcs.Task;
 
                 stopwatch.Stop();

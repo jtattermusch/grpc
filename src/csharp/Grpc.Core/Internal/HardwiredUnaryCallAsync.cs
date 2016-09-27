@@ -67,6 +67,7 @@ namespace Grpc.Core.Internal
         {
             if (optionalProfiler != null)
             {
+                optionalProfiler.End("NextStartToHandler");
                 optionalProfiler.Begin("HardwiredUnaryCallAsync.HandleUnaryResponse");
             }
             // NOTE: because this event is a result of batch containing GRPC_OP_RECV_STATUS_ON_CLIENT,

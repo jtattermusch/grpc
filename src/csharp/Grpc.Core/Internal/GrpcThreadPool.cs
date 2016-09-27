@@ -37,6 +37,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core.Logging;
+using Grpc.Core.Profiling;
 using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
@@ -158,6 +159,9 @@ namespace Grpc.Core.Internal
             CompletionQueueEvent ev;
             do
             {
+                Profilers.ForCurrentThread().End("EndOfStartCallToNext");
+                Profilers.ForCurrentThread().Begin("NextStartToHandler");
+                Profilers.SetForCurrentThread(null);
                 ev = cq.Next();
                 if (ev.type == CompletionQueueEvent.CompletionType.OpComplete)
                 {

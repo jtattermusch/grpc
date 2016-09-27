@@ -48,8 +48,9 @@ namespace Grpc.Core.Internal
     {
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<CompletionRegistry>();
 
+        readonly object myLock = new object();
         readonly GrpcEnvironment environment;
-        readonly ConcurrentDictionary<IntPtr, OpCompletionDelegate> dict = new ConcurrentDictionary<IntPtr, OpCompletionDelegate>();
+        readonly Dictionary<IntPtr, OpCompletionDelegate> dict = new Dictionary<IntPtr, OpCompletionDelegate>();
 
         public CompletionRegistry(GrpcEnvironment environment)
         {
@@ -58,8 +59,11 @@ namespace Grpc.Core.Internal
 
         public void Register(IntPtr key, OpCompletionDelegate callback)
         {
-            environment.DebugStats.PendingBatchCompletions.Increment();
-            GrpcPreconditions.CheckState(dict.TryAdd(key, callback));
+            //environment.DebugStats.PendingBatchCompletions.Increment();
+            lock (myLock)
+            {
+                dict.Add(key, callback);
+            }
         }
 
         public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
@@ -70,10 +74,15 @@ namespace Grpc.Core.Internal
 
         public OpCompletionDelegate Extract(IntPtr key)
         {
-            OpCompletionDelegate value;
-            GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
-            environment.DebugStats.PendingBatchCompletions.Decrement();
-            return value;
+            lock (myLock)
+            {
+                var value = dict[key];
+                dict.Remove(key);
+                //value = 
+                //GrpcPreconditions.CheckState(dict.RemoveTryRemove(key, out value));
+                //environment.DebugStats.PendingBatchCompletions.Decrement();
+                return value;
+            }
         }
 
         private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)

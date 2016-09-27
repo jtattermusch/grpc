@@ -333,7 +333,7 @@ namespace Grpc.Core.Internal
 
         protected override void OnAfterReleaseResources()
         {
-            details.Channel.RemoveCallReference(this);
+            //details.Channel.RemoveCallReference(this);
         }
 
         protected override bool IsClient
@@ -391,7 +391,7 @@ namespace Grpc.Core.Internal
             { 
                 var call = CreateNativeCall(cq);
 
-                details.Channel.AddCallReference(this);
+                //details.Channel.AddCallReference(this);
                 InitializeInternal(call);
                 RegisterCancellationCallback();
             }

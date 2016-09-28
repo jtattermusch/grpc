@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Grpc.Core.Internal;
 using Grpc.Core.Logging;
@@ -245,6 +246,23 @@ namespace Grpc.Core
             handle.Dispose();
 
             await GrpcEnvironment.ReleaseAsync().ConfigureAwait(false);
+        }
+
+        public int? DefaultCompletionQueueNumber
+        {
+            get
+            {
+                int index = 0;
+                foreach (var cq in environment.CompletionQueues)
+                {
+                    if (object.ReferenceEquals(cq,this.completionQueue))
+                    {
+                        return index;
+                    }
+                    index ++;
+                }
+                return null;
+            }
         }
 
         internal ChannelSafeHandle Handle

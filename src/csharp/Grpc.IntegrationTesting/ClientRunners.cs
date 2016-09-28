@@ -247,46 +247,61 @@ namespace Grpc.IntegrationTesting
             var request = CreateSimpleRequest();
             var stopwatch = new Stopwatch();
 
-            while (!stoppedCts.Token.IsCancellationRequested)
+            var finishedTcs = new TaskCompletionSource<object>();
+
+            RunUnaryAsync_Stage1(channel, stopwatch, stoppedCts.Token, histogram, optionalProfiler, finishedTcs);
+
+            await finishedTcs.Task;
+        }
+
+        private void RunUnaryAsync_Stage1(Channel channel, Stopwatch stopwatch, CancellationToken token, Histogram histogram, IProfiler optionalProfiler, TaskCompletionSource<object> finishedTcs)
+        {
+            if (token.IsCancellationRequested)
             {
-                if (optionalProfiler != null)
-                {
-                    Profilers.SetForCurrentThread(optionalProfiler);
-                }
-                stopwatch.Restart();
+                finishedTcs.SetResult(null);
+                return;
+            }
 
-                var tcs = new TaskCompletionSource<object>();
+            if (optionalProfiler != null)
+            {
+                Profilers.SetForCurrentThread(optionalProfiler);
+            }
 
-                try {
-                    
-                    var call = new HardwiredUnaryCallAsync(channel, new byte[0],
+            stopwatch.Start();
+
+            try {
+
+                var call = new HardwiredUnaryCallAsync(channel, new byte[0],
                     (response) =>
                     {
-                            tcs.SetResult(response);
+                        RunUnaryAsync_Stage2(channel, stopwatch, token, histogram, optionalProfiler, finishedTcs);
+
                     },
                     (rpcException) =>
                     {
-                            tcs.SetException(rpcException); 
-                    }, optionalProfiler);
-                    
-                } catch(Exception e) {
-                    Console.WriteLine(e.StackTrace);
-                    throw;
-                }
-                if (optionalProfiler != null)
-                {
-                    optionalProfiler.Begin("EndOfStartCallToNext");
-                }
-                await tcs.Task;
+                        Console.WriteLine(rpcException.StackTrace);
+                    },
+                    optionalProfiler);
 
-                stopwatch.Stop();
-
-
-                // spec requires data point in nanoseconds.
-                histogram.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);
-
-                //await timer.WaitForNextAsync();
+            } catch(Exception e) {
+                Console.WriteLine(e.StackTrace);
+                throw;
             }
+
+            if (optionalProfiler != null)
+            {
+                optionalProfiler.Begin("EndOfStartCallToNext");
+            }
+        }
+
+        private void RunUnaryAsync_Stage2(Channel channel, Stopwatch stopwatch, CancellationToken token, Histogram histogram, IProfiler optionalProfiler, TaskCompletionSource<object> finishedTcs)
+        {
+            stopwatch.Stop();
+
+            // spec requires data point in nanoseconds.
+            histogram.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);
+
+            RunUnaryAsync_Stage1(channel, stopwatch, token, histogram, optionalProfiler, finishedTcs);
         }
 
         private async Task RunStreamingPingPongAsync(Channel channel, IInterarrivalTimer timer, Histogram histogram)

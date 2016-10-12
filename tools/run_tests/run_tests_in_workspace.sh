@@ -37,9 +37,10 @@ set -ex
 cd $(dirname $0)/../..
 
 rm -rf "${WORKSPACE_NAME}"
-# TODO(jtattermusch): clone --recursive fetches the submodules from github.
-# Try avoiding that to save time and network capacity.
-git clone --recursive . "${WORKSPACE_NAME}"
+git clone . "${WORKSPACE_NAME}"
+# clone gRPC submodules, use data from locally cloned submodules where possible
+git submodule foreach 'cd "${WORKSPACE_NAME}" \
+    && git submodule update --init --reference ../${name} ${name}'
 
 echo "Running run_tests.py in workspace ${WORKSPACE_NAME}" 
 python "${WORKSPACE_NAME}/tools/run_tests/run_tests.py" $@

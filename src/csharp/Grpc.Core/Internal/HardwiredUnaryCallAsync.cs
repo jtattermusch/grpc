@@ -38,7 +38,7 @@ namespace Grpc.Core.Internal
 {
     public class HardwiredUnaryCallAsync
     {
-        private object myLock = new object();
+        //private object myLock = new object();
         private CallSafeHandle nativeCall;
         private Action<byte[]> okCallback;
         private Action<RpcException> errorCallback;
@@ -83,10 +83,10 @@ namespace Grpc.Core.Internal
             //TResponse msg = default(TResponse);
             //var deserializeException = TryDeserialize(receivedMessage, out msg);
 
-            lock (myLock)
-            {
+            //lock (myLock)
+            //{
                 nativeCall.Dispose();
-            }
+            //}
 
             //responseHeadersTcs.SetResult(responseHeaders);
 

@@ -71,12 +71,12 @@ BIG_GENERIC_PAYLOAD = {
 # non-ping-pong tests (since we can only specify per-channel numbers, the
 # actual target will be slightly higher)
 OUTSTANDING_REQUESTS={
-    'async': 6400,
+    'async': 1000,
     'sync': 1000
 }
 
 # wide is the number of client channels in multi-channel tests (1 otherwise)
-WIDE=64
+WIDE=24
 
 
 def _get_secargs(is_secure):
@@ -302,6 +302,12 @@ class CSharpLanguage:
         client_type='SYNC_CLIENT', server_type='SYNC_SERVER',
         server_language='c++', server_core_limit=1, async_server_threads=1,
         categories=[SMOKETEST, SCALABLE])
+    
+    yield _ping_pong_scenario(
+        'csharp_to_cpp_protobuf_async_unary_ping_pong', rpc_type='UNARY',
+        client_type='ASYNC_CLIENT', server_type='ASYNC_SERVER',
+        server_language='c++', server_core_limit=1, async_server_threads=1,
+        categories=[SMOKETEST])
 
     yield _ping_pong_scenario(
         'csharp_to_cpp_protobuf_async_streaming_ping_pong', rpc_type='STREAMING',

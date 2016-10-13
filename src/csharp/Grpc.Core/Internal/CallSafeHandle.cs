@@ -78,7 +78,7 @@ namespace Grpc.Core.Internal
         public void StartUnary2(UnaryResponseClientHandler callback)
         {
             using (Profilers.ForCurrentThread().NewScope("CallSafeHandle.StartUnary2"))
-            using (completionQueue.NewScope())
+            //using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, 

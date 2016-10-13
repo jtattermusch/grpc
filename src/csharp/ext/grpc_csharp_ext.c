@@ -559,6 +559,54 @@ grpcsharp_call_start_unary(grpc_call *call, grpcsharp_batch_context *ctx,
 }
 
 GPR_EXPORT grpc_call_error GPR_CALLTYPE
+grpcsharp_call_start_unary2(grpc_call *call, grpcsharp_batch_context *ctx) {
+  /* TODO: don't use magic number */
+  grpc_op ops[6];
+  memset(ops, 0, sizeof(ops));
+  ops[0].op = GRPC_OP_SEND_INITIAL_METADATA;
+  ops[0].data.send_initial_metadata.count = 0;
+  ops[0].data.send_initial_metadata.metadata = NULL;
+  ops[0].flags = 0;
+  ops[0].reserved = NULL;
+
+  ops[1].op = GRPC_OP_SEND_MESSAGE;
+  ctx->send_message = grpc_raw_byte_buffer_create(NULL, 0);
+  ops[1].data.send_message = ctx->send_message;
+  ops[1].flags = 0;
+  ops[1].reserved = NULL;
+
+  ops[2].op = GRPC_OP_SEND_CLOSE_FROM_CLIENT;
+  ops[2].flags = 0;
+  ops[2].reserved = NULL;
+
+  ops[3].op = GRPC_OP_RECV_INITIAL_METADATA;
+  ops[3].data.recv_initial_metadata = &(ctx->recv_initial_metadata);
+  ops[3].flags = 0;
+  ops[3].reserved = NULL;
+
+  ops[4].op = GRPC_OP_RECV_MESSAGE;
+  ops[4].data.recv_message = &(ctx->recv_message);
+  ops[4].flags = 0;
+  ops[4].reserved = NULL;
+
+  ops[5].op = GRPC_OP_RECV_STATUS_ON_CLIENT;
+  ops[5].data.recv_status_on_client.trailing_metadata =
+      &(ctx->recv_status_on_client.trailing_metadata);
+  ops[5].data.recv_status_on_client.status =
+      &(ctx->recv_status_on_client.status);
+  /* not using preallocation for status_details */
+  ops[5].data.recv_status_on_client.status_details =
+      &(ctx->recv_status_on_client.status_details);
+  ops[5].data.recv_status_on_client.status_details_capacity =
+      &(ctx->recv_status_on_client.status_details_capacity);
+  ops[5].flags = 0;
+  ops[5].reserved = NULL;
+
+  return grpc_call_start_batch(call, ops, sizeof(ops) / sizeof(ops[0]), ctx,
+                               NULL);
+}
+
+GPR_EXPORT grpc_call_error GPR_CALLTYPE
 grpcsharp_call_start_client_streaming(grpc_call *call,
                                       grpcsharp_batch_context *ctx,
                                       grpc_metadata_array *initial_metadata) {

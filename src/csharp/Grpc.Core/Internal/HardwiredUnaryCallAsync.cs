@@ -53,10 +53,10 @@ namespace Grpc.Core.Internal
                 this.optionalProfiler = optionalProfiler;
                 this.nativeCall = channel.Handle.CreateCall(CallSafeHandle.NullInstance, ContextPropagationToken.DefaultMask,
                     channel.CompletionQueue, "/grpc.testing.BenchmarkService/UnaryCall", null, Timespec.InfFuture, null);
-                using (var metadataArray = MetadataArraySafeHandle.Create(Metadata.Empty))
-                {
-                    nativeCall.StartUnary(HandleUnaryResponse, request, metadataArray, default(WriteFlags));
-                }
+                //using (var metadataArray = MetadataArraySafeHandle.Create(Metadata.Empty))
+                //{
+                    nativeCall.StartUnary2(HandleUnaryResponse);
+                //}
             }
         }
 

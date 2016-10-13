@@ -75,6 +75,21 @@ namespace Grpc.Core.Internal
             }
         }
 
+        public void StartUnary2(UnaryResponseClientHandler callback)
+        {
+            using (Profilers.ForCurrentThread().NewScope("CallSafeHandle.StartUnary2"))
+            using (completionQueue.NewScope())
+            {
+                var ctx = BatchContextSafeHandle.Create();
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, 
+                    context.GetReceivedStatusOnClient(),
+                    context.GetReceivedMessage(),
+                    context.GetReceivedInitialMetadata()));
+                Native.grpcsharp_call_start_unary2(this, ctx)
+                    .CheckOk();
+            }
+        }
+
         public void StartUnary(BatchContextSafeHandle ctx, byte[] payload, MetadataArraySafeHandle metadataArray, WriteFlags writeFlags)
         {
             using (Profilers.ForCurrentThread().NewScope("CallSafeHandle.StartUnary"))

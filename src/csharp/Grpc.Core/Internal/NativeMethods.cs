@@ -78,6 +78,7 @@ namespace Grpc.Core.Internal
         public readonly Delegates.grpcsharp_call_cancel_delegate grpcsharp_call_cancel;
         public readonly Delegates.grpcsharp_call_cancel_with_status_delegate grpcsharp_call_cancel_with_status;
         public readonly Delegates.grpcsharp_call_start_unary_delegate grpcsharp_call_start_unary;
+        public readonly Delegates.grpcsharp_call_start_unary2_delegate grpcsharp_call_start_unary2;
         public readonly Delegates.grpcsharp_call_start_client_streaming_delegate grpcsharp_call_start_client_streaming;
         public readonly Delegates.grpcsharp_call_start_server_streaming_delegate grpcsharp_call_start_server_streaming;
         public readonly Delegates.grpcsharp_call_start_duplex_streaming_delegate grpcsharp_call_start_duplex_streaming;
@@ -184,6 +185,7 @@ namespace Grpc.Core.Internal
             this.grpcsharp_call_cancel = GetMethodDelegate<Delegates.grpcsharp_call_cancel_delegate>(library);
             this.grpcsharp_call_cancel_with_status = GetMethodDelegate<Delegates.grpcsharp_call_cancel_with_status_delegate>(library);
             this.grpcsharp_call_start_unary = GetMethodDelegate<Delegates.grpcsharp_call_start_unary_delegate>(library);
+            this.grpcsharp_call_start_unary2 = GetMethodDelegate<Delegates.grpcsharp_call_start_unary2_delegate>(library);
             this.grpcsharp_call_start_client_streaming = GetMethodDelegate<Delegates.grpcsharp_call_start_client_streaming_delegate>(library);
             this.grpcsharp_call_start_server_streaming = GetMethodDelegate<Delegates.grpcsharp_call_start_server_streaming_delegate>(library);
             this.grpcsharp_call_start_duplex_streaming = GetMethodDelegate<Delegates.grpcsharp_call_start_duplex_streaming_delegate>(library);
@@ -317,6 +319,7 @@ namespace Grpc.Core.Internal
             public delegate CallError grpcsharp_call_cancel_with_status_delegate(CallSafeHandle call, StatusCode status, string description);
             public delegate CallError grpcsharp_call_start_unary_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, MetadataArraySafeHandle metadataArray, WriteFlags writeFlags);
+            public delegate CallError grpcsharp_call_start_unary2_delegate(CallSafeHandle call, BatchContextSafeHandle ctx);
             public delegate CallError grpcsharp_call_start_client_streaming_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
             public delegate CallError grpcsharp_call_start_server_streaming_delegate(CallSafeHandle call,

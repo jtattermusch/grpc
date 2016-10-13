@@ -46,21 +46,29 @@ namespace Grpc.Core.Internal
 
     internal class CompletionRegistry
     {
+        const int ShardCount = 37;  // some prime
+
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<CompletionRegistry>();
 
-        readonly object myLock = new object();
         readonly GrpcEnvironment environment;
-        readonly Dictionary<IntPtr, OpCompletionDelegate> dict = new Dictionary<IntPtr, OpCompletionDelegate>();
+        readonly Dictionary<IntPtr, OpCompletionDelegate>[] dictShards;
 
         public CompletionRegistry(GrpcEnvironment environment)
         {
             this.environment = environment;
+
+            this.dictShards = new Dictionary<IntPtr, OpCompletionDelegate>[ShardCount];
+            for (int i = 0; i < ShardCount; i++)
+            {
+                this.dictShards[i] = new Dictionary<IntPtr, OpCompletionDelegate>();
+            }
         }
 
         public void Register(IntPtr key, OpCompletionDelegate callback)
         {
             //environment.DebugStats.PendingBatchCompletions.Increment();
-            lock (myLock)
+            var dict = GetShard(key);
+            lock (dict)
             {
                 dict.Add(key, callback);
             }
@@ -74,7 +82,8 @@ namespace Grpc.Core.Internal
 
         public OpCompletionDelegate Extract(IntPtr key)
         {
-            lock (myLock)
+            var dict = GetShard(key);
+            lock (dict)
             {
                 var value = dict[key];
                 dict.Remove(key);
@@ -83,6 +92,11 @@ namespace Grpc.Core.Internal
                 //environment.DebugStats.PendingBatchCompletions.Decrement();
                 return value;
             }
+        }
+
+        private Dictionary<IntPtr, OpCompletionDelegate> GetShard(IntPtr key)
+        {
+            return dictShards[(ulong)key % ShardCount];
         }
 
         private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)

@@ -394,6 +394,16 @@ grpcsharp_channel_create_call(grpc_channel *channel, grpc_call *parent_call,
                                   method, host, deadline, NULL);
 }
 
+GPR_EXPORT grpc_call *GPR_CALLTYPE
+grpcsharp_channel_create_call2(grpc_channel *channel,
+                              grpc_completion_queue *cq) {
+  return grpc_channel_create_call(channel, NULL, GRPC_PROPAGATE_DEFAULTS, cq,
+                                  "/grpc.testing.BenchmarkService/UnaryCall",
+                                  NULL,
+                                  gpr_inf_future(GPR_CLOCK_REALTIME),
+                                  NULL);
+}
+
 GPR_EXPORT grpc_connectivity_state GPR_CALLTYPE
 grpcsharp_channel_check_connectivity_state(grpc_channel *channel, int32_t try_to_connect) {
   return grpc_channel_check_connectivity_state(channel, try_to_connect);

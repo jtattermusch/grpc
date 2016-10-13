@@ -77,6 +77,16 @@ namespace Grpc.Core.Internal
             }
         }
 
+        public CallSafeHandle CreateCall2(CompletionQueueSafeHandle cq)
+        {
+            using (Profilers.ForCurrentThread().NewScope("ChannelSafeHandle.CreateCall2"))
+            {
+                var result = Native.grpcsharp_channel_create_call2(this, cq);
+                result.Initialize(cq);
+                return result;
+            }
+        }
+
         public ChannelState CheckConnectivityState(bool tryToConnect)
         {
             return Native.grpcsharp_channel_check_connectivity_state(this, tryToConnect ? 1 : 0);

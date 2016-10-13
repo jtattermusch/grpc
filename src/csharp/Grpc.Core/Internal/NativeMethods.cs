@@ -106,6 +106,7 @@ namespace Grpc.Core.Internal
         public readonly Delegates.grpcsharp_insecure_channel_create_delegate grpcsharp_insecure_channel_create;
         public readonly Delegates.grpcsharp_secure_channel_create_delegate grpcsharp_secure_channel_create;
         public readonly Delegates.grpcsharp_channel_create_call_delegate grpcsharp_channel_create_call;
+        public readonly Delegates.grpcsharp_channel_create_call2_delegate grpcsharp_channel_create_call2;
         public readonly Delegates.grpcsharp_channel_check_connectivity_state_delegate grpcsharp_channel_check_connectivity_state;
         public readonly Delegates.grpcsharp_channel_watch_connectivity_state_delegate grpcsharp_channel_watch_connectivity_state;
         public readonly Delegates.grpcsharp_channel_get_target_delegate grpcsharp_channel_get_target;
@@ -213,6 +214,7 @@ namespace Grpc.Core.Internal
             this.grpcsharp_insecure_channel_create = GetMethodDelegate<Delegates.grpcsharp_insecure_channel_create_delegate>(library);
             this.grpcsharp_secure_channel_create = GetMethodDelegate<Delegates.grpcsharp_secure_channel_create_delegate>(library);
             this.grpcsharp_channel_create_call = GetMethodDelegate<Delegates.grpcsharp_channel_create_call_delegate>(library);
+            this.grpcsharp_channel_create_call2 = GetMethodDelegate<Delegates.grpcsharp_channel_create_call2_delegate>(library);
             this.grpcsharp_channel_check_connectivity_state = GetMethodDelegate<Delegates.grpcsharp_channel_check_connectivity_state_delegate>(library);
             this.grpcsharp_channel_watch_connectivity_state = GetMethodDelegate<Delegates.grpcsharp_channel_watch_connectivity_state_delegate>(library);
             this.grpcsharp_channel_get_target = GetMethodDelegate<Delegates.grpcsharp_channel_get_target_delegate>(library);
@@ -359,6 +361,7 @@ namespace Grpc.Core.Internal
             public delegate ChannelSafeHandle grpcsharp_insecure_channel_create_delegate(string target, ChannelArgsSafeHandle channelArgs);
             public delegate ChannelSafeHandle grpcsharp_secure_channel_create_delegate(ChannelCredentialsSafeHandle credentials, string target, ChannelArgsSafeHandle channelArgs);
             public delegate CallSafeHandle grpcsharp_channel_create_call_delegate(ChannelSafeHandle channel, CallSafeHandle parentCall, ContextPropagationFlags propagationMask, CompletionQueueSafeHandle cq, string method, string host, Timespec deadline);
+            public delegate CallSafeHandle grpcsharp_channel_create_call2_delegate(ChannelSafeHandle channel, CompletionQueueSafeHandle cq);
             public delegate ChannelState grpcsharp_channel_check_connectivity_state_delegate(ChannelSafeHandle channel, int tryToConnect);
             public delegate void grpcsharp_channel_watch_connectivity_state_delegate(ChannelSafeHandle channel, ChannelState lastObservedState,
                 Timespec deadline, CompletionQueueSafeHandle cq, BatchContextSafeHandle ctx);

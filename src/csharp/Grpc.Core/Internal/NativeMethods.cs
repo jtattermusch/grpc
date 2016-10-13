@@ -321,7 +321,7 @@ namespace Grpc.Core.Internal
             public delegate CallError grpcsharp_call_cancel_with_status_delegate(CallSafeHandle call, StatusCode status, string description);
             public delegate CallError grpcsharp_call_start_unary_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, MetadataArraySafeHandle metadataArray, WriteFlags writeFlags);
-            public delegate CallError grpcsharp_call_start_unary2_delegate(CallSafeHandle call, BatchContextSafeHandle ctx);
+            public delegate CallError grpcsharp_call_start_unary2_delegate(IntPtr call, IntPtr ctx);
             public delegate CallError grpcsharp_call_start_client_streaming_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
             public delegate CallError grpcsharp_call_start_server_streaming_delegate(CallSafeHandle call,
@@ -361,7 +361,7 @@ namespace Grpc.Core.Internal
             public delegate ChannelSafeHandle grpcsharp_insecure_channel_create_delegate(string target, ChannelArgsSafeHandle channelArgs);
             public delegate ChannelSafeHandle grpcsharp_secure_channel_create_delegate(ChannelCredentialsSafeHandle credentials, string target, ChannelArgsSafeHandle channelArgs);
             public delegate CallSafeHandle grpcsharp_channel_create_call_delegate(ChannelSafeHandle channel, CallSafeHandle parentCall, ContextPropagationFlags propagationMask, CompletionQueueSafeHandle cq, string method, string host, Timespec deadline);
-            public delegate CallSafeHandle grpcsharp_channel_create_call2_delegate(ChannelSafeHandle channel, CompletionQueueSafeHandle cq);
+            public delegate CallSafeHandle grpcsharp_channel_create_call2_delegate(IntPtr channel, IntPtr cq);
             public delegate ChannelState grpcsharp_channel_check_connectivity_state_delegate(ChannelSafeHandle channel, int tryToConnect);
             public delegate void grpcsharp_channel_watch_connectivity_state_delegate(ChannelSafeHandle channel, ChannelState lastObservedState,
                 Timespec deadline, CompletionQueueSafeHandle cq, BatchContextSafeHandle ctx);
@@ -372,7 +372,7 @@ namespace Grpc.Core.Internal
 
             public delegate CompletionQueueSafeHandle grpcsharp_completion_queue_create_delegate();
             public delegate void grpcsharp_completion_queue_shutdown_delegate(CompletionQueueSafeHandle cq);
-            public delegate CompletionQueueEvent grpcsharp_completion_queue_next_delegate(CompletionQueueSafeHandle cq);
+            public delegate CompletionQueueEvent grpcsharp_completion_queue_next_delegate(IntPtr cq);
             public delegate CompletionQueueEvent grpcsharp_completion_queue_pluck_delegate(CompletionQueueSafeHandle cq, IntPtr tag);
             public delegate void grpcsharp_completion_queue_destroy_delegate(IntPtr cq);
 

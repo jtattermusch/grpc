@@ -81,7 +81,7 @@ namespace Grpc.Core.Internal
         {
             using (Profilers.ForCurrentThread().NewScope("ChannelSafeHandle.CreateCall2"))
             {
-                var result = Native.grpcsharp_channel_create_call2(this, cq);
+                var result = Native.grpcsharp_channel_create_call2(this.handle, cq.DangerousGetHandle());
                 result.Initialize(cq);
                 return result;
             }

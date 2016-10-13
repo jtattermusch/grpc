@@ -85,7 +85,7 @@ namespace Grpc.Core.Internal
                     /*context.GetReceivedStatusOnClient()*/ new ClientSideStatus(Status.DefaultSuccess, new Metadata()), 
                     /*context.GetReceivedMessage()*/ new byte[0],
                     /*context.GetReceivedInitialMetadata()*/ new Metadata()));
-                Native.grpcsharp_call_start_unary2(this, ctx)
+                Native.grpcsharp_call_start_unary2(this.handle, ctx.DangerousGetHandle())
                     .CheckOk();
             }
         }

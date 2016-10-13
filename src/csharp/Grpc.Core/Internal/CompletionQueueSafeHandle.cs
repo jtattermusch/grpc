@@ -65,7 +65,7 @@ namespace Grpc.Core.Internal
 
         public CompletionQueueEvent Next()
         {
-            return Native.grpcsharp_completion_queue_next(this);
+            return Native.grpcsharp_completion_queue_next(this.DangerousGetHandle());
         }
 
         public CompletionQueueEvent Pluck(IntPtr tag)

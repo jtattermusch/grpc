@@ -80,6 +80,7 @@ namespace Grpc.Core.Internal
             try
             {
                 GrpcPreconditions.CheckArgument(await requestStream.MoveNext().ConfigureAwait(false));
+
                 var request = requestStream.Current;
                 var response = await handler(request, context).ConfigureAwait(false);
                 status = context.Status;
@@ -103,6 +104,7 @@ namespace Grpc.Core.Internal
                 throw;
             }
             await finishedTask.ConfigureAwait(false);
+            allowNextRpc();
         }
     }
 
@@ -138,6 +140,7 @@ namespace Grpc.Core.Internal
             try
             {
                 GrpcPreconditions.CheckArgument(await requestStream.MoveNext().ConfigureAwait(false));
+                allowNextRpc();
                 var request = requestStream.Current;
                 await handler(request, responseStream, context).ConfigureAwait(false);
                 status = context.Status;
@@ -188,6 +191,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(newRpc.Call, cq);
             var finishedTask = asyncCall.ServerSideCallAsync();
+
+            allowNextRpc();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -246,6 +251,8 @@ namespace Grpc.Core.Internal
 
             asyncCall.Initialize(newRpc.Call, cq);
             var finishedTask = asyncCall.ServerSideCallAsync();
+
+            allowNextRpc();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 

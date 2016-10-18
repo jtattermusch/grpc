@@ -44,7 +44,7 @@ namespace Grpc.Core.Internal
 {
     internal interface IServerCallHandler
     {
-        Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq);
+        Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc);
     }
 
     internal class UnaryServerCallHandler<TRequest, TResponse> : IServerCallHandler
@@ -62,7 +62,7 @@ namespace Grpc.Core.Internal
             this.handler = handler;
         }
 
-        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
@@ -121,7 +121,7 @@ namespace Grpc.Core.Internal
             this.handler = handler;
         }
 
-        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
@@ -179,7 +179,7 @@ namespace Grpc.Core.Internal
             this.handler = handler;
         }
 
-        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
@@ -237,7 +237,7 @@ namespace Grpc.Core.Internal
             this.handler = handler;
         }
 
-        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
+        public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
@@ -299,9 +299,9 @@ namespace Grpc.Core.Internal
             return Task.FromResult<object>(null);
         }
 
-        public Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
+        public Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
-            return callHandlerImpl.HandleCall(newRpc, cq);
+            return callHandlerImpl.HandleCall(newRpc, cq, allowNextRpc);
         }
     }
 

@@ -310,7 +310,7 @@ namespace Grpc.Core
         /// <summary>
         /// Selects corresponding handler for given call and handles the call.
         /// </summary>
-        private async Task HandleCallAsync(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action continuation)
+        private async Task HandleCallAsync(ServerRpcNew newRpc, CompletionQueueSafeHandle cq, Action allowNextRpc)
         {
             try
             {
@@ -319,16 +319,11 @@ namespace Grpc.Core
                 {
                     callHandler = UnimplementedMethodCallHandler.Instance;
                 }
-                await callHandler.HandleCall(newRpc, cq).ConfigureAwait(false);
+                await callHandler.HandleCall(newRpc, cq, allowNextRpc).ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 Logger.Warning(e, "Exception while handling RPC.");
-            }
-
-            if (continuation != null)
-            {
-                continuation();
             }
         }
 

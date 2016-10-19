@@ -72,6 +72,10 @@ namespace Grpc.Core.Profiling
         public void Mark(string tag)
         {
         }
+
+        public void AddEntry(ProfilerEntry entry)
+        {
+        }
     }
 
     // Profiler using Timespec.PreciseNow
@@ -104,6 +108,11 @@ namespace Grpc.Core.Profiling
             AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.MARK, tag));
         }
 
+        // NOT THREADSAFE!
+        public void AddEntry(ProfilerEntry entry) {
+            entries[count++] = entry;
+        }
+
         public void Reset()
         {
             count = 0;
@@ -124,11 +133,6 @@ namespace Grpc.Core.Profiling
                 var entry = entries[i];
                 stream.WriteLine(entry.ToString());
             }
-        }
-
-        // NOT THREADSAFE!
-        void AddEntry(ProfilerEntry entry) {
-            entries[count++] = entry;
         }
     }
 }

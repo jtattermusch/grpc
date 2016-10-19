@@ -96,7 +96,8 @@ def create_qpsworker_job(language, shortname=None,
   jobspec = jobset.JobSpec(
       cmdline=cmdline,
       shortname=shortname,
-      timeout_seconds=2*60*60)
+      timeout_seconds=2*60*60,
+      verbose_success=True)
   return QpsWorkerJob(jobspec, language, host_and_port)
 
 

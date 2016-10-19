@@ -99,6 +99,15 @@ namespace Grpc.IntegrationTesting
                 Ports = { new ServerPort("[::]", config.Port, credentials) }
             };
 
+
+            Task.Run(async () =>
+                {
+                    while(true) {
+                       await Task.Delay(1000);
+                       Console.WriteLine("Active calls: " + server.GetActiveCallCount());
+                    }
+                });
+
             server.Start();
             return new ServerRunnerImpl(server);
         }

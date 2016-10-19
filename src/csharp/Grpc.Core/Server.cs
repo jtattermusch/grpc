@@ -47,7 +47,7 @@ namespace Grpc.Core
     /// </summary>
     public class Server
     {
-        const int InitialAllowRpcTokenCountPerCq = 100;
+        const int InitialAllowRpcTokenCountPerCq = 50;
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<Server>();
 
         readonly AtomicCounter activeCallCounter = new AtomicCounter();
@@ -180,6 +180,11 @@ namespace Grpc.Core
         public Task KillAsync()
         {
             return ShutdownInternalAsync(true);
+        }
+
+        public long GetActiveCallCount()
+        {
+            return activeCallCounter.Count;
         }
 
         internal void AddCallReference(object call)

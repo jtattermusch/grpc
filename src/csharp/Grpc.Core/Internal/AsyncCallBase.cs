@@ -181,8 +181,8 @@ namespace Grpc.Core.Internal
         /// </summary>
         protected bool ReleaseResourcesIfPossible()
         {
-            using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.ReleaseResourcesIfPossible"))
-            {
+            //using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.ReleaseResourcesIfPossible"))
+            //{
                 if (!disposed && call != null)
                 {
                     bool noMoreSendCompletions = streamingWriteTcs == null && (halfcloseRequested || cancelRequested || finished);
@@ -193,7 +193,7 @@ namespace Grpc.Core.Internal
                     }
                 }
                 return false;
-            }
+            //}
         }
 
         protected abstract bool IsClient
@@ -229,16 +229,16 @@ namespace Grpc.Core.Internal
 
         protected byte[] UnsafeSerialize(TWrite msg)
         {
-            using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.UnsafeSerialize"))
-            {
+            //using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.UnsafeSerialize"))
+            //{
                 return serializer(msg);
-            }
+            //}
         }
 
         protected Exception TryDeserialize(byte[] payload, out TRead msg)
         {
-            using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.TryDeserialize"))
-            {
+            //using (Profilers.ForCurrentThread().NewScope("AsyncCallBase.TryDeserialize"))
+            //{
                 try
                 {
                 
@@ -251,7 +251,7 @@ namespace Grpc.Core.Internal
                     msg = default(TRead);
                     return e;
                 }
-            }
+            //}
         }
 
         /// <summary>

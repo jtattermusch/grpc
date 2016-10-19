@@ -48,8 +48,8 @@ namespace Grpc.Core.Internal
             
         public static MetadataArraySafeHandle Create(Metadata metadata)
         {
-            using (Profilers.ForCurrentThread().NewScope("MetadataArraySafeHandle.Create"))
-            {
+            //using (Profilers.ForCurrentThread().NewScope("MetadataArraySafeHandle.Create"))
+            //{
                 if (metadata.Count == 0)
                 {
                     return new MetadataArraySafeHandle();
@@ -63,7 +63,7 @@ namespace Grpc.Core.Internal
                     Native.grpcsharp_metadata_array_add(metadataArray, metadata[i].Key, valueBytes, new UIntPtr((ulong)valueBytes.Length));
                 }
                 return metadataArray;
-            }
+            //}
         }
 
         /// <summary>

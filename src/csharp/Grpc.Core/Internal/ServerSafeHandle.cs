@@ -28,8 +28,11 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+using System;
 
 #endregion
+
+using Grpc.Core.Profiling;
 
 namespace Grpc.Core.Internal
 {
@@ -90,6 +93,7 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.BEGIN, "server_request_call", IntPtr.Zero, ctx.DangerousGetHandle()));
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, callback);
                 Native.grpcsharp_server_request_call(this, completionQueue, ctx).CheckOk();
             }

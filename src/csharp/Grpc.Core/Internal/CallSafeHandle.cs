@@ -139,8 +139,13 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.BEGIN, "call_send_status_from_server", this.handle, ctx.DangerousGetHandle()));
                 var optionalPayloadLength = optionalPayload != null ? new UIntPtr((ulong)optionalPayload.Length) : UIntPtr.Zero;
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success));
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => {
+                    Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.END, "call_send_status_from_server", this.handle, ctx.DangerousGetHandle()));
+                    callback(success);
+                });
+
                 Native.grpcsharp_call_send_status_from_server(this, ctx, status.StatusCode, status.Detail, metadataArray, sendEmptyInitialMetadata,
                     optionalPayload, optionalPayloadLength, writeFlags).CheckOk();
             }
@@ -151,7 +156,11 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, context.GetReceivedMessage()));
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.BEGIN, "call_receive_msg", this.handle, ctx.DangerousGetHandle()));
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => {
+                    Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.END, "call_receive_msg", this.handle, ctx.DangerousGetHandle()));
+                    callback(success, context.GetReceivedMessage());
+                });
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
             }
         }
@@ -171,7 +180,11 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success, context.GetReceivedCloseOnServerCancelled()));
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.BEGIN, "call_start_server_side", this.handle, ctx.DangerousGetHandle()));
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => {
+                    Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.END, "call_start_server_side", this.handle, ctx.DangerousGetHandle()));
+                    callback(success, context.GetReceivedCloseOnServerCancelled());
+                });
                 Native.grpcsharp_call_start_serverside(this, ctx).CheckOk();
             }
         }

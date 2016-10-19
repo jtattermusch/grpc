@@ -28,6 +28,7 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+using Grpc.Core.Profiling;
 
 #endregion
 
@@ -341,6 +342,7 @@ namespace Grpc.Core
             if (success)
             {
                 ServerRpcNew newRpc = ctx.GetServerRpcNew(this);
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.END, "server_request_call", newRpc.Call.DangerousGetHandle(), ctx.DangerousGetHandle()));
 
                 // after server shutdown, the callback returns with null call
                 if (!newRpc.Call.IsInvalid)

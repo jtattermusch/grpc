@@ -47,25 +47,29 @@ namespace Grpc.Core.Profiling
             MARK
         }
 
-        public ProfilerEntry(Timespec timespec, Type type, string tag)
+        public ProfilerEntry(Timespec timespec, Type type, string tag, IntPtr callPtr = default(IntPtr), IntPtr cqTagPtr = default(IntPtr))
         {
             this.timespec = timespec;
             this.type = type;
             this.tag = tag;
+            this.callPtr = callPtr;
+            this.cqTagPtr = cqTagPtr;
         }
 
         public Timespec timespec;
         public Type type;
         public string tag;
+        public IntPtr callPtr;
+        public IntPtr cqTagPtr;
 
         public override string ToString()
         {
             // mimic the output format used by C core.
             return string.Format(
                 "{{\"t\": {0}.{1}, \"thd\":\"unknown\", \"type\": \"{2}\", \"tag\": \"{3}\", " +
-                "\"file\": \"unknown\", \"line\": 0, \"imp\": 0}}",
+                "\"file\": \"unknown\", \"line\": 0, \"imp\": 0, \"callPtr\": {4}, \"cqTagPtr\": {5}}}",
                 timespec.TimevalSeconds, timespec.TimevalNanos.ToString("D9"),
-                GetTypeAbbreviation(type), tag);
+                GetTypeAbbreviation(type), tag, callPtr, cqTagPtr);
         }
 
         internal static string GetTypeAbbreviation(Type type)

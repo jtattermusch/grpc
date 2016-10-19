@@ -45,5 +45,7 @@ namespace Grpc.Core.Profiling
         void End(string tag);
 
         void Mark(string tag);
+
+        void AddEntry(ProfilerEntry entry);
     }
 }

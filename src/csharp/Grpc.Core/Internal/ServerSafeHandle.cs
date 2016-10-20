@@ -93,7 +93,6 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.BEGIN, "server_request_call", IntPtr.Zero, ctx.DangerousGetHandle()));
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, callback);
                 Native.grpcsharp_server_request_call(this, completionQueue, ctx).CheckOk();
             }

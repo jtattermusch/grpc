@@ -299,7 +299,8 @@ namespace Grpc.Core
         {
             if (!shutdownRequested)
             {
-                handle.RequestCall((success, ctx) => HandleNewServerRpc(success, ctx, cq), cq);
+                var now = Timespec.PreciseNow;
+                handle.RequestCall((success, ctx) => HandleNewServerRpc(success, ctx, cq, now), cq);
             }
         }
 
@@ -336,12 +337,13 @@ namespace Grpc.Core
         /// <summary>
         /// Handles the native callback.
         /// </summary>
-        private void HandleNewServerRpc(bool success, BatchContextSafeHandle ctx, CompletionQueueSafeHandle cq)
+        private void HandleNewServerRpc(bool success, BatchContextSafeHandle ctx, CompletionQueueSafeHandle cq, Timespec requestCallPreciseTimestamp)
         {
             bool nextRpcRequested = false;
             if (success)
             {
                 ServerRpcNew newRpc = ctx.GetServerRpcNew(this);
+                Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(requestCallPreciseTimestamp, ProfilerEntry.Type.BEGIN, "server_request_call", newRpc.Call.DangerousGetHandle(), ctx.DangerousGetHandle()));
                 Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.END, "server_request_call", newRpc.Call.DangerousGetHandle(), ctx.DangerousGetHandle()));
 
                 // after server shutdown, the callback returns with null call

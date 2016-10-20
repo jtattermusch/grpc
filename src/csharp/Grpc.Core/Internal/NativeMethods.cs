@@ -37,6 +37,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading;
 
 using Grpc.Core.Logging;
@@ -292,121 +293,345 @@ namespace Grpc.Core.Internal
         /// </summary>
         public class Delegates
         {
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_init_delegate();
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_shutdown_delegate();
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_version_string_delegate();  // returns not-owned const char*
 
+            
+            [SecuritySafeCritical]
             public delegate BatchContextSafeHandle grpcsharp_batch_context_create_delegate();
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_recv_initial_metadata_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_recv_message_length_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_batch_context_recv_message_to_buffer_delegate(BatchContextSafeHandle ctx, byte[] buffer, UIntPtr bufferLen);
+
+            
+            [SecuritySafeCritical]
             public delegate StatusCode grpcsharp_batch_context_recv_status_on_client_status_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_recv_status_on_client_details_delegate(BatchContextSafeHandle ctx);  // returns const char*
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_recv_status_on_client_trailing_metadata_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CallSafeHandle grpcsharp_batch_context_server_rpc_new_call_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_server_rpc_new_method_delegate(BatchContextSafeHandle ctx);  // returns const char*
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_server_rpc_new_host_delegate(BatchContextSafeHandle ctx);  // returns const char*
+
+            
+            [SecuritySafeCritical]
             public delegate Timespec grpcsharp_batch_context_server_rpc_new_deadline_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_batch_context_server_rpc_new_request_metadata_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate int grpcsharp_batch_context_recv_close_on_server_cancelled_delegate(BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_batch_context_destroy_delegate(IntPtr ctx);
 
+            
+            [SecuritySafeCritical]
             public delegate CallCredentialsSafeHandle grpcsharp_composite_call_credentials_create_delegate(CallCredentialsSafeHandle creds1, CallCredentialsSafeHandle creds2);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_call_credentials_release_delegate(IntPtr credentials);
 
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_cancel_delegate(CallSafeHandle call);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_cancel_with_status_delegate(CallSafeHandle call, StatusCode status, string description);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_start_unary_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, MetadataArraySafeHandle metadataArray, WriteFlags writeFlags);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_start_client_streaming_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_start_server_streaming_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen,
                 MetadataArraySafeHandle metadataArray, WriteFlags writeFlags);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_start_duplex_streaming_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_send_message_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, WriteFlags writeFlags, bool sendEmptyInitialMetadata);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_send_close_from_client_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_send_status_from_server_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, StatusCode statusCode, string statusMessage, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata,
                 byte[] optionalSendBuffer, UIntPtr optionalSendBufferLen, WriteFlags writeFlags);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_recv_message_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_recv_initial_metadata_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_start_serverside_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_send_initial_metadata_delegate(CallSafeHandle call,
                 BatchContextSafeHandle ctx, MetadataArraySafeHandle metadataArray);
+
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_call_set_credentials_delegate(CallSafeHandle call, CallCredentialsSafeHandle credentials);
+
+            
+            [SecuritySafeCritical]
             public delegate CStringSafeHandle grpcsharp_call_get_peer_delegate(CallSafeHandle call);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_call_destroy_delegate(IntPtr call);
 
+            
+            [SecuritySafeCritical]
             public delegate ChannelArgsSafeHandle grpcsharp_channel_args_create_delegate(UIntPtr numArgs);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_args_set_string_delegate(ChannelArgsSafeHandle args, UIntPtr index, string key, string value);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_args_set_integer_delegate(ChannelArgsSafeHandle args, UIntPtr index, string key, int value);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_args_destroy_delegate(IntPtr args);
 
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_override_default_ssl_roots(string pemRootCerts);
+
+            
+            [SecuritySafeCritical]
             public delegate ChannelCredentialsSafeHandle grpcsharp_ssl_credentials_create_delegate(string pemRootCerts, string keyCertPairCertChain, string keyCertPairPrivateKey);
+
+            
+            [SecuritySafeCritical]
             public delegate ChannelCredentialsSafeHandle grpcsharp_composite_channel_credentials_create_delegate(ChannelCredentialsSafeHandle channelCreds, CallCredentialsSafeHandle callCreds);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_credentials_release_delegate(IntPtr credentials);
 
+            
+            [SecuritySafeCritical]
             public delegate ChannelSafeHandle grpcsharp_insecure_channel_create_delegate(string target, ChannelArgsSafeHandle channelArgs);
+
+            
+            [SecuritySafeCritical]
             public delegate ChannelSafeHandle grpcsharp_secure_channel_create_delegate(ChannelCredentialsSafeHandle credentials, string target, ChannelArgsSafeHandle channelArgs);
+
+            
+            [SecuritySafeCritical]
             public delegate CallSafeHandle grpcsharp_channel_create_call_delegate(ChannelSafeHandle channel, CallSafeHandle parentCall, ContextPropagationFlags propagationMask, CompletionQueueSafeHandle cq, string method, string host, Timespec deadline);
+
+            
+            [SecuritySafeCritical]
             public delegate ChannelState grpcsharp_channel_check_connectivity_state_delegate(ChannelSafeHandle channel, int tryToConnect);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_watch_connectivity_state_delegate(ChannelSafeHandle channel, ChannelState lastObservedState,
                 Timespec deadline, CompletionQueueSafeHandle cq, BatchContextSafeHandle ctx);
+
+            
+            [SecuritySafeCritical]
             public delegate CStringSafeHandle grpcsharp_channel_get_target_delegate(ChannelSafeHandle call);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_channel_destroy_delegate(IntPtr channel);
 
+            
+            [SecuritySafeCritical]
             public delegate int grpcsharp_sizeof_grpc_event_delegate();
 
+            
+            [SecuritySafeCritical]
             public delegate CompletionQueueSafeHandle grpcsharp_completion_queue_create_delegate();
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_completion_queue_shutdown_delegate(CompletionQueueSafeHandle cq);
+
+            
+            [SecuritySafeCritical]
             public delegate CompletionQueueEvent grpcsharp_completion_queue_next_delegate(CompletionQueueSafeHandle cq);
+
+            
+            [SecuritySafeCritical]
             public delegate CompletionQueueEvent grpcsharp_completion_queue_pluck_delegate(CompletionQueueSafeHandle cq, IntPtr tag);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_completion_queue_destroy_delegate(IntPtr cq);
 
+            
+            [SecuritySafeCritical]
             public delegate void gprsharp_free_delegate(IntPtr ptr);
 
+            
+            [SecuritySafeCritical]
             public delegate MetadataArraySafeHandle grpcsharp_metadata_array_create_delegate(UIntPtr capacity);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_metadata_array_add_delegate(MetadataArraySafeHandle array, string key, byte[] value, UIntPtr valueLength);
+
+            
+            [SecuritySafeCritical]
             public delegate UIntPtr grpcsharp_metadata_array_count_delegate(IntPtr metadataArray);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_metadata_array_get_key_delegate(IntPtr metadataArray, UIntPtr index);
+
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_metadata_array_get_value_delegate(IntPtr metadataArray, UIntPtr index);
+
+            
+            [SecuritySafeCritical]
             public delegate UIntPtr grpcsharp_metadata_array_get_value_length_delegate(IntPtr metadataArray, UIntPtr index);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_metadata_array_destroy_full_delegate(IntPtr array);
 
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_redirect_log_delegate(GprLogDelegate callback);
 
+            
+            [SecuritySafeCritical]
             public delegate CallCredentialsSafeHandle grpcsharp_metadata_credentials_create_from_plugin_delegate(NativeMetadataInterceptor interceptor);
+
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_metadata_credentials_notify_from_plugin_delegate(IntPtr callbackPtr, IntPtr userData, MetadataArraySafeHandle metadataArray, StatusCode statusCode, string errorDetails);
 
+            
+            [SecuritySafeCritical]
             public delegate ServerCredentialsSafeHandle grpcsharp_ssl_server_credentials_create_delegate(string pemRootCerts, string[] keyCertPairCertChainArray, string[] keyCertPairPrivateKeyArray, UIntPtr numKeyCertPairs, bool forceClientAuth);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_credentials_release_delegate(IntPtr credentials);
 
+            
+            [SecuritySafeCritical]
             public delegate ServerSafeHandle grpcsharp_server_create_delegate(ChannelArgsSafeHandle args);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_register_completion_queue_delegate(ServerSafeHandle server, CompletionQueueSafeHandle cq);
+            
+            [SecuritySafeCritical]
             public delegate int grpcsharp_server_add_insecure_http2_port_delegate(ServerSafeHandle server, string addr);
+            
+            [SecuritySafeCritical]
             public delegate int grpcsharp_server_add_secure_http2_port_delegate(ServerSafeHandle server, string addr, ServerCredentialsSafeHandle creds);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_start_delegate(ServerSafeHandle server);
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_server_request_call_delegate(ServerSafeHandle server, CompletionQueueSafeHandle cq, BatchContextSafeHandle ctx);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_cancel_all_calls_delegate(ServerSafeHandle server);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_shutdown_and_notify_callback_delegate(ServerSafeHandle server, CompletionQueueSafeHandle cq, BatchContextSafeHandle ctx);
+            
+            [SecuritySafeCritical]
             public delegate void grpcsharp_server_destroy_delegate(IntPtr server);
 
+            
+            [SecuritySafeCritical]
             public delegate Timespec gprsharp_now_delegate(ClockType clockType);
+            
+            [SecuritySafeCritical]
             public delegate Timespec gprsharp_inf_future_delegate(ClockType clockType);
+            
+            [SecuritySafeCritical]
             public delegate Timespec gprsharp_inf_past_delegate(ClockType clockType);
 
+            
+            [SecuritySafeCritical]
             public delegate Timespec gprsharp_convert_clock_type_delegate(Timespec t, ClockType targetClock);
+            
+            [SecuritySafeCritical]
             public delegate int gprsharp_sizeof_timespec_delegate();
 
+            
+            [SecuritySafeCritical]
             public delegate CallError grpcsharp_test_callback_delegate([MarshalAs(UnmanagedType.FunctionPtr)] OpCompletionDelegate callback);
+            
+            [SecuritySafeCritical]
             public delegate IntPtr grpcsharp_test_nop_delegate(IntPtr ptr);
         }
     }

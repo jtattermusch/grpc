@@ -35,4 +35,4 @@ cd $(dirname $0)/../../..
 # needed to correctly locate testca
 cd src/csharp/Grpc.IntegrationTesting.QpsWorker/bin/Release/netcoreapp1.0
 
-dotnet exec Grpc.IntegrationTesting.QpsWorker.dll $@
+perf stat dotnet exec Grpc.IntegrationTesting.QpsWorker.dll $@

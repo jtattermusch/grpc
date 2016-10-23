@@ -38,6 +38,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core.Internal;
 using Grpc.Core.Logging;
+using Grpc.Core.Profiling;
 using Grpc.Core.Utils;
 
 namespace Grpc.Core
@@ -333,20 +334,26 @@ namespace Grpc.Core
         {
             try
             {
+                Profilers.ForCurrentThread().Begin("Server.LookupHandler");
                 IServerCallHandler callHandler;
                 if (!callHandlers.TryGetValue(newRpc.Method, out callHandler))
                 {
                     callHandler = UnimplementedMethodCallHandler.Instance;
                 }
+                Profilers.ForCurrentThread().End("Server.LookupHandler");
+                Profilers.ForCurrentThread().End("Server.HandleNewServerRpc");
                 await callHandler.HandleCall(newRpc, cq).ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 Logger.Warning(e, "Exception while handling RPC.");
             }
+
             finally
             {
+                Profilers.ForCurrentThread().Begin("ContinuationHandleNewRpc");
                 continuation();
+                Profilers.ForCurrentThread().End("ContinuationHandleNewRpc");
             }
         }
 
@@ -355,10 +362,14 @@ namespace Grpc.Core
         /// </summary>
         private void HandleNewServerRpc(bool success, RequestCallContextSafeHandle ctx, CompletionQueueSafeHandle cq)
         {
+            Profilers.ForCurrentThread().Begin("Server.HandleNewServerRpc");
+
             bool nextRpcRequested = false;
             if (success)
             {
+                Profilers.ForCurrentThread().Begin("Server.ReadServerRpcNew");
                 var newRpc = ctx.GetServerRpcNew(this);
+                Profilers.ForCurrentThread().End("Server.ReadServerRpcNew");
 
                 // after server shutdown, the callback returns with null call
                 if (!newRpc.Call.IsInvalid)

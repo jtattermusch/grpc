@@ -38,6 +38,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core.Internal;
 using Grpc.Core.Logging;
+using Grpc.Core.Profiling;
 using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
@@ -64,6 +65,7 @@ namespace Grpc.Core.Internal
 
         public async Task HandleCall(ServerRpcNew newRpc, CompletionQueueSafeHandle cq)
         {
+            Profilers.ForCurrentThread().Begin("HandleCall1");
             var asyncCall = new AsyncCallServer<TRequest, TResponse>(
                 method.ResponseMarshaller.Serializer,
                 method.RequestMarshaller.Deserializer,
@@ -79,9 +81,11 @@ namespace Grpc.Core.Internal
             var context = HandlerUtils.NewContext(newRpc, asyncCall.Peer, responseStream, asyncCall.CancellationToken);
             try
             {
+                Profilers.ForCurrentThread().End("HandleCall1");
                 GrpcPreconditions.CheckArgument(await requestStream.MoveNext().ConfigureAwait(false));
                 var request = requestStream.Current;
                 var response = await handler(request, context).ConfigureAwait(false);
+                Profilers.ForCurrentThread().Begin("AfterHandlerBeforeSendStatus");
                 status = context.Status;
                 responseTuple = Tuple.Create(response, HandlerUtils.GetWriteFlags(context.WriteOptions));
             } 
@@ -95,6 +99,7 @@ namespace Grpc.Core.Internal
             }
             try
             {
+                Profilers.ForCurrentThread().End("AfterHandlerBeforeSendStatus");
                 await asyncCall.SendStatusFromServerAsync(status, context.ResponseTrailers, responseTuple).ConfigureAwait(false);
             }
             catch (Exception)

@@ -64,7 +64,9 @@ namespace Grpc.Core.Internal
         // Gets data of server_rpc_new completion.
         public ServerRpcNew GetServerRpcNew(Server server)
         {
+            // these take long time also....
             var call = Native.grpcsharp_request_call_context_call(this);
+
 
             var method = Marshal.PtrToStringAnsi(Native.grpcsharp_request_call_context_method(this));
             var host = Marshal.PtrToStringAnsi(Native.grpcsharp_request_call_context_host(this));

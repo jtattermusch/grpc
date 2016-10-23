@@ -173,7 +173,7 @@ namespace Grpc.Core.Internal
                 Profilers.SetForCurrentThread(optionalProfiler);
             }
 
-            Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.MARK, "start thread"));
+            //Profilers.ForCurrentThread().AddEntry(new ProfilerEntry(Timespec.PreciseNow, ProfilerEntry.Type.MARK, "start thread"));
 
             CompletionQueueEvent ev;
             do

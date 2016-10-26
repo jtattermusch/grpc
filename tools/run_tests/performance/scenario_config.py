@@ -575,6 +575,13 @@ class JavaLanguage:
           async_server_threads=1,
           secure=secure, warmup_seconds=JAVA_WARMUP_SECONDS)
 
+      yield _ping_pong_scenario(
+          'java_to_cpp_protobuf_async_unary_qps_unconstrained_%s' % secstr, rpc_type='UNARY',
+          client_type='ASYNC_CLIENT', server_type='ASYNC_SERVER',
+          unconstrained_client='async', server_language='c++',
+          secure=secure, warmup_seconds=JAVA_WARMUP_SECONDS,
+          categories=[SCALABLE])
+
       # TODO(jtattermusch): add scenarios java vs C++
 
   def __str__(self):

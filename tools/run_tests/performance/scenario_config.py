@@ -71,12 +71,12 @@ BIG_GENERIC_PAYLOAD = {
 # non-ping-pong tests (since we can only specify per-channel numbers, the
 # actual target will be slightly higher)
 OUTSTANDING_REQUESTS={
-    'async': 6400,
+    'async': 1000,
     'sync': 1000
 }
 
 # wide is the number of client channels in multi-channel tests (1 otherwise)
-WIDE=64
+WIDE=24
 
 
 def _get_secargs(is_secure):

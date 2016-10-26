@@ -80,6 +80,7 @@ namespace Grpc.IntegrationTesting
             // and doesn't seem to harm performance even when server and client
             // are running on the same machine.
             GrpcEnvironment.SetThreadPoolSize(Environment.ProcessorCount);
+            GrpcEnvironment.SetCompletionQueueCount(1);
 
             string host = "0.0.0.0";
             int port = options.DriverPort;

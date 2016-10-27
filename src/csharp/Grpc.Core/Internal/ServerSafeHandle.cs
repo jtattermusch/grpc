@@ -80,8 +80,8 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, callback);
-                Native.grpcsharp_server_shutdown_and_notify_callback(this, completionQueue, ctx);
+                var completionHandle = new CompletionHandle(ctx, callback);
+                Native.grpcsharp_server_shutdown_and_notify_callback(this, completionQueue, completionHandle.Pin(), ctx);
             }
         }
 
@@ -90,8 +90,8 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = RequestCallContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterRequestCallCompletion(ctx, callback);
-                Native.grpcsharp_server_request_call(this, completionQueue, ctx).CheckOk();
+                var completionHandle = new CompletionHandle(ctx, callback);
+                Native.grpcsharp_server_request_call(this, completionQueue, completionHandle.Pin(), ctx).CheckOk();
             }
         }
 

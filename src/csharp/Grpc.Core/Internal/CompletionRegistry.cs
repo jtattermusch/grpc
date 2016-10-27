@@ -46,6 +46,49 @@ namespace Grpc.Core.Internal
 
     internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
 
+
+    internal class CompletionHandle
+    {
+        GCHandle gcHandle;
+        BatchContextSafeHandle batchContext;
+        BatchCompletionDelegate batchContextCallback;
+
+        RequestCallContextSafeHandle requestCallContext;
+        RequestCallCompletionDelegate requestCallCallback;
+
+        public CompletionHandle(BatchContextSafeHandle batchContext, BatchCompletionDelegate batchContextCallback)
+        {
+            this.batchContext = batchContext;
+            this.batchContextCallback = batchContextCallback;
+        }
+
+        public CompletionHandle(RequestCallContextSafeHandle requestCallContext, RequestCallCompletionDelegate requestCallCallback)
+        {
+            this.requestCallContext = requestCallContext;
+            this.requestCallCallback = requestCallCallback;
+        }
+
+        public IntPtr Pin()
+        {
+            gcHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
+            return gcHandle.AddrOfPinnedObject();
+        }
+
+        public void Unpin()
+        {
+            gcHandle.Free();
+        }
+
+        public static CompletionHandle FromIntPtr(IntPtr tag)
+        {
+            var gcHandle = GCHandle.FromIntPtr(tag);
+            return (CompletionHandle) gcHandle.Target;
+        }
+    }
+
+
+
+
     internal class CompletionRegistry
     {
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<CompletionRegistry>();

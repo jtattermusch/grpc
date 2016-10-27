@@ -79,6 +79,19 @@ namespace Grpc.Core.Internal
             gcHandle.Free();
         }
 
+        public void HandleCompletion(bool success)
+        {
+            // TODO: make this polymorphic
+            if (batchContextCallback != null)
+            {
+                CompletionRegistry.HandleBatchCompletion(success, batchContext, batchContextCallback);
+            }
+            else
+            {
+                CompletionRegistry.HandleRequestCallCompletion(success, requestCallContext, requestCallCallback);
+            }
+        }
+
         public static CompletionHandle FromIntPtr(IntPtr tag)
         {
             var gcHandle = GCHandle.FromIntPtr(tag);
@@ -127,7 +140,7 @@ namespace Grpc.Core.Internal
             return value;
         }
 
-        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        internal static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
         {
             try
             {
@@ -146,7 +159,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        private static void HandleRequestCallCompletion(bool success, RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
+        internal static void HandleRequestCallCompletion(bool success, RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
         {
             try
             {

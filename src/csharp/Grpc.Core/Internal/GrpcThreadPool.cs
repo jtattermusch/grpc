@@ -165,8 +165,9 @@ namespace Grpc.Core.Internal
                     IntPtr tag = ev.tag;
                     try
                     {
-                        var callback = cq.CompletionRegistry.Extract(tag);
-                        callback(success);
+                        var completionHandle = CompletionHandle.FromIntPtr(tag);
+                        completionHandle.Unpin();
+                        completionHandle.HandleCompletion(success);
                     }
                     catch (Exception e)
                     {

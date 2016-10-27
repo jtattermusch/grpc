@@ -34,6 +34,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Grpc.Core;
+using Grpc.Core.Profiling;
 
 namespace Grpc.Core.Internal
 {
@@ -67,9 +68,10 @@ namespace Grpc.Core.Internal
             // these take long time also....
             var call = Native.grpcsharp_request_call_context_call(this);
 
-
+            Profilers.ForCurrentThread().Begin("ParseMethodAndHost");
             var method = Marshal.PtrToStringAnsi(Native.grpcsharp_request_call_context_method(this));
             var host = Marshal.PtrToStringAnsi(Native.grpcsharp_request_call_context_host(this));
+            Profilers.ForCurrentThread().End("ParseMethodAndHost");
             var deadline = Native.grpcsharp_request_call_context_deadline(this);
 
             IntPtr metadataArrayPtr = Native.grpcsharp_request_call_context_request_metadata(this);

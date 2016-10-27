@@ -128,6 +128,35 @@ namespace Grpc.Core.Tests
                 });
         }
 
+        /// <summary>
+        /// Tests overhead of a simple PInvoke call.
+        /// (~46ns .NET Windows)
+        /// </summary>
+        [Test]
+        [Category("Performance")]
+        public void StrToIntPtrBenchmark()
+        {
+            var encoding = System.Text.Encoding.ASCII;
+            var str = "/SomeService/UnaryCall";
+            int len = str.Length + 1;
+            IntPtr stringPtr = Marshal.StringToHGlobalAnsi(str);
+
+            BenchmarkUtil.RunBenchmark(
+                100000, 100000000,
+                () =>
+                {
+                    //Marshal.PtrToStringAnsi(stringPtr);
+                    //var b = new byte[len];
+                    //Marshal.Copy(stringPtr, b, 0, len);
+                    //var s = encoding.GetString(b);
+                    unsafe
+                    {
+                        var sb = (sbyte *)stringPtr;
+                        var s = new String(sb);
+                    }
+                });
+        }
+
         private void Handler(bool success)
         {
             counter++;

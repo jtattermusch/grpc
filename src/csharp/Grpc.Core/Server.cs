@@ -341,7 +341,6 @@ namespace Grpc.Core
                     callHandler = UnimplementedMethodCallHandler.Instance;
                 }
                 Profilers.ForCurrentThread().End("Server.LookupHandler");
-                Profilers.ForCurrentThread().End("Server.HandleNewServerRpc");
                 await callHandler.HandleCall(newRpc, cq).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -351,6 +350,8 @@ namespace Grpc.Core
 
             finally
             {
+                
+
                 Profilers.ForCurrentThread().Begin("ContinuationHandleNewRpc");
                 continuation();
                 Profilers.ForCurrentThread().End("ContinuationHandleNewRpc");
@@ -362,8 +363,6 @@ namespace Grpc.Core
         /// </summary>
         private void HandleNewServerRpc(bool success, RequestCallContextSafeHandle ctx, CompletionQueueSafeHandle cq)
         {
-            Profilers.ForCurrentThread().Begin("Server.HandleNewServerRpc");
-
             bool nextRpcRequested = false;
             if (success)
             {

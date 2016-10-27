@@ -108,6 +108,7 @@ namespace Grpc.Core.Internal
                 throw;
             }
             await finishedTask.ConfigureAwait(false);
+            Profilers.ForCurrentThread().Mark("AfterFinishedTask");
         }
     }
 

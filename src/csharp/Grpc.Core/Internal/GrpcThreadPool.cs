@@ -186,7 +186,10 @@ namespace Grpc.Core.Internal
                     try
                     {
                         var callback = cq.CompletionRegistry.Extract(tag);
+
+                        Profilers.ForCurrentThread().Begin("ThreadPoolCallback");
                         callback(success);
+                        Profilers.ForCurrentThread().End("ThreadPoolCallback");
                     }
                     catch (Exception e)
                     {

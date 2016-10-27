@@ -48,7 +48,7 @@ namespace Grpc.Core.Internal
     /// </summary>
     internal class AsyncCallServer<TRequest, TResponse> : AsyncCallBase<TResponse, TRequest>
     {
-        readonly TaskCompletionSource<object> finishedServersideTcs = new TaskCompletionSource<object>();
+        //readonly TaskCompletionSource<object> finishedServersideTcs = new TaskCompletionSource<object>();
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         readonly Server server;
 
@@ -86,7 +86,9 @@ namespace Grpc.Core.Internal
                 started = true;
 
                 call.StartServerSide(HandleFinishedServerside);
-                return finishedServersideTcs.Task;
+
+                //TODO: fix
+                return TaskUtils.CompletedTask;
             }
         }
 
@@ -240,7 +242,7 @@ namespace Grpc.Core.Internal
                 cancellationTokenSource.Cancel();
             }
 
-            finishedServersideTcs.SetResult(null);
+            //finishedServersideTcs.SetResult(null);
         }
     }
 }

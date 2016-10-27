@@ -72,7 +72,7 @@ namespace Grpc.Core.Internal
                 newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call, cq);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            asyncCall.ServerSideCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -107,7 +107,6 @@ namespace Grpc.Core.Internal
                 asyncCall.Cancel();
                 throw;
             }
-            await finishedTask.ConfigureAwait(false);
             Profilers.ForCurrentThread().Mark("AfterFinishedTask");
         }
     }
@@ -135,7 +134,7 @@ namespace Grpc.Core.Internal
                 newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call, cq);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            asyncCall.ServerSideCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -166,7 +165,7 @@ namespace Grpc.Core.Internal
                 asyncCall.Cancel();
                 throw;
             }
-            await finishedTask.ConfigureAwait(false);
+
         }
     }
 
@@ -193,7 +192,7 @@ namespace Grpc.Core.Internal
                 newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call, cq);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            asyncCall.ServerSideCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -224,7 +223,6 @@ namespace Grpc.Core.Internal
                 asyncCall.Cancel();
                 throw;
             }
-            await finishedTask.ConfigureAwait(false);
         }
     }
 
@@ -251,7 +249,7 @@ namespace Grpc.Core.Internal
                 newRpc.Server);
 
             asyncCall.Initialize(newRpc.Call, cq);
-            var finishedTask = asyncCall.ServerSideCallAsync();
+            asyncCall.ServerSideCallAsync();
             var requestStream = new ServerRequestStream<TRequest, TResponse>(asyncCall);
             var responseStream = new ServerResponseStream<TRequest, TResponse>(asyncCall);
 
@@ -279,7 +277,6 @@ namespace Grpc.Core.Internal
                 asyncCall.Cancel();
                 throw;
             }
-            await finishedTask.ConfigureAwait(false);
         }
     }
 

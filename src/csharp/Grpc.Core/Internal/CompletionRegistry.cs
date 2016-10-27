@@ -70,8 +70,8 @@ namespace Grpc.Core.Internal
 
         public IntPtr Pin()
         {
-            gcHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
-            return gcHandle.AddrOfPinnedObject();
+            gcHandle = GCHandle.Alloc(this, GCHandleType.Normal);
+            return GCHandle.ToIntPtr(gcHandle);
         }
 
         public void Unpin()

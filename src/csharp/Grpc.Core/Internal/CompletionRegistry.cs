@@ -114,31 +114,31 @@ namespace Grpc.Core.Internal
             this.environment = environment;
         }
 
-        public void Register(IntPtr key, OpCompletionDelegate callback)
-        {
-            environment.DebugStats.PendingBatchCompletions.Increment();
-            GrpcPreconditions.CheckState(dict.TryAdd(key, callback));
-        }
+//        public void Register(IntPtr key, OpCompletionDelegate callback)
+//        {
+//            environment.DebugStats.PendingBatchCompletions.Increment();
+//            GrpcPreconditions.CheckState(dict.TryAdd(key, callback));
+//        }
 
-        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
-        {
-            OpCompletionDelegate opCallback = ((success) => HandleBatchCompletion(success, ctx, callback));
-            Register(ctx.Handle, opCallback);
-        }
+//        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+//        {
+//            OpCompletionDelegate opCallback = ((success) => HandleBatchCompletion(success, ctx, callback));
+//            Register(ctx.Handle, opCallback);
+//        }
+//
+//        public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
+//        {
+//            OpCompletionDelegate opCallback = ((success) => HandleRequestCallCompletion(success, ctx, callback));
+//            Register(ctx.Handle, opCallback);
+//        }
 
-        public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
-        {
-            OpCompletionDelegate opCallback = ((success) => HandleRequestCallCompletion(success, ctx, callback));
-            Register(ctx.Handle, opCallback);
-        }
-
-        public OpCompletionDelegate Extract(IntPtr key)
-        {
-            OpCompletionDelegate value;
-            GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
-            environment.DebugStats.PendingBatchCompletions.Decrement();
-            return value;
-        }
+//        public OpCompletionDelegate Extract(IntPtr key)
+//        {
+//            OpCompletionDelegate value;
+//            GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
+//            environment.DebugStats.PendingBatchCompletions.Decrement();
+//            return value;
+//        }
 
         internal static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
         {

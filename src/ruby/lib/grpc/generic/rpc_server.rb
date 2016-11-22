@@ -35,7 +35,6 @@ require 'concurrent'
 
 # GRPC contains the General RPC module.
 module GRPC
-
   # RpcServer hosts a number of services and makes them available on the
   # network.
   class RpcServer

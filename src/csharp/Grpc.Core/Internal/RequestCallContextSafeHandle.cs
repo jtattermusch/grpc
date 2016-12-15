@@ -70,14 +70,16 @@ namespace Grpc.Core.Internal
             IntPtr methodPtr = Native.grpcsharp_request_call_context_method(this, out methodLen);
             var method = Marshal.PtrToStringAnsi(methodPtr, (int) methodLen.ToUInt32());
 
-            UIntPtr hostLen;
-            IntPtr hostPtr = Native.grpcsharp_request_call_context_host(this, out hostLen);
-            var host = Marshal.PtrToStringAnsi(hostPtr, (int) hostLen.ToUInt32());
+            //UIntPtr hostLen;
+            //IntPtr hostPtr = Native.grpcsharp_request_call_context_host(this, out hostLen);
+            var host = "";
 
             var deadline = Native.grpcsharp_request_call_context_deadline(this);
+            //var deadline = Timespec.I
 
-            IntPtr metadataArrayPtr = Native.grpcsharp_request_call_context_request_metadata(this);
-            var metadata = MetadataArraySafeHandle.ReadMetadataFromPtrUnsafe(metadataArrayPtr);
+            //IntPtr metadataArrayPtr = Native.grpcsharp_request_call_context_request_metadata(this);
+            //var metadata = MetadataArraySafeHandle.ReadMetadataFromPtrUnsafe(metadataArrayPtr);
+            var metadata = new Metadata();
 
             return new ServerRpcNew(server, call, method, host, deadline, metadata);
         }

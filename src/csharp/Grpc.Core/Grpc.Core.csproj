@@ -19,6 +19,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -26,6 +27,7 @@
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -131,6 +133,7 @@
     <Compile Include="Internal\RequestCallContextSafeHandle.cs" />
     <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="Internal\CallFlags.cs" />
+    <Compile Include="Internal\ManagedOrNativeBytes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Grpc.Core.project.json" />

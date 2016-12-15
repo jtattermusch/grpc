@@ -43,12 +43,12 @@ namespace Grpc.Core.Internal
     {
         readonly Server server;
         readonly CallSafeHandle call;
-        readonly string method;
-        readonly string host;
+        readonly ManagedOrNativeBytes method;
+        readonly ManagedOrNativeBytes host;
         readonly Timespec deadline;
         readonly Metadata requestMetadata;
 
-        public ServerRpcNew(Server server, CallSafeHandle call, string method, string host, Timespec deadline, Metadata requestMetadata)
+        public ServerRpcNew(Server server, CallSafeHandle call, ManagedOrNativeBytes method, ManagedOrNativeBytes host, Timespec deadline, Metadata requestMetadata)
         {
             this.server = server;
             this.call = call;
@@ -74,7 +74,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        public string Method
+        public ManagedOrNativeBytes Method
         {
             get
             {
@@ -82,7 +82,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        public string Host
+        public ManagedOrNativeBytes Host
         {
             get
             {

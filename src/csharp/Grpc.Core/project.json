@@ -27,7 +27,8 @@
     "embed": [ "../../../etc/roots.pem" ],
     "define": [ "SIGNED" ],
     "keyFile": "../keys/Grpc.snk",
-    "xmlDoc": true
+    "xmlDoc": true,
+    "allowUnsafe": true
   },
   "dependencies": {
     "System.Interactive.Async": "3.1.1"

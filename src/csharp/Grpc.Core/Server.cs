@@ -39,6 +39,7 @@ using System.Threading.Tasks;
 using Grpc.Core.Internal;
 using Grpc.Core.Logging;
 using Grpc.Core.Utils;
+using System.Text;
 
 namespace Grpc.Core
 {
@@ -49,6 +50,7 @@ namespace Grpc.Core
     {
         const int DefaultRequestCallTokensPerCq = 2000;
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<Server>();
+        static readonly Encoding Encoding = Encoding.ASCII;
 
         readonly AtomicCounter activeCallCounter = new AtomicCounter();
 
@@ -61,7 +63,7 @@ namespace Grpc.Core
 
         readonly List<ServerServiceDefinition> serviceDefinitionsList = new List<ServerServiceDefinition>();
         readonly List<ServerPort> serverPortList = new List<ServerPort>();
-        readonly Dictionary<string, IServerCallHandler> callHandlers = new Dictionary<string, IServerCallHandler>();
+        readonly Dictionary<ManagedOrNativeBytes, IServerCallHandler> callHandlers = new Dictionary<ManagedOrNativeBytes, IServerCallHandler>();
         readonly TaskCompletionSource<object> shutdownTcs = new TaskCompletionSource<object>();
 
         bool startRequested;
@@ -271,7 +273,7 @@ namespace Grpc.Core
                 GrpcPreconditions.CheckState(!startRequested);
                 foreach (var entry in serviceDefinition.CallHandlers)
                 {
-                    callHandlers.Add(entry.Key, entry.Value);
+                    callHandlers.Add(new ManagedOrNativeBytes(Encoding.GetBytes(entry.Key)), entry.Value);
                 }
                 serviceDefinitionsList.Add(serviceDefinition);
             }

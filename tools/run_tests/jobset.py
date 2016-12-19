@@ -84,13 +84,11 @@ def platform_string():
 if platform_string() == 'windows':
   pass
 else:
-  have_alarm = False
-  def alarm_handler(unused_signum, unused_frame):
-    global have_alarm
-    have_alarm = False
+  #def alarm_handler(unused_signum, unused_frame):
+  #  pass
 
   signal.signal(signal.SIGCHLD, lambda unused_signum, unused_frame: None)
-  signal.signal(signal.SIGALRM, alarm_handler)
+  signal.signal(signal.SIGALRM, lambda unused_signum, unused_frame: None)
 
 
 _SUCCESS = object()
@@ -428,13 +426,13 @@ class Jobset(object):
       if platform_string() == 'windows':
         time.sleep(0.1)
       else:
-        global have_alarm
-        if not have_alarm:
-          have_alarm = True
-          signal.alarm(10)
-        print('pausing')
+        #global have_alarm
+        #if not have_alarm:
+        #  have_alarm = True
+        signal.alarm(10)
+        #print('pausing')
         signal.pause()
-        print('woke up from pause')
+        #print('woke up from pause')
 
   def cancelled(self):
     """Poll for cancellation."""

@@ -321,7 +321,7 @@ class Job(object):
         self.result.retries = self._timeout_retries + self._retries
         if self._spec.kill_handler:
           self._spec.kill_handler(self)
-        self._process.terminate()
+        self._process.kill()
         self.start()
       else:
         message('TIMEOUT', '%s [pid=%d]' % (self._spec.shortname, self._process.pid), stdout(), do_newline=True)
@@ -335,7 +335,7 @@ class Job(object):
       self._state = _KILLED
       if self._spec.kill_handler:
         self._spec.kill_handler(self)
-      self._process.terminate()
+      self._process.kill()
 
   def suppress_failure_message(self):
     self._suppress_failure_message = True

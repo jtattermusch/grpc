@@ -328,6 +328,8 @@ class Job(object):
         self.kill()
         self.result.state = 'TIMEOUT'
         self.result.num_failures += 1
+    #else:
+    #  print('no finished and no timeouts:' + str(time.time()))
     return self._state
 
   def kill(self):
@@ -396,6 +398,7 @@ class Jobset(object):
   def reap(self):
     """Collect the dead jobs."""
     while self._running:
+      print('reap ' + str(time.time()) + ' ' + str(self._running))
       dead = set()
       for job in self._running:
         st = job.state()

@@ -314,6 +314,7 @@ class Job(object):
     elif (self._state == _RUNNING and
           self._spec.timeout_seconds is not None and
           time.time() - self._start > self._spec.timeout_seconds):
+      print('XXX: job timeout exceeded for job ' + self._spec.shortname)
       if self._timeout_retries < self._spec.timeout_retries:
         message('TIMEOUT_FLAKE', '%s [pid=%d]' % (self._spec.shortname, self._process.pid), stdout(), do_newline=True)
         self._timeout_retries += 1
@@ -324,6 +325,7 @@ class Job(object):
         self._process.kill()
         self.start()
       else:
+        print('XXX: announcing timeout for job' + self._spec.shortname)
         message('TIMEOUT', '%s [pid=%d]' % (self._spec.shortname, self._process.pid), stdout(), do_newline=True)
         self.kill()
         self.result.state = 'TIMEOUT'
@@ -335,6 +337,7 @@ class Job(object):
       self._state = _KILLED
       if self._spec.kill_handler:
         self._spec.kill_handler(self)
+      print('XXX: attempting to killing a job ' + self._spec.shortname)
       self._process.kill()
 
   def suppress_failure_message(self):

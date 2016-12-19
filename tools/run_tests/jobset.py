@@ -328,8 +328,8 @@ class Job(object):
         self.kill()
         self.result.state = 'TIMEOUT'
         self.result.num_failures += 1
-    #else:
-    #  print('no finished and no timeouts:' + str(time.time()))
+    else:
+      print('no finished and no timeouts:' + str(time.time()))
     return self._state
 
   def kill(self):

@@ -432,7 +432,9 @@ class Jobset(object):
         if not have_alarm:
           have_alarm = True
           signal.alarm(10)
+        print('pausing')
         signal.pause()
+        print('woke up from pause')
 
   def cancelled(self):
     """Poll for cancellation."""

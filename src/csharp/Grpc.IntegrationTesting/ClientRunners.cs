@@ -146,6 +146,8 @@ namespace Grpc.IntegrationTesting
         readonly CancellationTokenSource stoppedCts = new CancellationTokenSource();
         readonly WallClockStopwatch wallClockStopwatch = new WallClockStopwatch();
         readonly AtomicCounter statsResetCount = new AtomicCounter();
+
+        byte[] cachedByteBufferRequest;
         
         public ClientRunnerImpl(List<Channel> channels, ClientType clientType, RpcType rpcType, int outstandingRpcsPerChannel, LoadParams loadParams, PayloadConfig payloadConfig, HistogramParams histogramParams, Func<BasicProfiler> profilerFactory)
         {
@@ -353,7 +355,11 @@ namespace Grpc.IntegrationTesting
 
         private byte[] CreateByteBufferRequest()
         {
-            return new byte[payloadConfig.BytebufParams.ReqSize];
+            if (cachedByteBufferRequest == null) {
+                var ba = new byte[payloadConfig.BytebufParams.ReqSize];
+                cachedByteBufferRequest = ba;
+            }
+            return cachedByteBufferRequest;
         }
 
         private static Payload CreateZerosPayload(int size)

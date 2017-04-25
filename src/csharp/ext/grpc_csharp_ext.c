@@ -295,10 +295,8 @@ GPR_EXPORT void GPR_CALLTYPE grpcsharp_batch_context_recv_message_to_buffer(
   while (grpc_byte_buffer_reader_next(&reader, &slice)) {
     size_t len = GRPC_SLICE_LENGTH(slice);
     GPR_ASSERT(offset + len <= buffer_len);
-    if (buffer_len < 100000) {
-      memcpy(buffer + offset, GRPC_SLICE_START_PTR(slice),
-           GRPC_SLICE_LENGTH(slice));
-    }
+    memcpy(buffer + offset, GRPC_SLICE_START_PTR(slice),
+         GRPC_SLICE_LENGTH(slice));
     offset += len;
     grpc_slice_unref(slice);
   }

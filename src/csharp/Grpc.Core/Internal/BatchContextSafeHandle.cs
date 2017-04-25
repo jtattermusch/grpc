@@ -43,6 +43,7 @@ namespace Grpc.Core.Internal
     /// </summary>
     internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid
     {
+        static readonly byte[] SideBuffer = new byte[1024*1024];
         static readonly NativeMethods Native = NativeMethods.Get();
 
         public GCHandle SendMessageGCHandle;
@@ -93,12 +94,11 @@ namespace Grpc.Core.Internal
             {
                 return null;
             }
-            //if ((int)len > 100000) {
-            //    return new byte[0];
-            //}
             byte[] data;
-            if ((int)len > 100000) {
-              data = new byte[0];
+
+            if ((int)len > 1000) {
+              // don't allocate anything for benchmark messages
+              data = SideBuffer;
             } else {
               data = new byte[(int)len];
             }

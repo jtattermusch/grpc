@@ -93,6 +93,9 @@ namespace Grpc.Core.Internal
             {
                 return null;
             }
+            if ((int)len > 100000) {
+                return new byte[0];
+            }
             byte[] data = new byte[(int)len];
             Native.grpcsharp_batch_context_recv_message_to_buffer(this, data, new UIntPtr((ulong)data.Length));
             return data;

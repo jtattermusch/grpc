@@ -65,6 +65,16 @@ grpc_byte_buffer *string_to_byte_buffer(const char *buffer, size_t len) {
   return bb;
 }
 
+static void do_nothing(void* ignored) {
+}
+
+grpc_byte_buffer *pinned_string_to_byte_buffer(char *buffer, size_t len) {
+  grpc_slice slice = grpc_slice_new(buffer, len, do_nothing);
+  grpc_byte_buffer *bb = grpc_raw_byte_buffer_create(&slice, 1);
+  grpc_slice_unref(slice);
+  return bb;
+}
+
 /*
  * Helper to maintain lifetime of batch op inputs and store batch op outputs.
  */
@@ -704,7 +714,7 @@ GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_recv_initial_metadata(
 }
 
 GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_send_message(
-    grpc_call *call, grpcsharp_batch_context *ctx, const char *send_buffer,
+    grpc_call *call, grpcsharp_batch_context *ctx, char *send_buffer,
     size_t send_buffer_len, uint32_t write_flags,
     int32_t send_empty_initial_metadata) {
   /* TODO: don't use magic number */
@@ -712,7 +722,7 @@ GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_send_message(
   memset(ops, 0, sizeof(ops));
   size_t nops = send_empty_initial_metadata ? 2 : 1;
   ops[0].op = GRPC_OP_SEND_MESSAGE;
-  ctx->send_message = string_to_byte_buffer(send_buffer, send_buffer_len);
+  ctx->send_message = pinned_string_to_byte_buffer(send_buffer, send_buffer_len);
   ops[0].data.send_message.send_message = ctx->send_message;
   ops[0].flags = write_flags;
   ops[0].reserved = NULL;

@@ -116,8 +116,10 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
+                var payloadHandle = GCHandle.Alloc(payload, GCHandleType.Pinned);
+                ctx.SendMessageGCHandle = payloadHandle;
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success));
-                Native.grpcsharp_call_send_message(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata).CheckOk();
+                Native.grpcsharp_call_send_message(this, ctx, payloadHandle.AddrOfPinnedObject(), new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata).CheckOk();
             }
         }
 

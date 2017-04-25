@@ -45,6 +45,8 @@ namespace Grpc.Core.Internal
     {
         static readonly NativeMethods Native = NativeMethods.Get();
 
+        public GCHandle SendMessageGCHandle;
+
         private BatchContextSafeHandle()
         {
         }
@@ -105,6 +107,11 @@ namespace Grpc.Core.Internal
         protected override bool ReleaseHandle()
         {
             Native.grpcsharp_batch_context_destroy(handle);
+
+            if (SendMessageGCHandle.IsAllocated) {
+                SendMessageGCHandle.Free();
+            }
+
             return true;
         }
     }

@@ -93,11 +93,18 @@ namespace Grpc.Core.Internal
             {
                 return null;
             }
+            //if ((int)len > 100000) {
+            //    return new byte[0];
+            //}
+            byte[] data;
             if ((int)len > 100000) {
-                return new byte[0];
+              data = new byte[0];
+            } else {
+              data = new byte[(int)len];
             }
-            byte[] data = new byte[(int)len];
-            Native.grpcsharp_batch_context_recv_message_to_buffer(this, data, new UIntPtr((ulong)data.Length));
+            var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            Native.grpcsharp_batch_context_recv_message_to_buffer(this, handle.AddrOfPinnedObject(), new UIntPtr((ulong)len));
+            handle.Free();
             return data;
         }
 

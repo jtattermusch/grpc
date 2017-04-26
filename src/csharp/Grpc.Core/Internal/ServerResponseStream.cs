@@ -50,14 +50,19 @@ namespace Grpc.Core.Internal
             this.call = call;
         }
 
-        public Task WriteAsync(TResponse message)
+        public async Task WriteAsync(TResponse message)
         {
-            return call.SendMessageAsync(message, GetWriteFlags());
+            await call.SendMessageAsync(message, GetWriteFlags());
         }
 
-        public Task WriteResponseHeadersAsync(Metadata responseHeaders)
+        public async Task WriteResponseHeadersAsync(Metadata responseHeaders)
         {
-            return call.SendInitialMetadataAsync(responseHeaders);
+            await call.SendInitialMetadataAsync(responseHeaders);
+        }
+
+        public CustomAwaitable<object> SendMessageAsyncInternal(TResponse message)
+        {
+            return call.SendMessageAsync(message, GetWriteFlags());
         }
 
         public WriteOptions WriteOptions

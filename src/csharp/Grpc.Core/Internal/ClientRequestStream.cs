@@ -48,14 +48,19 @@ namespace Grpc.Core.Internal
             this.writeOptions = call.Details.Options.WriteOptions;
         }
 
-        public Task WriteAsync(TRequest message)
+        public async Task WriteAsync(TRequest message)
         {
-            return call.SendMessageAsync(message, GetWriteFlags());
+            await call.SendMessageAsync(message, GetWriteFlags());
         }
 
-        public Task CompleteAsync()
+        public async Task CompleteAsync()
         {
-            return call.SendCloseFromClientAsync();
+            await call.SendCloseFromClientAsync();
+        }
+
+        public CustomAwaitable<object> SendMessageAsyncInternal(TRequest message)
+        {
+            return call.SendMessageAsync(message, GetWriteFlags());
         }
 
         public WriteOptions WriteOptions

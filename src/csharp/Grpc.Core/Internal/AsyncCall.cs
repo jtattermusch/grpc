@@ -231,7 +231,7 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Sends a streaming request. Only one pending send action is allowed at any given time.
         /// </summary>
-        public Task SendMessageAsync(TRequest msg, WriteFlags writeFlags)
+        public CustomAwaitable<object> SendMessageAsync(TRequest msg, WriteFlags writeFlags)
         {
             return SendMessageInternalAsync(msg, writeFlags);
         }
@@ -248,7 +248,7 @@ namespace Grpc.Core.Internal
         /// Sends halfclose, indicating client is done with streaming requests.
         /// Only one pending send action is allowed at any given time.
         /// </summary>
-        public Task SendCloseFromClientAsync()
+        public CustomAwaitable<object> SendCloseFromClientAsync()
         {
             lock (myLock)
             {
@@ -266,13 +266,15 @@ namespace Grpc.Core.Internal
                     // the halfclose has already been done implicitly, so just return
                     // completed task here.
                     halfcloseRequested = true;
-                    return TaskUtils.CompletedTask;
+                    var tcs = cachedStreamingWriteTcs;
+                    tcs.SetResult(null);
+                    return tcs;
                 }
                 call.StartSendCloseFromClient(HandleSendFinished);
 
                 halfcloseRequested = true;
-                streamingWriteTcs = new TaskCompletionSource<object>();
-                return streamingWriteTcs.Task;
+                streamingWriteTcs = cachedStreamingWriteTcs;
+                return streamingWriteTcs;
             }
         }
 
@@ -347,7 +349,7 @@ namespace Grpc.Core.Internal
             return new RpcException(finishedStatus.Value.Status);
         }
 
-        protected override Task CheckSendAllowedOrEarlyResult()
+        protected override CustomAwaitable<object> CheckSendAllowedOrEarlyResult()
         {
             var earlyResult = CheckSendPreconditionsClientSide();
             if (earlyResult != null)
@@ -362,15 +364,15 @@ namespace Grpc.Core.Internal
                 // Note that this throws even for StatusCode.OK.
                 // Writing after the call has finished is not a programming error because server can close
                 // the call anytime, so don't throw directly, but let the write task finish with an error.
-                var tcs = new TaskCompletionSource<object>();
+                var tcs = cachedStreamingWriteTcs;
                 tcs.SetException(new RpcException(finishedStatus.Value.Status));
-                return tcs.Task;
+                return tcs;
             }
 
             return null;
         }
 
-        private Task CheckSendPreconditionsClientSide()
+        private CustomAwaitable<object> CheckSendPreconditionsClientSide()
         {
             GrpcPreconditions.CheckState(!halfcloseRequested, "Request stream has already been completed.");
             GrpcPreconditions.CheckState(streamingWriteTcs == null, "Only one write can be pending at a time.");
@@ -378,9 +380,10 @@ namespace Grpc.Core.Internal
             if (cancelRequested)
             {
                 // Return a cancelled task.
-                var tcs = new TaskCompletionSource<object>();
-                tcs.SetCanceled();
-                return tcs.Task;
+                var tcs = cachedStreamingWriteTcs;
+                //TODO: fix this
+                tcs.SetException(new Exception("cancelled"));
+                return tcs;
             }
 
             return null;
@@ -450,7 +453,7 @@ namespace Grpc.Core.Internal
             // NOTE: because this event is a result of batch containing GRPC_OP_RECV_STATUS_ON_CLIENT,
             // success will be always set to true.
 
-            TaskCompletionSource<object> delayedStreamingWriteTcs = null;
+            CustomAwaitable<object> delayedStreamingWriteTcs = null;
             TResponse msg = default(TResponse);
             var deserializeException = TryDeserialize(receivedMessage, out msg);
 
@@ -498,7 +501,7 @@ namespace Grpc.Core.Internal
             // NOTE: because this event is a result of batch containing GRPC_OP_RECV_STATUS_ON_CLIENT,
             // success will be always set to true.
 
-            TaskCompletionSource<object> delayedStreamingWriteTcs = null;
+            CustomAwaitable<object> delayedStreamingWriteTcs = null;
 
             lock (myLock)
             {

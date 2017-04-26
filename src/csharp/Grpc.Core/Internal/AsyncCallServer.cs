@@ -93,7 +93,7 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Sends a streaming response. Only one pending send action is allowed at any given time.
         /// </summary>
-        public Task SendMessageAsync(TResponse msg, WriteFlags writeFlags)
+        public CustomAwaitable<object> SendMessageAsync(TResponse msg, WriteFlags writeFlags)
         {
             return SendMessageInternalAsync(msg, writeFlags);
         }
@@ -111,7 +111,7 @@ namespace Grpc.Core.Internal
         /// Even though C-core allows sending metadata in parallel to sending messages, we will treat sending metadata as a send message operation
         /// to make things simpler.
         /// </summary>
-        public Task SendInitialMetadataAsync(Metadata headers)
+        public CustomAwaitable<object> SendInitialMetadataAsync(Metadata headers)
         {
             lock (myLock)
             {
@@ -133,8 +133,8 @@ namespace Grpc.Core.Internal
                 }
 
                 this.initialMetadataSent = true;
-                streamingWriteTcs = new TaskCompletionSource<object>();
-                return streamingWriteTcs.Task;
+                streamingWriteTcs = cachedStreamingWriteTcs;
+                return streamingWriteTcs;
             }
         }
 
@@ -204,7 +204,7 @@ namespace Grpc.Core.Internal
             server.RemoveCallReference(this);
         }
 
-        protected override Task CheckSendAllowedOrEarlyResult()
+        protected override CustomAwaitable<object> CheckSendAllowedOrEarlyResult()
         {
             GrpcPreconditions.CheckState(!halfcloseRequested, "Response stream has already been completed.");
             GrpcPreconditions.CheckState(!finished, "Already finished.");

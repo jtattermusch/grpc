@@ -68,7 +68,8 @@ namespace Grpc.Core.Internal
 
         protected CustomAwaitable<TRead> cachedStreamingReadTcs = new CustomAwaitable<TRead>();
         protected CustomAwaitable<TRead> streamingReadTcs;  // Completion of a pending streaming read if not null.
-        protected TaskCompletionSource<object> streamingWriteTcs;  // Completion of a pending streaming write or send close from client if not null.
+        protected CustomAwaitable<object> cachedStreamingWriteTcs = new CustomAwaitable<object>();
+        protected CustomAwaitable<object> streamingWriteTcs;  // Completion of a pending streaming write or send close from client if not null.
         protected TaskCompletionSource<object> sendStatusFromServerTcs;
         protected bool isStreamingWriteCompletionDelayed;  // Only used for the client side.
 
@@ -136,7 +137,7 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Initiates sending a message. Only one send operation can be active at a time.
         /// </summary>
-        protected Task SendMessageInternalAsync(TWrite msg, WriteFlags writeFlags)
+        protected CustomAwaitable<object> SendMessageInternalAsync(TWrite msg, WriteFlags writeFlags)
         {
             byte[] payload = UnsafeSerialize(msg);
 
@@ -153,8 +154,8 @@ namespace Grpc.Core.Internal
 
                 initialMetadataSent = true;
                 streamingWritesCounter++;
-                streamingWriteTcs = new TaskCompletionSource<object>();
-                return streamingWriteTcs.Task;
+                streamingWriteTcs = cachedStreamingWriteTcs;
+                return streamingWriteTcs;
             }
         }
 
@@ -230,7 +231,7 @@ namespace Grpc.Core.Internal
         /// Checks if sending is allowed and possibly returns a Task that allows short-circuiting the send
         /// logic by directly returning the write operation result task. Normally, null is returned.
         /// </summary>
-        protected abstract Task CheckSendAllowedOrEarlyResult();
+        protected abstract CustomAwaitable<object> CheckSendAllowedOrEarlyResult();
 
         protected byte[] UnsafeSerialize(TWrite msg)
         {
@@ -257,7 +258,7 @@ namespace Grpc.Core.Internal
         protected void HandleSendFinished(bool success)
         {
             bool delayCompletion = false;
-            TaskCompletionSource<object> origTcs = null;
+            CustomAwaitable<object> origTcs = null;
             lock (myLock)
             {
                 if (!success && !finished && IsClient) {

@@ -51,6 +51,8 @@ namespace Grpc.Core
         /// <param name="message">the message to be written. Cannot be null.</param>
         Task WriteAsync(T message);
 
+        Grpc.Core.Internal.CustomAwaitable<object> SendMessageAsyncInternal(T message);
+
         /// <summary>
         /// Write options that will be used for the next write.
         /// If null, default options will be used.

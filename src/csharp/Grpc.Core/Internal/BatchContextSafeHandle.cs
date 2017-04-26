@@ -49,14 +49,17 @@ namespace Grpc.Core.Internal
         static readonly byte[] EmptyByteArray = new byte[0];
 
         public GCHandle SendMessageGCHandle;
+        private bool resetOnly;
 
         private BatchContextSafeHandle()
         {
         }
 
-        public static BatchContextSafeHandle Create()
+        public static BatchContextSafeHandle Create(bool resetOnly = false)
         {
-            return Native.grpcsharp_batch_context_create();
+            var ctx = Native.grpcsharp_batch_context_create();
+            ctx.resetOnly = resetOnly;
+            return ctx;
         }
 
         public IntPtr Handle
@@ -65,6 +68,11 @@ namespace Grpc.Core.Internal
             {
                 return handle;
             }
+        }
+
+        public bool IsResetOnly
+        {
+            get { return resetOnly; }
         }
 
         // Gets data of recv_initial_metadata completion.

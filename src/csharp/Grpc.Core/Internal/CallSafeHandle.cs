@@ -50,6 +50,9 @@ namespace Grpc.Core.Internal
         const uint GRPC_WRITE_BUFFER_HINT = 1;
         CompletionQueueSafeHandle completionQueue;
 
+        Lazy<BatchContextSafeHandle> sendMsgCtx = new Lazy<BatchContextSafeHandle>(() => BatchContextSafeHandle.Create(true));
+        Lazy<BatchContextSafeHandle> recvMsgCtx = new Lazy<BatchContextSafeHandle>(() => BatchContextSafeHandle.Create(true));
+
         private CallSafeHandle()
         {
         }
@@ -117,7 +120,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = this.sendMsgCtx.Value;
                 IntPtr pinnedAddr;
                 if (payload.Length == 0)
                 {
@@ -163,7 +166,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = this.recvMsgCtx.Value;
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, cachedReceivedMessageHandler, callback);
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
             }

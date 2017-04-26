@@ -93,7 +93,15 @@ namespace Grpc.Core.Internal
             {
                 if (ctx != null)
                 {
-                    ctx.Dispose();
+                    if (ctx.IsResetOnly)
+                    {
+                        ctx.Reset();
+                    }
+                    else
+                    {
+                        ctx.Dispose();
+                    }
+                    
                 }
             }
         }

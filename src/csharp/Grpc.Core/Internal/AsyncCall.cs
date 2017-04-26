@@ -239,7 +239,7 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Receives a streaming response. Only one pending read action is allowed at any given time.
         /// </summary>
-        public Task<TResponse> ReadMessageAsync()
+        public CustomAwaitable<TResponse> ReadMessageAsync()
         {
             return ReadMessageInternalAsync();
         }

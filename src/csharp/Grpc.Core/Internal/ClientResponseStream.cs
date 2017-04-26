@@ -68,7 +68,7 @@ namespace Grpc.Core.Internal
             {
                 throw new InvalidOperationException("Cancellation of individual reads is not supported.");
             }
-            var result = await call.ReadMessageAsync().ConfigureAwait(false);
+            var result = await call.ReadMessageAsync();
             this.current = result;
 
             if (result == null)

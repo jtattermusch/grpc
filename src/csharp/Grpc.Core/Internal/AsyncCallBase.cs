@@ -66,7 +66,7 @@ namespace Grpc.Core.Internal
         protected bool started;
         protected bool cancelRequested;
 
-        protected TaskCompletionSource<TRead> streamingReadTcs;  // Completion of a pending streaming read if not null.
+        protected CustomAwaitable<TRead> streamingReadTcs;  // Completion of a pending streaming read if not null.
         protected TaskCompletionSource<object> streamingWriteTcs;  // Completion of a pending streaming write or send close from client if not null.
         protected TaskCompletionSource<object> sendStatusFromServerTcs;
         protected bool isStreamingWriteCompletionDelayed;  // Only used for the client side.
@@ -160,7 +160,7 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Initiates reading a message. Only one read operation can be active at a time.
         /// </summary>
-        protected Task<TRead> ReadMessageInternalAsync()
+        protected CustomAwaitable<TRead> ReadMessageInternalAsync()
         {
             lock (myLock)
             {
@@ -170,15 +170,15 @@ namespace Grpc.Core.Internal
                     // the last read that returns null or throws an exception is idempotent
                     // and maintains its state.
                     GrpcPreconditions.CheckState(streamingReadTcs != null, "Call does not support streaming reads.");
-                    return streamingReadTcs.Task;
+                    return streamingReadTcs;
                 }
 
                 GrpcPreconditions.CheckState(streamingReadTcs == null, "Only one read can be pending at a time");
                 GrpcPreconditions.CheckState(!disposed);
 
                 call.StartReceiveMessage(this.cachedRecvMessageHandler);
-                streamingReadTcs = new TaskCompletionSource<TRead>();
-                return streamingReadTcs.Task;
+                streamingReadTcs = new CustomAwaitable<TRead>();
+                return streamingReadTcs;
             }
         }
 
@@ -331,7 +331,7 @@ namespace Grpc.Core.Internal
             TRead msg = default(TRead);
             var deserializeException = (success && receivedMessage != null) ? TryDeserialize(receivedMessage, out msg) : null;
 
-            TaskCompletionSource<TRead> origTcs = null;
+            CustomAwaitable<TRead> origTcs = null;
             lock (myLock)
             {
                 origTcs = streamingReadTcs;
@@ -363,6 +363,78 @@ namespace Grpc.Core.Internal
                 return;
             }
             origTcs.SetResult(msg);
+        }   
+    }
+    public class CustomAwaitable<TResult> : ICriticalNotifyCompletion
+    {
+        private readonly static Action callbackCompleted = () => { };
+        private Action callback;
+        private TResult result;
+        private Exception exception;
+
+        public static readonly Action<TResult, Exception, object> Callback = (result, error, state) =>
+        {
+            var awaitable = (CustomAwaitable<TResult>)state;
+            awaitable.result = result;
+            awaitable.exception = error;
+
+            var continuation = Interlocked.Exchange(ref awaitable.callback, callbackCompleted);
+
+            if (continuation != null)
+            {
+                continuation.Invoke();
+            }
+        };
+
+        public CustomAwaitable<TResult> GetAwaiter() => this;
+        public bool IsCompleted => callback == callbackCompleted;
+
+        public TResult GetResult()
+        {
+            var res = result;
+            var exc = exception;
+
+            // Reset the awaitable state
+            exception = null;
+            result = default(TResult);
+            callback = null;
+
+            if (exc != null) {
+                throw exc;
+            }
+
+            return res;
+        }
+
+        public void SetResult(TResult result)
+        {
+            Callback(result, null, this);
+        }
+
+        public void SetException(Exception exc)
+        {
+            Callback(default(TResult), exc, this);
+        }
+
+        public void OnCompleted(Action continuation)
+        {
+            // There should never be a race between IsCompleted and OnCompleted since both operations
+            // should always be on the libuv thread
+            // TODO: verify this
+
+            if (callback == callbackCompleted ||
+                Interlocked.CompareExchange(ref callback, continuation, null) == callbackCompleted)
+            {
+                //Debug.Fail($"{typeof(LibuvAwaitable<TRequest>)}.{nameof(OnCompleted)} raced with {nameof(IsCompleted)}, running callback inline.");
+
+                // Just run it inline
+                continuation();
+            }
+        }
+
+        public void UnsafeOnCompleted(Action continuation)
+        {
+            OnCompleted(continuation);
         }
     }
 }

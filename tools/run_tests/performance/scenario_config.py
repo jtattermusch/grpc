@@ -424,6 +424,24 @@ class CSharpLanguage:
         unconstrained_client='async', use_generic_payload=True,
         secure=False,
         categories=[SMOKETEST, SCALABLE])
+    
+    yield _ping_pong_scenario(
+        'csharp_to_cpp_generic_async_streaming_qps_unconstrained_insecure', rpc_type='STREAMING',
+        client_type='ASYNC_CLIENT', server_type='ASYNC_GENERIC_SERVER',
+        use_generic_payload=True,
+        unconstrained_client='async',
+        secure=False,
+        categories=[SMOKETEST, SCALABLE],
+        server_language='c++')
+    
+    yield _ping_pong_scenario(
+        'cpp_to_csharp_generic_async_streaming_qps_unconstrained_insecure', rpc_type='STREAMING',
+        client_type='ASYNC_CLIENT', server_type='ASYNC_GENERIC_SERVER',
+        use_generic_payload=True,
+        unconstrained_client='async',
+        secure=False,
+        categories=[SMOKETEST, SCALABLE],
+        client_language='c++')
 
     yield _ping_pong_scenario(
         'csharp_protobuf_async_streaming_ping_pong', rpc_type='STREAMING',

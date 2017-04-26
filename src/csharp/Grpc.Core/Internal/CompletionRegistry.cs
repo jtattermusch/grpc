@@ -39,7 +39,9 @@ using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
 {
-    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx);
+    internal delegate void OpCompletionDelegate(bool success);
+
+    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx, object state);
 
     internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
 
@@ -63,9 +65,9 @@ namespace Grpc.Core.Internal
             this.lastRegisteredKey = key;
         }
 
-        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
         {
-            Register(ctx.Handle, new Entry(ctx, callback));
+            Register(ctx.Handle, new Entry(ctx, callback, state));
         }
 
         public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
@@ -89,11 +91,11 @@ namespace Grpc.Core.Internal
             get { return this.lastRegisteredKey; }
         }
 
-        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
         {
             try
             {
-                callback(success, ctx);
+                callback(success, ctx, state);
             }
             catch (Exception e)
             {
@@ -128,45 +130,40 @@ namespace Grpc.Core.Internal
         }
 
         /// <summary>
-        /// An entry of completion registry
+        /// An entry of completion registry. Allows storing additional state along with a completion callback to prevent the need to allocate object on the heap unnecessarily.
         /// </summary>
         public struct Entry
         {
-            public Entry(BatchContextSafeHandle batchCtx, BatchCompletionDelegate batchCompletionCallback)
+            static readonly Action<bool, Entry> batchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.state0, (BatchCompletionDelegate) entry.state1, entry.state2);
+            static readonly Action<bool, Entry> requestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle)entry.state0, (RequestCallCompletionDelegate)entry.state1);
+
+            public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
             {
-                this.batchCtx = batchCtx;
-                this.batchCompletionCallback = batchCompletionCallback;
-                this.requestCallCtx = null;
-                this.requestCallCompletionCallback = null;
+                this.handler = batchCompletionHandler;
+                this.state0 = ctx;
+                this.state1 = callback;
+                this.state2 = state;
             }
 
-            public Entry(RequestCallContextSafeHandle requestCallCtx, RequestCallCompletionDelegate requestCallCompletionCallback)
+            public Entry(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
             {
-                this.batchCtx = null;
-                this.batchCompletionCallback = null;
-                this.requestCallCtx = requestCallCtx;
-                this.requestCallCompletionCallback = requestCallCompletionCallback;
+                this.handler = requestCallCompletionHandler;
+                this.state0 = ctx;
+                this.state1 = callback;
+                this.state2 = null;
             }
 
-            readonly BatchContextSafeHandle batchCtx;
-            readonly BatchCompletionDelegate batchCompletionCallback;
-
-            readonly RequestCallContextSafeHandle requestCallCtx;
-            readonly RequestCallCompletionDelegate requestCallCompletionCallback;
+            readonly Action<bool, Entry> handler;
+            readonly object state0;
+            readonly object state1;
+            readonly object state2;
 
             /// <summary>
             /// Invoke the callback associated with this completion registry entry.
             /// </summary>
             public void OnCompleted(bool success)
             {
-                if (batchCompletionCallback != null)
-                {
-                  HandleBatchCompletion(success, batchCtx, batchCompletionCallback);
-                }
-                if (requestCallCompletionCallback != null)
-                {
-                  HandleRequestCallCompletion(success, requestCallCtx, requestCallCompletionCallback);
-                }
+                handler(success, this);
             }
         }
 

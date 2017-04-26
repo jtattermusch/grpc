@@ -39,7 +39,7 @@ using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
 {
-    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx);
+    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx, object state);
 
     internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
 
@@ -61,9 +61,9 @@ namespace Grpc.Core.Internal
             GrpcPreconditions.CheckState(dict.TryAdd(key, entry));
         }
 
-        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
         {
-            Register(ctx.Handle, new Entry(ctx, callback));
+            Register(ctx.Handle, new Entry(ctx, callback, state));
         }
 
         public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
@@ -79,11 +79,11 @@ namespace Grpc.Core.Internal
             return value;
         }
 
-        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
+        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
         {
             try
             {
-                callback(success, ctx);
+                callback(success, ctx, state);
             }
             catch (Exception e)
             {
@@ -122,12 +122,13 @@ namespace Grpc.Core.Internal
         /// </summary>
         public struct Entry
         {
-            public Entry(BatchContextSafeHandle batchCtx, BatchCompletionDelegate batchCompletionCallback)
+            public Entry(BatchContextSafeHandle batchCtx, BatchCompletionDelegate batchCompletionCallback, object state)
             {
                 this.batchCtx = batchCtx;
                 this.batchCompletionCallback = batchCompletionCallback;
                 this.requestCallCtx = null;
                 this.requestCallCompletionCallback = null;
+                this.state = state;
             }
 
             public Entry(RequestCallContextSafeHandle requestCallCtx, RequestCallCompletionDelegate requestCallCompletionCallback)
@@ -136,6 +137,7 @@ namespace Grpc.Core.Internal
                 this.batchCompletionCallback = null;
                 this.requestCallCtx = requestCallCtx;
                 this.requestCallCompletionCallback = requestCallCompletionCallback;
+                this.state = null;
             }
 
             readonly BatchContextSafeHandle batchCtx;
@@ -144,6 +146,8 @@ namespace Grpc.Core.Internal
             readonly RequestCallContextSafeHandle requestCallCtx;
             readonly RequestCallCompletionDelegate requestCallCompletionCallback;
 
+            readonly object state;
+
             /// <summary>
             /// Invoke the callback associated with this completion registry entry.
             /// </summary>
@@ -151,7 +155,7 @@ namespace Grpc.Core.Internal
             {
                 if (batchCompletionCallback != null)
                 {
-                  HandleBatchCompletion(success, batchCtx, batchCompletionCallback);
+                  HandleBatchCompletion(success, batchCtx, batchCompletionCallback, state);
                 }
                 if (requestCallCompletionCallback != null)
                 {

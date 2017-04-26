@@ -116,10 +116,18 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                var payloadHandle = GCHandle.Alloc(payload, GCHandleType.Pinned);
-                ctx.SendMessageGCHandle = payloadHandle;
+                IntPtr pinnedAddr;
+                if (payload.Length == 0)
+                {
+                    pinnedAddr = EmptyPinnedArray.NativeAddr;
+                } else
+                {
+                    var payloadHandle = GCHandle.Alloc(payload, GCHandleType.Pinned);
+                    ctx.SendMessageGCHandle = payloadHandle;
+                    pinnedAddr = payloadHandle.AddrOfPinnedObject();
+                }
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context, cb) => (cb as SendCompletionHandler)(success), callback);
-                Native.grpcsharp_call_send_message(this, ctx, payloadHandle.AddrOfPinnedObject(), new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata).CheckOk();
+                Native.grpcsharp_call_send_message(this, ctx, pinnedAddr, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata).CheckOk();
             }
         }
 
@@ -219,6 +227,22 @@ namespace Grpc.Core.Internal
         private static uint GetFlags(bool buffered)
         {
             return buffered ? 0 : GRPC_WRITE_BUFFER_HINT;
+        }
+    }
+
+    internal static class EmptyPinnedArray
+    {
+        static IntPtr addrOfPinnedArray;
+
+        static EmptyPinnedArray() {
+            var payload = new byte[1024*1024];
+            var payloadHandle = GCHandle.Alloc(payload, GCHandleType.Pinned);
+            addrOfPinnedArray = payloadHandle.AddrOfPinnedObject();
+        }
+
+        public static IntPtr NativeAddr
+        {
+            get { return addrOfPinnedArray; }
         }
     }
 }

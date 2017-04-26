@@ -46,6 +46,8 @@ namespace Grpc.Core.Internal
         static readonly byte[] SideBuffer = new byte[1024*1024];
         static readonly NativeMethods Native = NativeMethods.Get();
 
+        static readonly byte[] EmptyByteArray = new byte[0];
+
         public GCHandle SendMessageGCHandle;
 
         private BatchContextSafeHandle()
@@ -94,6 +96,11 @@ namespace Grpc.Core.Internal
             {
                 return null;
             }
+
+            if (len == IntPtr.Zero) {
+                return EmptyByteArray;
+            }
+
             byte[] data;
 
             if ((int)len > 1000) {

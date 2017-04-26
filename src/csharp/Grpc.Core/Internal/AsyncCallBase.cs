@@ -78,10 +78,17 @@ namespace Grpc.Core.Internal
         protected bool initialMetadataSent;
         protected long streamingWritesCounter;  // Number of streaming send operations started so far.
 
+        // TODO: only good in benchmark, needs to be done better elsewhere.
+        private readonly ReceivedMessageHandler cachedRecvMessageHandler;
+        private readonly SendCompletionHandler cachedSendCompletionHandler;
+
         public AsyncCallBase(Func<TWrite, byte[]> serializer, Func<byte[], TRead> deserializer)
         {
             this.serializer = GrpcPreconditions.CheckNotNull(serializer);
             this.deserializer = GrpcPreconditions.CheckNotNull(deserializer);
+
+            this.cachedRecvMessageHandler = (success, msg) => this.HandleReadFinished(success, msg);
+            this.cachedSendCompletionHandler = (success) => this.HandleSendFinished(success);
         }
 
         /// <summary>
@@ -141,7 +148,7 @@ namespace Grpc.Core.Internal
                     return earlyResult;
                 }
 
-                call.StartSendMessage(HandleSendFinished, payload, writeFlags, !initialMetadataSent);
+                call.StartSendMessage(this.cachedSendCompletionHandler, payload, writeFlags, !initialMetadataSent);
 
                 initialMetadataSent = true;
                 streamingWritesCounter++;
@@ -169,7 +176,7 @@ namespace Grpc.Core.Internal
                 GrpcPreconditions.CheckState(streamingReadTcs == null, "Only one read can be pending at a time");
                 GrpcPreconditions.CheckState(!disposed);
 
-                call.StartReceiveMessage(HandleReadFinished);
+                call.StartReceiveMessage(this.cachedRecvMessageHandler);
                 streamingReadTcs = new TaskCompletionSource<TRead>();
                 return streamingReadTcs.Task;
             }

@@ -111,6 +111,8 @@ namespace Grpc.Core.Internal
             }
         }
 
+        private static BatchCompletionDelegate cachedSendCompletionHandler = new BatchCompletionDelegate((success, context, cb) => (cb as SendCompletionHandler)(success));
+
         public void StartSendMessage(SendCompletionHandler callback, byte[] payload, WriteFlags writeFlags, bool sendEmptyInitialMetadata)
         {
             using (completionQueue.NewScope())
@@ -126,7 +128,7 @@ namespace Grpc.Core.Internal
                     ctx.SendMessageGCHandle = payloadHandle;
                     pinnedAddr = payloadHandle.AddrOfPinnedObject();
                 }
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context, cb) => (cb as SendCompletionHandler)(success), callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, cachedSendCompletionHandler, callback);
                 Native.grpcsharp_call_send_message(this, ctx, pinnedAddr, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata).CheckOk();
             }
         }
@@ -155,12 +157,14 @@ namespace Grpc.Core.Internal
             }
         }
 
+        private static BatchCompletionDelegate cachedReceivedMessageHandler = new BatchCompletionDelegate((success, context, cb) => (cb as ReceivedMessageHandler)(success, context.GetReceivedMessage()));
+
         public void StartReceiveMessage(ReceivedMessageHandler callback)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context, cb) => (cb as ReceivedMessageHandler)(success, context.GetReceivedMessage()), callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, cachedReceivedMessageHandler, callback);
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
             }
         }

@@ -179,8 +179,8 @@ namespace Grpc.Core.Internal
                     IntPtr tag = ev.tag;
                     try
                     {
-                        var callback = cq.CompletionRegistry.Extract(tag);
-                        callback(success);
+                        var entry = cq.CompletionRegistry.Extract(tag);
+                        entry.OnCompleted(success);
                     }
                     catch (Exception e)
                     {

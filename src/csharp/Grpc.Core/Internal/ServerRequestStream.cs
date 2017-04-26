@@ -72,6 +72,10 @@ namespace Grpc.Core.Internal
             this.current = result;
             return result != null;
         }
+        public CustomAwaitable<TRequest> ReadMessageAsyncInternal()
+        {
+            return call.ReadMessageAsync();
+        }
 
         public void Dispose()
         {

@@ -60,5 +60,6 @@ namespace Grpc.Core
     /// <typeparam name="T">The message type.</typeparam>
     public interface IAsyncStreamReader<T> : IAsyncEnumerator<T>
     {
+        Grpc.Core.Internal.CustomAwaitable<T> ReadMessageAsyncInternal();
     }
 }

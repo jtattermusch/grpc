@@ -79,6 +79,11 @@ namespace Grpc.Core.Internal
             return true;
         }
 
+        public CustomAwaitable<TResponse> ReadMessageAsyncInternal()
+        {
+            return call.ReadMessageAsync();
+        }
+
         public void Dispose()
         {
             // TODO(jtattermusch): implement the semantics of stream disposal.

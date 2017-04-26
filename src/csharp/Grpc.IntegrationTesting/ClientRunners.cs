@@ -299,7 +299,7 @@ namespace Grpc.IntegrationTesting
                 {
                     stopwatch.Restart();
                     await call.RequestStream.WriteAsync(request);
-                    await call.ResponseStream.MoveNext();
+                    var req = await call.ResponseStream.ReadMessageAsyncInternal();
                     stopwatch.Stop();
 
                     // spec requires data point in nanoseconds.

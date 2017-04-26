@@ -118,7 +118,7 @@ namespace Grpc.IntegrationTesting
             public async Task StreamingCall(IAsyncStreamReader<byte[]> requestStream, IServerStreamWriter<byte[]> responseStream, ServerCallContext context)
             {
                 while (await requestStream.ReadMessageAsyncInternal() != null) {
-                    await responseStream.WriteAsync(response);
+                    await responseStream.SendMessageAsyncInternal(response);
                 }
                 //await requestStream.ForEachAsync(async request =>
                 //{

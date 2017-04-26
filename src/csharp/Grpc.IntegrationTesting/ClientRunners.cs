@@ -298,7 +298,7 @@ namespace Grpc.IntegrationTesting
                 while (!stoppedCts.Token.IsCancellationRequested)
                 {
                     stopwatch.Restart();
-                    await call.RequestStream.WriteAsync(request);
+                    await call.RequestStream.SendMessageAsyncInternal(request);
                     var req = await call.ResponseStream.ReadMessageAsyncInternal();
                     stopwatch.Stop();
 

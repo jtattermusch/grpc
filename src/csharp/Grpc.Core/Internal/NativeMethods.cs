@@ -44,6 +44,9 @@ using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
 {
+    // TODO: move elsewhere
+    internal delegate void OpCompletionDelegate(bool success);
+
     /// <summary>
     /// Provides access to all native methods provided by <c>NativeExtension</c>.
     /// An extra level of indirection is added to P/Invoke calls to allow intelligent loading

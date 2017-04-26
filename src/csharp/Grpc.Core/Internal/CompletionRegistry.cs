@@ -34,14 +34,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Grpc.Core.Logging;
 using Grpc.Core.Utils;
 
 namespace Grpc.Core.Internal
 {
-    internal delegate void OpCompletionDelegate(bool success);
-
     internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx);
 
     internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
@@ -51,7 +48,7 @@ namespace Grpc.Core.Internal
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<CompletionRegistry>();
 
         readonly GrpcEnvironment environment;
-        readonly ConcurrentDictionary<IntPtr, OpCompletionDelegate> dict = new ConcurrentDictionary<IntPtr, OpCompletionDelegate>(new IntPtrComparer());
+        readonly ConcurrentDictionary<IntPtr, Entry> dict = new ConcurrentDictionary<IntPtr, Entry>(new IntPtrComparer());
         IntPtr lastRegisteredKey;  // only for testing
 
         public CompletionRegistry(GrpcEnvironment environment)
@@ -59,28 +56,26 @@ namespace Grpc.Core.Internal
             this.environment = environment;
         }
 
-        public void Register(IntPtr key, OpCompletionDelegate callback)
+        private void Register(IntPtr key, Entry entry)
         {
             environment.DebugStats.PendingBatchCompletions.Increment();
-            GrpcPreconditions.CheckState(dict.TryAdd(key, callback));
+            GrpcPreconditions.CheckState(dict.TryAdd(key, entry));
             this.lastRegisteredKey = key;
         }
 
         public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback)
         {
-            OpCompletionDelegate opCallback = ((success) => HandleBatchCompletion(success, ctx, callback));
-            Register(ctx.Handle, opCallback);
+            Register(ctx.Handle, new Entry(ctx, callback));
         }
 
         public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
         {
-            OpCompletionDelegate opCallback = ((success) => HandleRequestCallCompletion(success, ctx, callback));
-            Register(ctx.Handle, opCallback);
+            Register(ctx.Handle, new Entry(ctx, callback));
         }
 
-        public OpCompletionDelegate Extract(IntPtr key)
+        public Entry Extract(IntPtr key)
         {
-            OpCompletionDelegate value;
+            Entry value;
             GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
             environment.DebugStats.PendingBatchCompletions.Decrement();
             return value;
@@ -128,6 +123,49 @@ namespace Grpc.Core.Internal
                 if (ctx != null)
                 {
                     ctx.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// An entry of completion registry
+        /// </summary>
+        public struct Entry
+        {
+            public Entry(BatchContextSafeHandle batchCtx, BatchCompletionDelegate batchCompletionCallback)
+            {
+                this.batchCtx = batchCtx;
+                this.batchCompletionCallback = batchCompletionCallback;
+                this.requestCallCtx = null;
+                this.requestCallCompletionCallback = null;
+            }
+
+            public Entry(RequestCallContextSafeHandle requestCallCtx, RequestCallCompletionDelegate requestCallCompletionCallback)
+            {
+                this.batchCtx = null;
+                this.batchCompletionCallback = null;
+                this.requestCallCtx = requestCallCtx;
+                this.requestCallCompletionCallback = requestCallCompletionCallback;
+            }
+
+            readonly BatchContextSafeHandle batchCtx;
+            readonly BatchCompletionDelegate batchCompletionCallback;
+
+            readonly RequestCallContextSafeHandle requestCallCtx;
+            readonly RequestCallCompletionDelegate requestCallCompletionCallback;
+
+            /// <summary>
+            /// Invoke the callback associated with this completion registry entry.
+            /// </summary>
+            public void OnCompleted(bool success)
+            {
+                if (batchCompletionCallback != null)
+                {
+                  HandleBatchCompletion(success, batchCtx, batchCompletionCallback);
+                }
+                if (requestCallCompletionCallback != null)
+                {
+                  HandleRequestCallCompletion(success, requestCallCtx, requestCallCompletionCallback);
                 }
             }
         }

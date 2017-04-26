@@ -66,6 +66,7 @@ namespace Grpc.Core.Internal
         protected bool started;
         protected bool cancelRequested;
 
+        protected CustomAwaitable<TRead> cachedStreamingReadTcs = new CustomAwaitable<TRead>();
         protected CustomAwaitable<TRead> streamingReadTcs;  // Completion of a pending streaming read if not null.
         protected TaskCompletionSource<object> streamingWriteTcs;  // Completion of a pending streaming write or send close from client if not null.
         protected TaskCompletionSource<object> sendStatusFromServerTcs;
@@ -177,7 +178,7 @@ namespace Grpc.Core.Internal
                 GrpcPreconditions.CheckState(!disposed);
 
                 call.StartReceiveMessage(this.cachedRecvMessageHandler);
-                streamingReadTcs = new CustomAwaitable<TRead>();
+                streamingReadTcs = cachedStreamingReadTcs;
                 return streamingReadTcs;
             }
         }

@@ -229,7 +229,7 @@ namespace Grpc.Core.Internal
                     // if there's no pending read, readingDone=true will dispose now.
                     // if there is a pending read, we will dispose once that read finishes.
                     readingDone = true;
-                    streamingReadTcs = new CustomAwaitable<TRequest>();
+                    streamingReadTcs = cachedStreamingReadTcs;
                     streamingReadTcs.SetResult(default(TRequest));
                 }
                 ReleaseResourcesIfPossible();

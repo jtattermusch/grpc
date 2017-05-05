@@ -33,7 +33,9 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
-python tools/run_tests/python_utils/port_server.py -p 32766
+python tools/run_tests/start_port_server.py
+
+ps aux | grep port_server
 
 exit 1 
 

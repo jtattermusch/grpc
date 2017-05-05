@@ -77,7 +77,7 @@ def start_port_server():
         args = [
             sys.executable,
             os.path.abspath('tools/run_tests/python_utils/port_server.py'),
-            '-p', '%d' % _PORT_SERVER_PORT, '-l', logfile
+            '-p', '%d' % _PORT_SERVER_PORT
         ]
         env = dict(os.environ)
         env['BUILD_ID'] = 'pleaseDontKillMeJenkins'

@@ -36,8 +36,6 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
-python tools/run_tests/python_utils/port_server.py -p 32766 || goto :error
-
 python tools/run_tests/start_port_server.py || goto :error
 
 python tools/run_tests/run_tests_matrix.py -f basictests windows -j 1 --inner_jobs 8 --internal_ci || goto :error

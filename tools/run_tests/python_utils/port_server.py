@@ -68,6 +68,8 @@ if args.logfile is not None:
 
 print 'port server running on port %d' % args.port
 
+sys.exit(1)
+
 pool = []
 in_use = {}
 mu = threading.Lock()

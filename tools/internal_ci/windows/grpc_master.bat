@@ -36,8 +36,8 @@ cd /d %~dp0\..\..\..
 
 @rem TODO(jtattermusch): install this on the workers
 @rem Node dependencies
-npm install -g node-pre-gyp
-npm install -g node-gyp
+@rem npm install -g node-pre-gyp
+@rem npm install -g node-gyp
 
 @rem Python dependencies
 python -m pip install -U pip setuptools virtualenv wheel

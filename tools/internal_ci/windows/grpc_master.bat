@@ -41,7 +41,7 @@ npm install -g node-gyp
 
 git submodule update --init
 
-python tools/run_tests/run_tests_matrix.py -f basictests windows -j 1 --inner_jobs 8 --internal_ci || goto :error
+python tools/run_tests/run_tests_matrix.py -f basictests windows node dbg -j 1 --inner_jobs 8 --internal_ci || goto :error
 goto :EOF
 
 :error

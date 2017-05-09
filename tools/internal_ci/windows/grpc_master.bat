@@ -34,6 +34,11 @@ set PATH=C:\tools\msys64\usr\bin;C:\Python27;%PATH%
 @rem enter repo root
 cd /d %~dp0\..\..\..
 
+@rem TODO(jtattermusch): install this on the workers
+@rem Node dependencies
+npm install -g node-pre-gyp
+npm install -g node-gyp
+
 git submodule update --init
 
 python tools/run_tests/run_tests_matrix.py -f basictests windows -j 1 --inner_jobs 8 --internal_ci || goto :error

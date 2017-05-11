@@ -56,7 +56,7 @@ for arch in {x86,x64}; do
       ;;
   esac
   for plat in {windows,linux,macos}; do
-    input_dir="$EXTERNAL_GIT_ROOT/platform=${plat}/artifacts/ruby_native_gem_${plat}_${arch}"
+    input_dir="$EXTERNAL_GIT_ROOT/platform=${plat}/artifacts/protoc_${plat}_${arch}"
     output_dir="$base/src/ruby/tools/bin/${ruby_arch}-${plat}"
     mkdir -p $output_dir/google/protobuf
     mkdir -p $output_dir/google/protobuf/compiler  # needed for plugin.proto

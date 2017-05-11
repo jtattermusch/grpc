@@ -383,7 +383,7 @@ namespace Grpc.Core
         /// <summary>
         /// Handles native callback.
         /// </summary>
-        private void HandleServerShutdown(bool success, BatchContextSafeHandle ctx, object state)
+        private void HandleServerShutdown(bool success, BatchContextSafeHandle ctx, object state0, object state1)
         {
             shutdownTcs.SetResult(null);
         }

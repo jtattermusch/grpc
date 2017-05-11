@@ -153,7 +153,7 @@ namespace Grpc.Core
                 "Shutdown is a terminal state. No further state changes can occur.");
             var tcs = new TaskCompletionSource<object>();
             var deadlineTimespec = deadline.HasValue ? Timespec.FromDateTime(deadline.Value) : Timespec.InfFuture;
-            var handler = new BatchCompletionDelegate((success, ctx, state) =>
+            var handler = new BatchCompletionDelegate((success, ctx, unused0, unused1) =>
             {
                 if (success)
                 {

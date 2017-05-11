@@ -130,6 +130,8 @@ namespace Grpc.Core.Internal
             }
         }
 
+        readonly static UnaryResponseClientHandler UnaryResponseHandler = (call, success, receivedStatus, receivedMessage, responseHeaders) => ((AsyncCall<TRequest,TResponse>)call).HandleUnaryResponse(success, receivedStatus, receivedMessage, responseHeaders);
+
         /// <summary>
         /// Starts a unary request - unary response call.
         /// </summary>
@@ -150,7 +152,7 @@ namespace Grpc.Core.Internal
                 unaryResponseTcs = new TaskCompletionSource<TResponse>();
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 {
-                    call.StartUnary(HandleUnaryResponse, payload, GetWriteFlagsForCall(), metadataArray, details.Options.Flags);
+                    call.StartUnary(UnaryResponseHandler, this, payload, GetWriteFlagsForCall(), metadataArray, details.Options.Flags);
                 }
                 return unaryResponseTcs.Task;
             }
@@ -174,12 +176,15 @@ namespace Grpc.Core.Internal
                 unaryResponseTcs = new TaskCompletionSource<TResponse>();
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 {
-                    call.StartClientStreaming(HandleUnaryResponse, metadataArray, details.Options.Flags);
+                    call.StartClientStreaming(UnaryResponseHandler, this, metadataArray, details.Options.Flags);
                 }
 
                 return unaryResponseTcs.Task;
             }
         }
+
+        readonly static ReceivedStatusOnClientHandler FinishedHandler = (call, success, receivedStatus) => ((AsyncCall<TRequest, TResponse>)call).HandleFinished(success, receivedStatus);
+        readonly static ReceivedResponseHeadersHandler ReceivedResponseHeadersHandler = (call, success, responseHeaders) => ((AsyncCall<TRequest, TResponse>)call).HandleReceivedResponseHeaders(success, responseHeaders);
 
         /// <summary>
         /// Starts a unary request - streamed response call.
@@ -200,9 +205,9 @@ namespace Grpc.Core.Internal
                 streamingResponseCallFinishedTcs = new TaskCompletionSource<object>();
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 {
-                    call.StartServerStreaming(HandleFinished, payload, GetWriteFlagsForCall(), metadataArray, details.Options.Flags);
+                    call.StartServerStreaming(FinishedHandler, this, payload, GetWriteFlagsForCall(), metadataArray, details.Options.Flags);
                 }
-                call.StartReceiveInitialMetadata(HandleReceivedResponseHeaders);
+                call.StartReceiveInitialMetadata(ReceivedResponseHeadersHandler, this);
             }
         }
 
@@ -222,9 +227,9 @@ namespace Grpc.Core.Internal
                 streamingResponseCallFinishedTcs = new TaskCompletionSource<object>();
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 {
-                    call.StartDuplexStreaming(HandleFinished, metadataArray, details.Options.Flags);
+                    call.StartDuplexStreaming(FinishedHandler, this, metadataArray, details.Options.Flags);
                 }
-                call.StartReceiveInitialMetadata(HandleReceivedResponseHeaders);
+                call.StartReceiveInitialMetadata(ReceivedResponseHeadersHandler, this);
             }
         }
 
@@ -243,6 +248,8 @@ namespace Grpc.Core.Internal
         {
             return ReadMessageInternalAsync();
         }
+
+        
 
         /// <summary>
         /// Sends halfclose, indicating client is done with streaming requests.
@@ -268,7 +275,7 @@ namespace Grpc.Core.Internal
                     halfcloseRequested = true;
                     return TaskUtils.CompletedTask;
                 }
-                call.StartSendCloseFromClient(HandleSendFinished);
+                call.StartSendCloseFromClient(SendFinishedHandler, this);
 
                 halfcloseRequested = true;
                 streamingWriteTcs = new TaskCompletionSource<object>();

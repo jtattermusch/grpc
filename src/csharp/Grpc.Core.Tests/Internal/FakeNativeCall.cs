@@ -115,7 +115,7 @@ namespace Grpc.Core.Internal.Tests
             return "PEER";
         }
 
-        public void StartUnary(UnaryResponseClientHandler callback, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartUnary(UnaryResponseClientHandler callback, object userState, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             UnaryResponseClientHandler = callback;
         }
@@ -125,53 +125,53 @@ namespace Grpc.Core.Internal.Tests
             throw new NotImplementedException();
         }
 
-        public void StartClientStreaming(UnaryResponseClientHandler callback, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartClientStreaming(UnaryResponseClientHandler callback, object userState, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             UnaryResponseClientHandler = callback;
         }
 
-        public void StartServerStreaming(ReceivedStatusOnClientHandler callback, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartServerStreaming(ReceivedStatusOnClientHandler callback, object userState, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             ReceivedStatusOnClientHandler = callback;
         }
 
-        public void StartDuplexStreaming(ReceivedStatusOnClientHandler callback, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartDuplexStreaming(ReceivedStatusOnClientHandler callback, object userState, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             ReceivedStatusOnClientHandler = callback;
         }
 
-        public void StartReceiveMessage(ReceivedMessageHandler callback)
+        public void StartReceiveMessage(ReceivedMessageHandler callback, object userState)
         {
             ReceivedMessageHandler = callback;
         }
 
-        public void StartReceiveInitialMetadata(ReceivedResponseHeadersHandler callback)
+        public void StartReceiveInitialMetadata(ReceivedResponseHeadersHandler callback, object userState)
         {
             ReceivedResponseHeadersHandler = callback;
         }
 
-        public void StartSendInitialMetadata(SendCompletionHandler callback, MetadataArraySafeHandle metadataArray)
+        public void StartSendInitialMetadata(SendCompletionHandler callback, object userState, MetadataArraySafeHandle metadataArray)
         {
             SendCompletionHandler = callback;
         }
 
-        public void StartSendMessage(SendCompletionHandler callback, byte[] payload, WriteFlags writeFlags, bool sendEmptyInitialMetadata)
+        public void StartSendMessage(SendCompletionHandler callback, object userState, byte[] payload, WriteFlags writeFlags, bool sendEmptyInitialMetadata)
         {
             SendCompletionHandler = callback;
         }
 
-        public void StartSendCloseFromClient(SendCompletionHandler callback)
+        public void StartSendCloseFromClient(SendCompletionHandler callback, object userState)
         {
             SendCompletionHandler = callback;
         }
 
-        public void StartSendStatusFromServer(SendCompletionHandler callback, Status status, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata,
+        public void StartSendStatusFromServer(SendCompletionHandler callback, object userState, Status status, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata,
             byte[] optionalPayload, WriteFlags writeFlags)
         {
             SendStatusFromServerHandler = callback;
         }
 
-        public void StartServerSide(ReceivedCloseOnServerHandler callback)
+        public void StartServerSide(ReceivedCloseOnServerHandler callback, object userState)
         {
             ReceivedCloseOnServerHandler = callback;
         }

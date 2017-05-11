@@ -74,6 +74,8 @@ namespace Grpc.Core.Internal
             InitializeInternal(call);
         }
 
+        readonly static ReceivedCloseOnServerHandler FinishedServerSideHandler = (call, success, cancelled) => ((AsyncCallServer<TRequest, TResponse>)call).HandleFinishedServerside(success, cancelled);
+
         /// <summary>
         /// Starts a server side call.
         /// </summary>
@@ -85,7 +87,7 @@ namespace Grpc.Core.Internal
 
                 started = true;
 
-                call.StartServerSide(HandleFinishedServerside);
+                call.StartServerSide(FinishedServerSideHandler, this);
                 return finishedServersideTcs.Task;
             }
         }
@@ -129,7 +131,7 @@ namespace Grpc.Core.Internal
 
                 using (var metadataArray = MetadataArraySafeHandle.Create(headers))
                 {
-                    call.StartSendInitialMetadata(HandleSendFinished, metadataArray);
+                    call.StartSendInitialMetadata(SendFinishedHandler, this, metadataArray);
                 }
 
                 this.initialMetadataSent = true;
@@ -137,6 +139,8 @@ namespace Grpc.Core.Internal
                 return streamingWriteTcs.Task;
             }
         }
+
+        readonly static SendCompletionHandler SendStatusFromServerFinishedHandler = (call, success) => ((AsyncCallServer<TRequest, TResponse>)call).HandleSendStatusFromServerFinished(success);
 
         /// <summary>
         /// Sends call result status, indicating we are done with writes.
@@ -155,7 +159,7 @@ namespace Grpc.Core.Internal
 
                 using (var metadataArray = MetadataArraySafeHandle.Create(trailers))
                 {
-                    call.StartSendStatusFromServer(HandleSendStatusFromServerFinished, status, metadataArray, !initialMetadataSent,
+                    call.StartSendStatusFromServer(SendStatusFromServerFinishedHandler, this, status, metadataArray, !initialMetadataSent,
                         payload, writeFlags);
                 }
                 halfcloseRequested = true;

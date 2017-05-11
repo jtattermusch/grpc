@@ -48,12 +48,12 @@ namespace Grpc.Core.Internal
         static readonly NativeMethods Native = NativeMethods.Get();
 
         // cache handlers to prevent unnecessary delegate allocations.
-        static readonly BatchCompletionDelegate UnaryResponseClientHandler = (success, context, cb) => ((UnaryResponseClientHandler)cb)(success, context.GetReceivedStatusOnClient(), context.GetReceivedMessage(), context.GetReceivedInitialMetadata());
-        static readonly BatchCompletionDelegate ReceivedStatusOnClientHandler = (success, context, cb) => ((ReceivedStatusOnClientHandler)cb)(success, context.GetReceivedStatusOnClient());
-        static readonly BatchCompletionDelegate SendCompletionHandler = (success, context, cb) => ((SendCompletionHandler)cb)(success);
-        static readonly BatchCompletionDelegate ReceivedMessageHandler = (success, context, cb) => ((ReceivedMessageHandler)cb)(success, context.GetReceivedMessage());
-        static readonly BatchCompletionDelegate ReceivedResponseHeadersHandler = (success, context, cb) => ((ReceivedResponseHeadersHandler)cb)(success, context.GetReceivedInitialMetadata());
-        static readonly BatchCompletionDelegate ReceivedCloseOnServerHandler = (success, context, cb) => ((ReceivedCloseOnServerHandler)cb)(success, context.GetReceivedCloseOnServerCancelled());
+        static readonly BatchCompletionDelegate UnaryResponseClientHandler = (success, context, cb, obj) => ((UnaryResponseClientHandler)cb)(obj, success, context.GetReceivedStatusOnClient(), context.GetReceivedMessage(), context.GetReceivedInitialMetadata());
+        static readonly BatchCompletionDelegate ReceivedStatusOnClientHandler = (success, context, cb, obj) => ((ReceivedStatusOnClientHandler)cb)(obj, success, context.GetReceivedStatusOnClient());
+        static readonly BatchCompletionDelegate SendCompletionHandler = (success, context, cb, obj) => ((SendCompletionHandler)cb)(obj, success);
+        static readonly BatchCompletionDelegate ReceivedMessageHandler = (success, context, cb, obj) => ((ReceivedMessageHandler)cb)(obj, success, context.GetReceivedMessage());
+        static readonly BatchCompletionDelegate ReceivedResponseHeadersHandler = (success, context, cb, obj) => ((ReceivedResponseHeadersHandler)cb)(obj, success, context.GetReceivedInitialMetadata());
+        static readonly BatchCompletionDelegate ReceivedCloseOnServerHandler = (success, context, cb, obj) => ((ReceivedCloseOnServerHandler)cb)(obj, success, context.GetReceivedCloseOnServerCancelled());
 
         const uint GRPC_WRITE_BUFFER_HINT = 1;
         CompletionQueueSafeHandle completionQueue;
@@ -72,12 +72,12 @@ namespace Grpc.Core.Internal
             Native.grpcsharp_call_set_credentials(this, credentials).CheckOk();
         }
 
-        public void StartUnary(UnaryResponseClientHandler callback, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartUnary(UnaryResponseClientHandler callback, object userState, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback, userState);
                 Native.grpcsharp_call_start_unary(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, metadataArray, callFlags)
                     .CheckOk();
             }
@@ -89,106 +89,106 @@ namespace Grpc.Core.Internal
                 .CheckOk();
         }
 
-        public void StartClientStreaming(UnaryResponseClientHandler callback, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartClientStreaming(UnaryResponseClientHandler callback, object userState, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback, userState);
                 Native.grpcsharp_call_start_client_streaming(this, ctx, metadataArray, callFlags).CheckOk();
             }
         }
 
-        public void StartServerStreaming(ReceivedStatusOnClientHandler callback, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartServerStreaming(ReceivedStatusOnClientHandler callback, object userState, byte[] payload, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback, userState);
                 Native.grpcsharp_call_start_server_streaming(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, metadataArray, callFlags).CheckOk();
             }
         }
 
-        public void StartDuplexStreaming(ReceivedStatusOnClientHandler callback, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
+        public void StartDuplexStreaming(ReceivedStatusOnClientHandler callback, object userState, MetadataArraySafeHandle metadataArray, CallFlags callFlags)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback, userState);
                 Native.grpcsharp_call_start_duplex_streaming(this, ctx, metadataArray, callFlags).CheckOk();
             }
         }
 
-        public void StartSendMessage(SendCompletionHandler callback, byte[] payload, WriteFlags writeFlags, bool sendEmptyInitialMetadata)
+        public void StartSendMessage(SendCompletionHandler callback, object userState, byte[] payload, WriteFlags writeFlags, bool sendEmptyInitialMetadata)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_message(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
             }
         }
 
-        public void StartSendCloseFromClient(SendCompletionHandler callback)
+        public void StartSendCloseFromClient(SendCompletionHandler callback, object userState)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_close_from_client(this, ctx).CheckOk();
             }
         }
 
-        public void StartSendStatusFromServer(SendCompletionHandler callback, Status status, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata,
+        public void StartSendStatusFromServer(SendCompletionHandler callback, object userState, Status status, MetadataArraySafeHandle metadataArray, bool sendEmptyInitialMetadata,
             byte[] optionalPayload, WriteFlags writeFlags)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
                 var optionalPayloadLength = optionalPayload != null ? new UIntPtr((ulong)optionalPayload.Length) : UIntPtr.Zero;
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 var statusDetailBytes = MarshalUtils.GetBytesUTF8(status.Detail);
                 Native.grpcsharp_call_send_status_from_server(this, ctx, status.StatusCode, statusDetailBytes, new UIntPtr((ulong)statusDetailBytes.Length), metadataArray, sendEmptyInitialMetadata ? 1 : 0,
                     optionalPayload, optionalPayloadLength, writeFlags).CheckOk();
             }
         }
 
-        public void StartReceiveMessage(ReceivedMessageHandler callback)
+        public void StartReceiveMessage(ReceivedMessageHandler callback, object userState)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedMessageHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedMessageHandler, callback, userState);
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
             }
         }
 
-        public void StartReceiveInitialMetadata(ReceivedResponseHeadersHandler callback)
+        public void StartReceiveInitialMetadata(ReceivedResponseHeadersHandler callback, object userState)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedResponseHeadersHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedResponseHeadersHandler, callback, userState);
                 Native.grpcsharp_call_recv_initial_metadata(this, ctx).CheckOk();
             }
         }
 
-        public void StartServerSide(ReceivedCloseOnServerHandler callback)
+        public void StartServerSide(ReceivedCloseOnServerHandler callback, object userState)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedCloseOnServerHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedCloseOnServerHandler, callback, userState);
                 Native.grpcsharp_call_start_serverside(this, ctx).CheckOk();
             }
         }
 
-        public void StartSendInitialMetadata(SendCompletionHandler callback, MetadataArraySafeHandle metadataArray)
+        public void StartSendInitialMetadata(SendCompletionHandler callback, object userState, MetadataArraySafeHandle metadataArray)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_initial_metadata(this, ctx, metadataArray).CheckOk();
             }
         }

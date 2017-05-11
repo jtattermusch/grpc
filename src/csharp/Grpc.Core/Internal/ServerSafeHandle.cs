@@ -80,7 +80,7 @@ namespace Grpc.Core.Internal
             using (completionQueue.NewScope())
             {
                 var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, callback, null);
+                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, callback, null, null);
                 Native.grpcsharp_server_shutdown_and_notify_callback(this, completionQueue, ctx);
             }
         }

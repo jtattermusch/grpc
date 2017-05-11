@@ -41,7 +41,7 @@ namespace Grpc.Core.Internal
 {
     internal delegate void OpCompletionDelegate(bool success);
 
-    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx, object state);
+    internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx, object state0, object state1);
 
     internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
 
@@ -65,9 +65,9 @@ namespace Grpc.Core.Internal
             this.lastRegisteredKey = key;
         }
 
-        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
+        public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
         {
-            Register(ctx.Handle, new Entry(ctx, callback, state));
+            Register(ctx.Handle, new Entry(ctx, callback, state0, state1));
         }
 
         public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
@@ -91,11 +91,11 @@ namespace Grpc.Core.Internal
             get { return this.lastRegisteredKey; }
         }
 
-        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
+        private static void HandleBatchCompletion(bool success, BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
         {
             try
             {
-                callback(success, ctx, state);
+                callback(success, ctx, state0, state1);
             }
             catch (Exception e)
             {
@@ -134,29 +134,32 @@ namespace Grpc.Core.Internal
         /// </summary>
         public struct Entry
         {
-            static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.state0, (BatchCompletionDelegate) entry.state1, entry.state2);
-            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.state0, (RequestCallCompletionDelegate) entry.state1);
+            static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.obj0, (BatchCompletionDelegate) entry.obj1, entry.obj2, entry.obj3);
+            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.obj0, (RequestCallCompletionDelegate) entry.obj1);
 
-            public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
+            public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
             {
                 this.handler = BatchCompletionHandler;
-                this.state0 = ctx;
-                this.state1 = callback;
-                this.state2 = state;
+                this.obj0 = ctx;
+                this.obj1 = callback;
+                this.obj2 = state0;
+                this.obj3 = state1;
             }
 
             public Entry(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
             {
                 this.handler = RequestCallCompletionHandler;
-                this.state0 = ctx;
-                this.state1 = callback;
-                this.state2 = null;
+                this.obj0 = ctx;
+                this.obj1 = callback;
+                this.obj2 = null;
+                this.obj3 = null;
             }
 
             readonly Action<bool, Entry> handler;
-            readonly object state0;
-            readonly object state1;
-            readonly object state2;
+            readonly object obj0;
+            readonly object obj1;
+            readonly object obj2;
+            readonly object obj3;
 
             /// <summary>
             /// Invoke the callback associated with this completion registry entry.

@@ -125,6 +125,8 @@ namespace Grpc.Core.Internal
             }
         }
 
+        protected readonly static SendCompletionHandler SendFinishedHandler = (call, success) => ((AsyncCallBase<TWrite, TRead>)call).HandleSendFinished(success);
+
         /// <summary>
         /// Initiates sending a message. Only one send operation can be active at a time.
         /// </summary>
@@ -141,7 +143,7 @@ namespace Grpc.Core.Internal
                     return earlyResult;
                 }
 
-                call.StartSendMessage(HandleSendFinished, payload, writeFlags, !initialMetadataSent);
+                call.StartSendMessage(SendFinishedHandler, this, payload, writeFlags, !initialMetadataSent);
 
                 initialMetadataSent = true;
                 streamingWritesCounter++;
@@ -149,6 +151,8 @@ namespace Grpc.Core.Internal
                 return streamingWriteTcs.Task;
             }
         }
+
+        protected readonly static ReceivedMessageHandler ReadFinishedHandler = (call, success, receivedMessage) => ((AsyncCallBase<TWrite, TRead>)call).HandleReadFinished(success, receivedMessage);
 
         /// <summary>
         /// Initiates reading a message. Only one read operation can be active at a time.
@@ -169,7 +173,7 @@ namespace Grpc.Core.Internal
                 GrpcPreconditions.CheckState(streamingReadTcs == null, "Only one read can be pending at a time");
                 GrpcPreconditions.CheckState(!disposed);
 
-                call.StartReceiveMessage(HandleReadFinished);
+                call.StartReceiveMessage(ReadFinishedHandler, this);
                 streamingReadTcs = new TaskCompletionSource<TRead>();
                 return streamingReadTcs.Task;
             }

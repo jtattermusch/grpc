@@ -134,12 +134,12 @@ namespace Grpc.Core.Internal
         /// </summary>
         public struct Entry
         {
-            static readonly Action<bool, Entry> batchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.state0, (BatchCompletionDelegate) entry.state1, entry.state2);
-            static readonly Action<bool, Entry> requestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle)entry.state0, (RequestCallCompletionDelegate)entry.state1);
+            static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.state0, (BatchCompletionDelegate) entry.state1, entry.state2);
+            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.state0, (RequestCallCompletionDelegate) entry.state1);
 
             public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state)
             {
-                this.handler = batchCompletionHandler;
+                this.handler = BatchCompletionHandler;
                 this.state0 = ctx;
                 this.state1 = callback;
                 this.state2 = state;
@@ -147,7 +147,7 @@ namespace Grpc.Core.Internal
 
             public Entry(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
             {
-                this.handler = requestCallCompletionHandler;
+                this.handler = RequestCallCompletionHandler;
                 this.state0 = ctx;
                 this.state1 = callback;
                 this.state2 = null;

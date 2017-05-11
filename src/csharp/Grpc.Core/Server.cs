@@ -305,6 +305,8 @@ namespace Grpc.Core
             }
         }
 
+        static readonly RequestCallCompletionDelegate NewServerRpcHandler = (success, ctx, server, cq) => ((Server) server).HandleNewServerRpc(success, ctx, (CompletionQueueSafeHandle)cq);
+
         /// <summary>
         /// Allows one new RPC call to be received by server.
         /// </summary>
@@ -312,7 +314,7 @@ namespace Grpc.Core
         {
             if (!shutdownRequested)
             {
-                handle.RequestCall((success, ctx) => HandleNewServerRpc(success, ctx, cq), cq);
+                handle.RequestCall(NewServerRpcHandler, this, cq);
             }
         }
 

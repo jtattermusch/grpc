@@ -43,7 +43,7 @@ namespace Grpc.Core.Internal
 
     internal delegate void BatchCompletionDelegate(bool success, BatchContextSafeHandle ctx, object state0, object state1);
 
-    internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx);
+    internal delegate void RequestCallCompletionDelegate(bool success, RequestCallContextSafeHandle ctx, object state0, object state1);
 
     internal class CompletionRegistry
     {
@@ -70,9 +70,9 @@ namespace Grpc.Core.Internal
             Register(ctx.Handle, new Entry(ctx, callback, state0, state1));
         }
 
-        public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
+        public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback, object state0, object state1)
         {
-            Register(ctx.Handle, new Entry(ctx, callback));
+            Register(ctx.Handle, new Entry(ctx, callback, state0, state1));
         }
 
         public Entry Extract(IntPtr key)
@@ -110,11 +110,11 @@ namespace Grpc.Core.Internal
             }
         }
 
-        private static void HandleRequestCallCompletion(bool success, RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
+        private static void HandleRequestCallCompletion(bool success, RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback, object state0, object state1)
         {
             try
             {
-                callback(success, ctx);
+                callback(success, ctx, state0, state1);
             }
             catch (Exception e)
             {
@@ -135,7 +135,7 @@ namespace Grpc.Core.Internal
         public struct Entry
         {
             static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.obj0, (BatchCompletionDelegate) entry.obj1, entry.obj2, entry.obj3);
-            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.obj0, (RequestCallCompletionDelegate) entry.obj1);
+            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.obj0, (RequestCallCompletionDelegate) entry.obj1, entry.obj2, entry.obj3);
 
             public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
             {
@@ -146,13 +146,13 @@ namespace Grpc.Core.Internal
                 this.obj3 = state1;
             }
 
-            public Entry(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback)
+            public Entry(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback, object state0, object state1)
             {
                 this.handler = RequestCallCompletionHandler;
                 this.obj0 = ctx;
                 this.obj1 = callback;
-                this.obj2 = null;
-                this.obj3 = null;
+                this.obj2 = state0;
+                this.obj3 = state1;
             }
 
             readonly Action<bool, Entry> handler;

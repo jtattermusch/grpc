@@ -85,12 +85,12 @@ namespace Grpc.Core.Internal
             }
         }
 
-        public void RequestCall(RequestCallCompletionDelegate callback, CompletionQueueSafeHandle completionQueue)
+        public void RequestCall(RequestCallCompletionDelegate callback, object userState, CompletionQueueSafeHandle completionQueue)
         {
             using (completionQueue.NewScope())
             {
                 var ctx = RequestCallContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterRequestCallCompletion(ctx, callback);
+                completionQueue.CompletionRegistry.RegisterRequestCallCompletion(ctx, callback, userState, completionQueue);
                 Native.grpcsharp_server_request_call(this, completionQueue, ctx).CheckOk();
             }
         }

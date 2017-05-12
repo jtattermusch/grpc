@@ -37,6 +37,7 @@
 
 #include <grpc/support/alloc.h>
 #include <grpc/support/log.h>
+#include <grpc/support/port_platform.h>
 
 #include "src/core/lib/support/atomic.h"
 
@@ -49,6 +50,17 @@ extern "C" {
 #include "src/core/lib/surface/lame_client.h"
 #include "src/core/lib/transport/static_metadata.h"
 }
+
+#ifdef GPR_WINDOWS
+
+extern "C" {
+/* workaround for https://github.com/grpc/grpc/issues/11037 */
+void __stack_chk_fail(void) {
+    abort();
+}
+}
+
+#endif  /* GPR_WINDOWS */
 
 namespace grpc_core {
 

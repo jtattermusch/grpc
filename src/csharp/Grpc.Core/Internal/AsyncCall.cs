@@ -130,7 +130,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        readonly static UnaryResponseClientHandler UnaryResponseHandler = (call, success, receivedStatus, receivedMessage, responseHeaders) => ((AsyncCall<TRequest,TResponse>)call).HandleUnaryResponse(success, receivedStatus, receivedMessage, responseHeaders);
+        readonly static UnaryResponseClientHandler UnaryResponseHandler = (call, success, receivedStatus, receivedMessage, responseHeaders) => (call as AsyncCall<TRequest,TResponse>).HandleUnaryResponse(success, receivedStatus, receivedMessage, responseHeaders);
 
         /// <summary>
         /// Starts a unary request - unary response call.
@@ -183,8 +183,8 @@ namespace Grpc.Core.Internal
             }
         }
 
-        readonly static ReceivedStatusOnClientHandler FinishedHandler = (call, success, receivedStatus) => ((AsyncCall<TRequest, TResponse>)call).HandleFinished(success, receivedStatus);
-        readonly static ReceivedResponseHeadersHandler ReceivedResponseHeadersHandler = (call, success, responseHeaders) => ((AsyncCall<TRequest, TResponse>)call).HandleReceivedResponseHeaders(success, responseHeaders);
+        readonly static ReceivedStatusOnClientHandler FinishedHandler = (call, success, receivedStatus) => (call as AsyncCall<TRequest, TResponse>).HandleFinished(success, receivedStatus);
+        readonly static ReceivedResponseHeadersHandler ReceivedResponseHeadersHandler = (call, success, responseHeaders) => (call as AsyncCall<TRequest, TResponse>).HandleReceivedResponseHeaders(success, responseHeaders);
 
         /// <summary>
         /// Starts a unary request - streamed response call.

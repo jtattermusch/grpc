@@ -48,12 +48,12 @@ namespace Grpc.Core.Internal
         static readonly NativeMethods Native = NativeMethods.Get();
 
         // cache handlers to prevent unnecessary delegate allocations.
-        static readonly BatchCompletionDelegate UnaryResponseClientHandler = (success, context, cb, obj) => ((UnaryResponseClientHandler)cb)(obj, success, context.GetReceivedStatusOnClient(), context.GetReceivedMessage(), context.GetReceivedInitialMetadata());
-        static readonly BatchCompletionDelegate ReceivedStatusOnClientHandler = (success, context, cb, obj) => ((ReceivedStatusOnClientHandler)cb)(obj, success, context.GetReceivedStatusOnClient());
-        static readonly BatchCompletionDelegate SendCompletionHandler = (success, context, cb, obj) => ((SendCompletionHandler)cb)(obj, success);
-        static readonly BatchCompletionDelegate ReceivedMessageHandler = (success, context, cb, obj) => ((ReceivedMessageHandler)cb)(obj, success, context.GetReceivedMessage());
-        static readonly BatchCompletionDelegate ReceivedResponseHeadersHandler = (success, context, cb, obj) => ((ReceivedResponseHeadersHandler)cb)(obj, success, context.GetReceivedInitialMetadata());
-        static readonly BatchCompletionDelegate ReceivedCloseOnServerHandler = (success, context, cb, obj) => ((ReceivedCloseOnServerHandler)cb)(obj, success, context.GetReceivedCloseOnServerCancelled());
+        static readonly BatchCompletionDelegate UnaryResponseClientHandler = (success, context, cb, obj) => (cb as UnaryResponseClientHandler)(obj, success, context.GetReceivedStatusOnClient(), context.GetReceivedMessage(), context.GetReceivedInitialMetadata());
+        static readonly BatchCompletionDelegate ReceivedStatusOnClientHandler = (success, context, cb, obj) => (cb as ReceivedStatusOnClientHandler)(obj, success, context.GetReceivedStatusOnClient());
+        static readonly BatchCompletionDelegate SendCompletionHandler = (success, context, cb, obj) => (cb as SendCompletionHandler)(obj, success);
+        static readonly BatchCompletionDelegate ReceivedMessageHandler = (success, context, cb, obj) => (cb as ReceivedMessageHandler)(obj, success, context.GetReceivedMessage());
+        static readonly BatchCompletionDelegate ReceivedResponseHeadersHandler = (success, context, cb, obj) => (cb as ReceivedResponseHeadersHandler)(obj, success, context.GetReceivedInitialMetadata());
+        static readonly BatchCompletionDelegate ReceivedCloseOnServerHandler = (success, context, cb, obj) => (cb as ReceivedCloseOnServerHandler)(obj, success, context.GetReceivedCloseOnServerCancelled());
 
         const uint GRPC_WRITE_BUFFER_HINT = 1;
         CompletionQueueSafeHandle completionQueue;

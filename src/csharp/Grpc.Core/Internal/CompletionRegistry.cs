@@ -134,8 +134,8 @@ namespace Grpc.Core.Internal
         /// </summary>
         public struct Entry
         {
-            static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, (BatchContextSafeHandle) entry.obj0, (BatchCompletionDelegate) entry.obj1, entry.obj2, entry.obj3);
-            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, (RequestCallContextSafeHandle) entry.obj0, (RequestCallCompletionDelegate) entry.obj1, entry.obj2, entry.obj3);
+            static readonly Action<bool, Entry> BatchCompletionHandler = (success, entry) => HandleBatchCompletion(success, entry.obj0 as BatchContextSafeHandle, entry.obj1 as BatchCompletionDelegate, entry.obj2, entry.obj3);
+            static readonly Action<bool, Entry> RequestCallCompletionHandler = (success, entry) => HandleRequestCallCompletion(success, entry.obj0 as RequestCallContextSafeHandle, entry.obj1 as RequestCallCompletionDelegate, entry.obj2, entry.obj3);
 
             public Entry(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
             {

@@ -125,7 +125,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        protected readonly static SendCompletionHandler SendFinishedHandler = (call, success) => ((AsyncCallBase<TWrite, TRead>)call).HandleSendFinished(success);
+        protected readonly static SendCompletionHandler SendFinishedHandler = (call, success) => (call as AsyncCallBase<TWrite, TRead>).HandleSendFinished(success);
 
         /// <summary>
         /// Initiates sending a message. Only one send operation can be active at a time.
@@ -152,7 +152,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        protected readonly static ReceivedMessageHandler ReadFinishedHandler = (call, success, receivedMessage) => ((AsyncCallBase<TWrite, TRead>)call).HandleReadFinished(success, receivedMessage);
+        protected readonly static ReceivedMessageHandler ReadFinishedHandler = (call, success, receivedMessage) => (call as AsyncCallBase<TWrite, TRead>).HandleReadFinished(success, receivedMessage);
 
         /// <summary>
         /// Initiates reading a message. Only one read operation can be active at a time.

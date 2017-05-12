@@ -74,7 +74,7 @@ namespace Grpc.Core.Internal
             InitializeInternal(call);
         }
 
-        readonly static ReceivedCloseOnServerHandler FinishedServerSideHandler = (call, success, cancelled) => ((AsyncCallServer<TRequest, TResponse>)call).HandleFinishedServerside(success, cancelled);
+        readonly static ReceivedCloseOnServerHandler FinishedServerSideHandler = (call, success, cancelled) => (call as AsyncCallServer<TRequest, TResponse>).HandleFinishedServerside(success, cancelled);
 
         /// <summary>
         /// Starts a server side call.
@@ -140,7 +140,7 @@ namespace Grpc.Core.Internal
             }
         }
 
-        readonly static SendCompletionHandler SendStatusFromServerFinishedHandler = (call, success) => ((AsyncCallServer<TRequest, TResponse>)call).HandleSendStatusFromServerFinished(success);
+        readonly static SendCompletionHandler SendStatusFromServerFinishedHandler = (call, success) => (call as AsyncCallServer<TRequest, TResponse>).HandleSendStatusFromServerFinished(success);
 
         /// <summary>
         /// Sends call result status, indicating we are done with writes.

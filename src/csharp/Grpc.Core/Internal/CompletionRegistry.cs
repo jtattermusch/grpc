@@ -105,7 +105,7 @@ namespace Grpc.Core.Internal
             {
                 if (ctx != null)
                 {
-                    ctx.Dispose();
+                    ctx.Recycle();
                 }
             }
         }

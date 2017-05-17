@@ -32,6 +32,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Text;
 using Grpc.Core;
 using Grpc.Core.Utils;
@@ -56,14 +57,16 @@ namespace Grpc.Core.Internal
         static readonly BatchCompletionDelegate ReceivedCloseOnServerHandler = (success, context, cb, obj) => (cb as ReceivedCloseOnServerHandler)(obj, success, context.GetReceivedCloseOnServerCancelled());
 
         const uint GRPC_WRITE_BUFFER_HINT = 1;
+        ThreadLocal<SimpleObjectPool<BatchContextSafeHandle>> batchContextPools;
         CompletionQueueSafeHandle completionQueue;
 
         private CallSafeHandle()
         {
         }
 
-        public void Initialize(CompletionQueueSafeHandle completionQueue)
+        public void Initialize(GrpcEnvironment environment, CompletionQueueSafeHandle completionQueue)
         {
+            this.batchContextPools = environment.ThreadPool.BatchContextPools;
             this.completionQueue = completionQueue;
         }
 
@@ -76,7 +79,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback, userState);
                 Native.grpcsharp_call_start_unary(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, metadataArray, callFlags)
                     .CheckOk();
@@ -93,7 +96,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, UnaryResponseClientHandler, callback, userState);
                 Native.grpcsharp_call_start_client_streaming(this, ctx, metadataArray, callFlags).CheckOk();
             }
@@ -103,7 +106,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback, userState);
                 Native.grpcsharp_call_start_server_streaming(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, metadataArray, callFlags).CheckOk();
             }
@@ -113,7 +116,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedStatusOnClientHandler, callback, userState);
                 Native.grpcsharp_call_start_duplex_streaming(this, ctx, metadataArray, callFlags).CheckOk();
             }
@@ -123,7 +126,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_message(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
             }
@@ -133,7 +136,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_close_from_client(this, ctx).CheckOk();
             }
@@ -144,7 +147,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 var optionalPayloadLength = optionalPayload != null ? new UIntPtr((ulong)optionalPayload.Length) : UIntPtr.Zero;
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 var statusDetailBytes = MarshalUtils.GetBytesUTF8(status.Detail);
@@ -157,7 +160,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedMessageHandler, callback, userState);
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
             }
@@ -167,7 +170,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedResponseHeadersHandler, callback, userState);
                 Native.grpcsharp_call_recv_initial_metadata(this, ctx).CheckOk();
             }
@@ -177,7 +180,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedCloseOnServerHandler, callback, userState);
                 Native.grpcsharp_call_start_serverside(this, ctx).CheckOk();
             }
@@ -187,7 +190,7 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
+                var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
                 Native.grpcsharp_call_send_initial_metadata(this, ctx, metadataArray).CheckOk();
             }
@@ -236,6 +239,17 @@ namespace Grpc.Core.Internal
             call.SetHandle(ptr);
             call.Initialize(cq);
             return call;
+        }
+        private BatchContextSafeHandle CreateBatchContext()
+        {
+            if (!batchContextPools.IsValueCreated)
+            {
+                return BatchContextSafeHandle.Create();
+            }
+            var pool = batchContextPools.Value;
+            var ctx = pool.Lease();
+            ctx.SetPool(pool);
+            return ctx;
         }
     }
 }

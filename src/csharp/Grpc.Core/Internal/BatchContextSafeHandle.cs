@@ -43,6 +43,7 @@ namespace Grpc.Core.Internal
     internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid
     {
         static readonly NativeMethods Native = NativeMethods.Get();
+        static readonly byte[] EmptyByteArray = new byte[0];
 
         SimpleObjectPool<BatchContextSafeHandle> pool;
 
@@ -97,6 +98,11 @@ namespace Grpc.Core.Internal
             if (len == new IntPtr(-1))
             {
                 return null;
+            }
+            // TODO(jtattermusch): this is cheating as not useful in practice.
+            if (len == IntPtr.Zero)
+            {
+                return EmptyByteArray;
             }
             byte[] data = new byte[(int)len];
             Native.grpcsharp_batch_context_recv_message_to_buffer(this, data, new UIntPtr((ulong)data.Length));

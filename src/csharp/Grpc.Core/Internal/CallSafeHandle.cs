@@ -128,7 +128,7 @@ namespace Grpc.Core.Internal
             {
                 var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
-                Native.grpcsharp_call_send_message(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
+                Native.grpcsharp_call_send_message(this, ctx, payload.Length != 0 ? payload : null, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
             }
         }
 

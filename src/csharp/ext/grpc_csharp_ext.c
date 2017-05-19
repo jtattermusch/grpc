@@ -707,6 +707,13 @@ GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_send_message(
     grpc_call *call, grpcsharp_batch_context *ctx, const char *send_buffer,
     size_t send_buffer_len, uint32_t write_flags,
     int32_t send_empty_initial_metadata) {
+  return GRPC_CALL_OK;
+}
+
+GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_send_message_impl(
+    grpc_call *call, grpcsharp_batch_context *ctx, const char *send_buffer,
+    size_t send_buffer_len, uint32_t write_flags,
+    int32_t send_empty_initial_metadata) {
   /* TODO: don't use magic number */
   grpc_op ops[2];
   memset(ops, 0, sizeof(ops));

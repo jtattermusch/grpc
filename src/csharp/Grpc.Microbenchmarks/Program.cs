@@ -43,7 +43,12 @@ namespace Grpc.Microbenchmarks
         {
             var benchmark = new SendMessageBenchmark();
             benchmark.Init();
-            benchmark.Run();
+
+            benchmark.Run(Environment.ProcessorCount / 2, 4 * 1000 * 1000, 0);
+
+            benchmark.Run(Environment.ProcessorCount, 4 * 1000 * 1000, 0);
+
+            benchmark.Run(1, 4 * 1000 * 1000, 0);
             benchmark.Cleanup();
         }
     }

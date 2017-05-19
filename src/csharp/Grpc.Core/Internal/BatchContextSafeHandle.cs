@@ -44,6 +44,7 @@ namespace Grpc.Core.Internal
     internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid
     {
         static readonly NativeMethods Native = NativeMethods.Get();
+        public static readonly BatchContextSafeHandle NullInstance = new BatchContextSafeHandle();
 
         private BatchContextSafeHandle()
         {

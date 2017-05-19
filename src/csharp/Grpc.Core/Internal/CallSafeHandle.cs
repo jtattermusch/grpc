@@ -115,9 +115,12 @@ namespace Grpc.Core.Internal
         {
             using (completionQueue.NewScope())
             {
-                var ctx = BatchContextSafeHandle.Create();
-                completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, (success, context) => callback(success));
-                Native.grpcsharp_call_send_message(this, ctx, payload, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
+                
+                var ctx = BatchContextSafeHandle.NullInstance;
+                //var ctx = BatchContextSafeHandle.Create();
+                //completionQueue.CompletionRegistry?.RegisterBatchCompletion(ctx, (success, context) => callback(success));
+                Native.grpcsharp_call_send_message(this, ctx, null, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
+                //ctx.Dispose();
             }
         }
 

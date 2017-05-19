@@ -45,13 +45,9 @@ namespace Grpc.Microbenchmarks
         static readonly NativeMethods Native = NativeMethods.Get();
 
         GrpcEnvironment environment;
-        int threadPoolSize;
 
         public void Init()
         {
-            threadPoolSize = Environment.ProcessorCount;
-            GrpcEnvironment.SetThreadPoolSize(threadPoolSize);
-            Console.WriteLine("Thread count: " + threadPoolSize);
             var environment = GrpcEnvironment.AddRef();
         }
 
@@ -60,12 +56,13 @@ namespace Grpc.Microbenchmarks
             GrpcEnvironment.ReleaseAsync().Wait();
         }
 
-        public void Run()
+        public void Run(int threadCount, int iterations, int payloadSize)
         {
+            Console.WriteLine(string.Format("SendMessageBenchmark: threads={0}, iterations={1}, payloadSize={2}", threadCount, iterations, payloadSize));
             var threads = new List<Thread>();
-            for (int i = 0; i < threadPoolSize; i++)
+            for (int i = 0; i < threadCount; i++)
             {
-                var thread = new Thread(new ThreadStart(() => ThreadBody(1000000, 0)));
+                var thread = new Thread(new ThreadStart(() => ThreadBody(iterations, payloadSize)));
                 thread.Start();
                 threads.Add(thread);
             }
@@ -85,6 +82,8 @@ namespace Grpc.Microbenchmarks
             var call = CallSafeHandle.CreateFake(new IntPtr(0xdead), unusedCq);
             bool unused = false;
             call.DangerousAddRef(ref unused); // avoid calling destroy on a fake pointer
+
+            // TODO: completion registry for CQ.
 
             var sendCompletionHandler = new SendCompletionHandler((success) => { });
             var payload = new byte[payloadSize];

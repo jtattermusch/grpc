@@ -128,7 +128,9 @@ namespace Grpc.Core.Internal
             {
                 var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, SendCompletionHandler, callback, userState);
+                Profilers.ForCurrentThread().Begin("Native.grpcsharp_call_send_message");
                 Native.grpcsharp_call_send_message(this, ctx, payload.Length != 0 ? payload : null, new UIntPtr((ulong)payload.Length), writeFlags, sendEmptyInitialMetadata ? 1 : 0).CheckOk();
+                Profilers.ForCurrentThread().End("Native.grpcsharp_call_send_message");
             }
         }
 
@@ -162,7 +164,9 @@ namespace Grpc.Core.Internal
             {
                 var ctx = CreateBatchContext();
                 completionQueue.CompletionRegistry.RegisterBatchCompletion(ctx, ReceivedMessageHandler, callback, userState);
+                Profilers.ForCurrentThread().Begin("Native.grpcsharp_call_recv_message");
                 Native.grpcsharp_call_recv_message(this, ctx).CheckOk();
+                Profilers.ForCurrentThread().End("Native.grpcsharp_call_recv_message");
             }
         }
 

@@ -303,8 +303,14 @@ namespace Grpc.IntegrationTesting
                 while (!stoppedCts.Token.IsCancellationRequested)
                 {
                     stopwatch.Restart();
-                    await call.RequestStream.WriteAsync(request);
-                    await call.ResponseStream.MoveNext();
+                    Profilers.ForCurrentThread().Begin("ClientWriteAsync");
+                    var writeAsync = call.RequestStream.WriteAsync(request);
+                    Profilers.ForCurrentThread().End("ClientWriteAsync");
+                    await writeAsync;
+                    Profilers.ForCurrentThread().Begin("ClientMoveNext");
+                    var moveNext = call.ResponseStream.MoveNext();
+                    Profilers.ForCurrentThread().End("ClientMoveNext");
+                    await moveNext;
                     stopwatch.Stop();
 
                     // spec requires data point in nanoseconds.

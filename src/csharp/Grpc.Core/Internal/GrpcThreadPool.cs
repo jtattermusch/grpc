@@ -83,6 +83,7 @@ namespace Grpc.Core.Internal
         {
             lock (myLock)
             {
+                this.threadProfilers.Add(new BasicProfiler());
                 GrpcPreconditions.CheckState(completionQueues == null, "Already started.");
                 completionQueues = CreateCompletionQueueList(environment, completionQueueCount);
 
@@ -124,9 +125,10 @@ namespace Grpc.Core.Internal
                     pool.Dispose();
                 }
 
+                var pid = new Random().Next();
                 for (int i = 0; i < threadProfilers.Count; i++)
                 {
-                    threadProfilers[i].Dump(string.Format("grpc_trace_thread_{0}.txt", i));
+                    threadProfilers[i].Dump(string.Format("grpc_trace_pid{0}_thread{1}.txt", pid, i));
                 }
             });
         }

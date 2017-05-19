@@ -143,7 +143,9 @@ namespace Grpc.Core.Internal
                     return earlyResult;
                 }
 
+                Profilers.ForCurrentThread().Begin("call.StartSendMessage");
                 call.StartSendMessage(SendFinishedHandler, this, payload, writeFlags, !initialMetadataSent);
+                Profilers.ForCurrentThread().End("call.StartSendMessage");
 
                 initialMetadataSent = true;
                 streamingWritesCounter++;
@@ -173,7 +175,9 @@ namespace Grpc.Core.Internal
                 GrpcPreconditions.CheckState(streamingReadTcs == null, "Only one read can be pending at a time");
                 GrpcPreconditions.CheckState(!disposed);
 
+                Profilers.ForCurrentThread().Begin("call.StartReceiveMessage");
                 call.StartReceiveMessage(ReadFinishedHandler, this);
+                Profilers.ForCurrentThread().End("call.StartReceiveMessage");
                 streamingReadTcs = new TaskCompletionSource<TRead>();
                 return streamingReadTcs.Task;
             }

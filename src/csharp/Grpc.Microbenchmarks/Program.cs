@@ -32,6 +32,8 @@
 #endregion
 
 using System;
+using Grpc.Core;
+using Grpc.Core.Internal;
 
 namespace Grpc.Microbenchmarks
 {
@@ -39,7 +41,10 @@ namespace Grpc.Microbenchmarks
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Helloworld");
+            var benchmark = new SendMessageBenchmark();
+            benchmark.Init();
+            benchmark.Run();
+            benchmark.Cleanup();
         }
     }
 }

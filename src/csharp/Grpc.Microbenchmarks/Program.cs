@@ -48,6 +48,8 @@ namespace Grpc.Microbenchmarks
             foreach (int threadCount in new int[] {1, 1, 2, 4, 8, 12})
             {
                 benchmark.Run(threadCount, 4 * 1000 * 1000, 0);
+                GrpcEnvironment.Logger.Info("GC collection counts: gen0 {0}, gen1 {1}, gen2 {2}",
+                GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2));
             }
             benchmark.Cleanup();
         }

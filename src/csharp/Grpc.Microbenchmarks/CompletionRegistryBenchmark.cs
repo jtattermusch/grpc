@@ -68,13 +68,16 @@ namespace Grpc.Microbenchmarks
             var completionRegistry = new CompletionRegistry(environment);
 
             var pool = new SimpleObjectPool<BatchContextSafeHandle>(Thread.CurrentThread, () => BatchContextSafeHandle.Create(), 1000);
+            environment.ThreadPool.BatchContextPools.Value = pool;
 
-            var ctx = pool.Lease();
+            
             var completionHandler = new BatchCompletionDelegate((success, context, state0, state1) => { });
             
             var stopwatch = Stopwatch.StartNew();
             for (int i = 0; i < iterations; i++)
             {
+                var ctx = pool.Lease();
+                ctx.SetPool(pool);
                 completionRegistry.RegisterBatchCompletion(ctx, completionHandler, null, null);
                 var key = completionRegistry.LastRegisteredKey;
                 var entry = completionRegistry.Extract(completionRegistry.LastRegisteredKey);

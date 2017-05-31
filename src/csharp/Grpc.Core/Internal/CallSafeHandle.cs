@@ -233,11 +233,11 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Only for testing.
         /// </summary>
-        public static CallSafeHandle CreateFake(IntPtr ptr, CompletionQueueSafeHandle cq)
+        public static CallSafeHandle CreateFake(IntPtr ptr, GrpcEnvironment environment, CompletionQueueSafeHandle cq)
         {
             var call = new CallSafeHandle();
             call.SetHandle(ptr);
-            call.Initialize(cq);
+            call.Initialize(environment, cq);
             return call;
         }
         private BatchContextSafeHandle CreateBatchContext()

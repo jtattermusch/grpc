@@ -32,6 +32,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Grpc.Core.Utils;
 
@@ -45,6 +46,7 @@ namespace Grpc.Core.Internal
         static readonly NativeMethods Native = NativeMethods.Get();
 
         SimpleObjectPool<BatchContextSafeHandle> pool;
+        public GCHandle gcHandle; 
 
         private BatchContextSafeHandle()
         {
@@ -52,7 +54,9 @@ namespace Grpc.Core.Internal
 
         public static BatchContextSafeHandle Create()
         {
-            return Native.grpcsharp_batch_context_create();
+            var ctx = Native.grpcsharp_batch_context_create();
+            ctx.gcHandle = GCHandle.Alloc(ctx);
+            return ctx;
         }
 
         public IntPtr Handle
@@ -130,6 +134,7 @@ namespace Grpc.Core.Internal
         protected override bool ReleaseHandle()
         {
             Native.grpcsharp_batch_context_destroy(handle);
+            gcHandle.Free();
             return true;
         }
     }

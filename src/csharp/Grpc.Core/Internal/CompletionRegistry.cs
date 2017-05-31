@@ -34,6 +34,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Grpc.Core.Logging;
 using Grpc.Core.Utils;
 
@@ -50,8 +51,10 @@ namespace Grpc.Core.Internal
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<CompletionRegistry>();
 
         readonly GrpcEnvironment environment;
-        readonly ConcurrentDictionary<IntPtr, Entry> dict = new ConcurrentDictionary<IntPtr, Entry>(new IntPtrComparer());
+        //readonly Dictionary<IntPtr, Entry> dict = new Dictionary<IntPtr, Entry>(new IntPtrComparer());
+        //readonly object myLock = new object();
         IntPtr lastRegisteredKey;  // only for testing
+        Entry lastRegisteredEntry;
 
         public CompletionRegistry(GrpcEnvironment environment)
         {
@@ -60,14 +63,19 @@ namespace Grpc.Core.Internal
 
         private void Register(IntPtr key, Entry entry)
         {
-            environment.DebugStats.PendingBatchCompletions.Increment();
-            GrpcPreconditions.CheckState(dict.TryAdd(key, entry));
-            this.lastRegisteredKey = key;
+            
+            
+                //environment.DebugStats.PendingBatchCompletions.Increment();
+                //dict.Add(key, entry);
+                //GrpcPreconditions.CheckState(dict.TryAdd(key, entry));
+                this.lastRegisteredKey = key;
+                this.lastRegisteredEntry = entry;
+            
         }
 
         public void RegisterBatchCompletion(BatchContextSafeHandle ctx, BatchCompletionDelegate callback, object state0, object state1)
         {
-            Register(ctx.Handle, new Entry(ctx, callback, state0, state1));
+            Register(GCHandle.ToIntPtr(ctx.gcHandle), new Entry(ctx, callback, state0, state1));
         }
 
         public void RegisterRequestCallCompletion(RequestCallContextSafeHandle ctx, RequestCallCompletionDelegate callback, object state0, object state1)
@@ -77,10 +85,16 @@ namespace Grpc.Core.Internal
 
         public Entry Extract(IntPtr key)
         {
-            Entry value;
-            GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
-            environment.DebugStats.PendingBatchCompletions.Decrement();
-            return value;
+            var gcHandle = GCHandle.FromIntPtr(key);
+            
+                
+                //Entry value;
+                //value = dict[key];
+                //dict.Remove(key);
+                //GrpcPreconditions.CheckState(dict.TryRemove(key, out value));
+                //environment.DebugStats.PendingBatchCompletions.Decrement();
+                return lastRegisteredEntry;
+            
         }
 
         /// <summary>

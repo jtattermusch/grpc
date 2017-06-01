@@ -37,7 +37,8 @@ cd /d %~dp0\..\..\..
 git submodule update --init
 
 @rem delete msys gcc 
-delete C:\tools\msys64\usr\bin\gcc 
+del C:\tools\msys64\usr\bin\gcc 
+rm C:\tools\msys64\usr\bin\gcc 
 
 gcc --version
 

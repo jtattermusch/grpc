@@ -37,12 +37,12 @@ cd /d %~dp0\..\..\..
 git submodule update --init
 
 @rem delete msys gcc 
-del C:\tools\msys64\usr\bin\gcc 
-rm C:\tools\msys64\usr\bin\gcc 
+@rem del C:\tools\msys64\usr\bin\gcc 
+@rem rm C:\tools\msys64\usr\bin\gcc 
 
 gcc --version
 
-pacman -S python
+pacman -S python2 --noconfirm
 
 which gcc
 

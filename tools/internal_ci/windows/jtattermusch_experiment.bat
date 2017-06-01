@@ -29,7 +29,7 @@
 
 @rem make sure msys binaries are preferred over cygwin binaries
 @rem set path to python 2.7
-set PATH=C:\tools\msys64\usr\bin;C:\Python27;%PATH%
+set PATH=C:\tools\msys64\usr\bin;C:\Python27;C:\Python27\Scripts;%PATH%
 
 @rem enter repo root
 cd /d %~dp0\..\..\..

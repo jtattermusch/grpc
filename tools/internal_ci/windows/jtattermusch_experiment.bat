@@ -36,9 +36,14 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
+@rem delete msys gcc 
+delete C:\tools\msys64\usr\bin\gcc 
+
 gcc --version
 
 which gcc
+
+dir C:\Python27\include
 
 @rem Protobuf needs to be installed
 python -m pip install -U protobuf

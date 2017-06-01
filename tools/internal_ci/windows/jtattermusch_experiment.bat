@@ -42,6 +42,8 @@ rm C:\tools\msys64\usr\bin\gcc
 
 gcc --version
 
+pacman -S python
+
 which gcc
 
 dir C:\Python27\include

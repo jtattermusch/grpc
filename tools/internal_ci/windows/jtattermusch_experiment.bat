@@ -36,6 +36,8 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
+gcc
+
 @rem Protobuf needs to be installed
 python -m pip install -U protobuf
 

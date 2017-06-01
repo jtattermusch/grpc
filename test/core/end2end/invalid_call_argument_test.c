@@ -59,7 +59,7 @@ static void prepare_test(int is_client) {
   g_state.is_client = is_client;
   grpc_metadata_array_init(&g_state.initial_metadata_recv);
   grpc_metadata_array_init(&g_state.trailing_metadata_recv);
-  g_state.deadline = grpc_timeout_seconds_to_deadline(2);
+  g_state.deadline = grpc_timeout_seconds_to_deadline(10);
   g_state.cq = grpc_completion_queue_create_for_next(NULL);
   g_state.cqv = cq_verifier_create(g_state.cq);
   g_state.details = grpc_empty_slice();
@@ -76,11 +76,11 @@ static void prepare_test(int is_client) {
   } else {
     g_state.server = grpc_server_create(NULL, NULL);
     grpc_server_register_completion_queue(g_state.server, g_state.cq, NULL);
-    gpr_join_host_port(&server_hostport, "0.0.0.0", port);
+    gpr_join_host_port(&server_hostport, "::", port);
     grpc_server_add_insecure_http2_port(g_state.server, server_hostport);
     grpc_server_start(g_state.server);
     gpr_free(server_hostport);
-    gpr_join_host_port(&server_hostport, "localhost", port);
+    gpr_join_host_port(&server_hostport, "127.0.0.1", port);
     g_state.chan = grpc_insecure_channel_create(server_hostport, NULL, NULL);
     gpr_free(server_hostport);
     grpc_slice host = grpc_slice_from_static_string("bar");

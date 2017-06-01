@@ -36,6 +36,9 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
+python -m pip install -U pip setuptools virtualenv
+python -m pip install -U wheel
+
 python tools/run_tests/run_tests_matrix.py -f basictests windows python dbg -j 1 --inner_jobs 8 --internal_ci || goto :error
 goto :EOF
 

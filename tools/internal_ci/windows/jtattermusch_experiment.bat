@@ -40,16 +40,16 @@ git submodule update --init
 @rem del C:\tools\msys64\usr\bin\gcc 
 @rem rm C:\tools\msys64\usr\bin\gcc 
 
-gcc --version
+@rem gcc --version
 
-pacman -S python2 --noconfirm
+@rem pacman -S --noconfirm python2
 
-which gcc
+@rem which gcc
 
-dir C:\Python27\include
+@rem dir C:\Python27\include
 
 @rem Protobuf needs to be installed
-python -m pip install -U protobuf
+@rem python -m pip install -U protobuf
 
 python tools/run_tests/run_tests_matrix.py -f basictests windows python dbg -j 1 --inner_jobs 8 --internal_ci || goto :error
 goto :EOF

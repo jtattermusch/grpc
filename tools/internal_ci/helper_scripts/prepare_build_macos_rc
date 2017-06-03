@@ -42,9 +42,9 @@ curl -sSL https://get.rvm.io | sudo bash -s stable
 
 set +ex
 source /etc/profile.d/rvm.sh
-set -ex
 rvm install ruby-2.3
 gem install bundler
+set -ex
 
 rvm osx-ssl-certs status all
 rvm osx-ssl-certs update all

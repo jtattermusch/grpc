@@ -148,7 +148,7 @@ def _create_test_jobs(extra_args=[], inner_jobs=_DEFAULT_INNER_JOBS):
                              configs=['dbg', 'opt'],
                              platforms=['linux', 'macos', 'windows'],
                              labels=['basictests'],
-                             extra_args=extra_args,
+                             extra_args=extra_args + ['-r', 'invalid_call_argument_test'],
                              inner_jobs=inner_jobs)
 
   # supported on linux and mac.

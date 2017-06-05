@@ -99,6 +99,7 @@ static grpc_error *blocking_resolve_address_impl(
   hints.ai_socktype = SOCK_STREAM; /* stream socket */
   hints.ai_flags = AI_PASSIVE;     /* for wildcard IP address */
 
+  gpr_log(GPR_ERROR, "gettaddrinfo: %s  %s", host, port);
   GRPC_SCHEDULING_START_BLOCKING_REGION;
   s = getaddrinfo(host, port, &hints, &result);
   GRPC_SCHEDULING_END_BLOCKING_REGION;

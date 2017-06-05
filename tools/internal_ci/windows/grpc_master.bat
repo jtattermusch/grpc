@@ -36,6 +36,9 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
+set GRPC_TRACE=api
+set GRPC_VERBOSITY=debug
+
 python tools/run_tests/run_tests_matrix.py -f basictests windows -j 1 --inner_jobs 8 --internal_ci || goto :error
 goto :EOF
 

@@ -93,9 +93,11 @@ static void prepare_test(int is_client) {
     g_state.server = grpc_server_create(NULL, NULL);
     grpc_server_register_completion_queue(g_state.server, g_state.cq, NULL);
     gpr_join_host_port(&server_hostport, "::", port);
+    gpr_log(GPR_ERROR, "add port %s", server_hostport);
     grpc_server_add_insecure_http2_port(g_state.server, server_hostport);
     grpc_server_start(g_state.server);
     gpr_free(server_hostport);
+    gpr_log(GPR_ERROR, "insecure channel create %s", server_hostport);
     gpr_join_host_port(&server_hostport, "127.0.0.1", port);
     g_state.chan = grpc_insecure_channel_create(server_hostport, NULL, NULL);
     gpr_free(server_hostport);
@@ -111,6 +113,7 @@ static void prepare_test(int is_client) {
     op->flags = 0;
     op->reserved = NULL;
     op++;
+    gpr_log(GPR_ERROR, "starting batch");
     GPR_ASSERT(GRPC_CALL_OK == grpc_call_start_batch(g_state.call, g_state.ops,
                                                      (size_t)(op - g_state.ops),
                                                      tag(1), NULL));
@@ -440,6 +443,8 @@ static void test_send_close_from_client_on_server() {
 
   grpc_op *op;
   prepare_test(0);
+  
+  gpr_log(GPR_INFO, "send_close_from_client_on_server prepared");
 
   op = g_state.ops;
   op->op = GRPC_OP_SEND_CLOSE_FROM_CLIENT;
@@ -449,6 +454,8 @@ static void test_send_close_from_client_on_server() {
   GPR_ASSERT(GRPC_CALL_ERROR_NOT_ON_SERVER ==
              grpc_call_start_batch(g_state.server_call, g_state.ops,
                                    (size_t)(op - g_state.ops), tag(2), NULL));
+                                   
+  gpr_log(GPR_INFO, "cleanup test");
   cleanup_test();
 }
 

@@ -199,7 +199,10 @@ static void test_send_initial_metadata_more_than_once() {
                                                    (size_t)(op - g_state.ops),
                                                    tag(1), NULL));
   CQ_EXPECT_COMPLETION(g_state.cqv, tag(1), 0);
+  gpr_log(GPR_ERROR, "verifying completion");
   cq_verify(g_state.cqv);
+  gpr_log(GPR_ERROR, "completion verified");
+  
 
   op = g_state.ops;
   op->op = GRPC_OP_SEND_INITIAL_METADATA;
@@ -211,6 +214,7 @@ static void test_send_initial_metadata_more_than_once() {
              grpc_call_start_batch(g_state.call, g_state.ops,
                                    (size_t)(op - g_state.ops), tag(1), NULL));
   cleanup_test();
+  gpr_log(GPR_ERROR, "end test");
 }
 
 static void test_too_many_metadata() {

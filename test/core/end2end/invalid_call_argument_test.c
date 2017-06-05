@@ -70,6 +70,7 @@ static struct test_state g_state;
 static void prepare_test(int is_client) {
   gpr_log(GPR_ERROR, "prepare test, is_client %d", is_client);
   int port = grpc_pick_unused_port_or_die();
+  gpr_log(GPR_ERROR, "picked port %d", port);
   char *server_hostport;
   grpc_op *op;
   g_state.is_client = is_client;

@@ -68,6 +68,7 @@ struct test_state {
 static struct test_state g_state;
 
 static void prepare_test(int is_client) {
+  gpr_log(GPR_ERROR, "prepare test, is_client %d", is_client);
   int port = grpc_pick_unused_port_or_die();
   char *server_hostport;
   grpc_op *op;
@@ -120,6 +121,7 @@ static void prepare_test(int is_client) {
                                         g_state.cq, g_state.cq, tag(101)));
     CQ_EXPECT_COMPLETION(g_state.cqv, tag(101), 1);
     CQ_EXPECT_COMPLETION(g_state.cqv, tag(1), 1);
+    gpr_log(GPR_ERROR, "cq_verify!!!");
     cq_verify(g_state.cqv);
   }
 }

@@ -81,6 +81,8 @@ static void prepare_test(int is_client) {
   g_state.details = grpc_empty_slice();
   memset(g_state.ops, 0, sizeof(g_state.ops));
 
+
+  gpr_log(GPR_ERROR, "before if");
   if (is_client) {
     /* create a call, channel to a non existant server */
     g_state.chan =
@@ -97,8 +99,8 @@ static void prepare_test(int is_client) {
     grpc_server_add_insecure_http2_port(g_state.server, server_hostport);
     grpc_server_start(g_state.server);
     gpr_free(server_hostport);
-    gpr_log(GPR_ERROR, "insecure channel create %s", server_hostport);
     gpr_join_host_port(&server_hostport, "127.0.0.1", port);
+    gpr_log(GPR_ERROR, "insecure channel create %s", server_hostport);
     g_state.chan = grpc_insecure_channel_create(server_hostport, NULL, NULL);
     gpr_free(server_hostport);
     grpc_slice host = grpc_slice_from_static_string("bar");

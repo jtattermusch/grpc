@@ -31,7 +31,7 @@
 # Source this rc script to prepare the environment for macos builds
 
 # Need to increase open files limit for c tests
-ulimit -n 32768
+ulimit -n 1000  # the max on MacOS?
 
 # TODO(jtattermusch): remove all deps once installed on MacOS workers
 

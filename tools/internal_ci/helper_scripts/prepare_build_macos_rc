@@ -49,10 +49,11 @@ bash -l -c "rvm install ruby-2.3"
 bash -l -c "gem install bundler"
 bash -l -c "rvm osx-ssl-certs status all"
 bash -l -c "rvm osx-ssl-certs update all"
+
 set -ex
 
 # cocoapods
-gem install cocoapods --version 1.0.0
+bash -l -c "gem install cocoapods --version 1.0.0"
 
 # python
 brew install coreutils  # we need grealpath

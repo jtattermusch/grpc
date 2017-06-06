@@ -45,11 +45,10 @@ curl -sSL https://get.rvm.io | sudo bash -s stable
 
 set +ex
 source /etc/profile.d/rvm.sh
-rvm install ruby-2.3
-gem install bundler
-
-rvm osx-ssl-certs status all
-rvm osx-ssl-certs update all
+bash -l -c "rvm install ruby-2.3"
+bash -l -c "gem install bundler"
+bash -l -c "rvm osx-ssl-certs status all"
+bash -l -c "rvm osx-ssl-certs update all"
 set -ex
 
 # cocoapods

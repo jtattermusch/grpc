@@ -35,15 +35,18 @@ gem install bundler
 
 rvm osx-ssl-certs status all
 rvm osx-ssl-certs update all
+<<<<<<< HEAD
 set -ex
 
 # cocoapods
 gem install cocoapods --version 1.0.0
 
 # python
+brew install coreutils  # we need grealpath
 wget -q https://bootstrap.pypa.io/get-pip.py
 sudo python get-pip.py
 sudo pip install virtualenv
+sudo pip install -U six tox setuptools
 
 # TODO(jtattermusch): install python3
 

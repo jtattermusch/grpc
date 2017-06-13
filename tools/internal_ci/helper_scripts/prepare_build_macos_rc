@@ -35,7 +35,6 @@ gem install bundler
 
 rvm osx-ssl-certs status all
 rvm osx-ssl-certs update all
-<<<<<<< HEAD
 set -ex
 
 # cocoapods

@@ -38,7 +38,9 @@ rvm osx-ssl-certs update all
 set -ex
 
 # cocoapods
-gem install cocoapods --version 1.0.0
+export LANG=en_US.UTF-8
+gem install cocoapods
+pod repo update  # needed by python
 
 # python
 brew install coreutils  # we need grealpath

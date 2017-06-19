@@ -25,18 +25,17 @@ cd cmake/build
 
 cmake ../..
 
-#ls -lR third_party/zlib
-#exit 1
-
 # Install zlib using cmake
 #ZLIB_VERSION=$(git submodule status third_party/zlib | awk '{print $1}')
 #ZLIB_VERSION=v1.2.11
 #git clone -b ${ZLIB_VERSION} https://github.com/madler/zlib.git ~/zlib
 #(cd ~/zlib; mkdir build; cd build; cmake ..; make install)
 
+make -j4 install  # install using cmake
 
+cd ../../examples/cpp/helloworld
 
-make -j4 install
+make
 
-exit 1
+make clean
 

@@ -23,11 +23,12 @@ cd cmake/build
 
 cmake ../..
 
-# Install cmake zlib package
-git clone -b v1.2.11 https://github.com/madler/zlib.git ~/zlib
+# Install zlib using cmake
+ZLIB_VERSION=$(git submodule status third_party/zlib | awk '{print $1}')
+git clone -b ${ZLIB_VERSION) https://github.com/madler/zlib.git ~/zlib
 (cd ~/zlib; mkdir build; cd build; cmake ..; make install)
 
-exit 1
+
 
 make -j4 install
 

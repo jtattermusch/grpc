@@ -23,5 +23,5 @@ cd cmake/build
 
 cmake ../..
 
-make install
+make -j4 install
 

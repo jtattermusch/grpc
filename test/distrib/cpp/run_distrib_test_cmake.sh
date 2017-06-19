@@ -35,7 +35,10 @@ make -j4 install  # install using cmake
 
 cd ../../examples/cpp/helloworld
 
+
+mkdir build
+cd build
+
+# Build example with cmake
+cmake ..
 make
-
-make clean
-

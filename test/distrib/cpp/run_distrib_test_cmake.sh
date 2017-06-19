@@ -18,5 +18,10 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
+mkdir -p cmake/build
+cd cmake/build
 
+cmake ../..
+
+make install
 

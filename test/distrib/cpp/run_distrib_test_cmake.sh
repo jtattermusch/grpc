@@ -33,3 +33,5 @@ git clone -b ${ZLIB_VERSION} https://github.com/madler/zlib.git ~/zlib
 
 make -j4 install
 
+exit 1
+

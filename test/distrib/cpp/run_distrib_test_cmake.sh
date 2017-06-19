@@ -18,17 +18,19 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
+git submodule foreach 'rm -rf *'
+
 mkdir -p cmake/build
 cd cmake/build
 
 cmake ../..
 
-ls -lR third_party/zlib
-exit 1
+#ls -lR third_party/zlib
+#exit 1
 
 # Install zlib using cmake
-#ZLIB_VERSION=$(git submodule status third_party/zlib | awk '{print $1}')
-ZLIB_VERSION=v1.2.11
+ZLIB_VERSION=$(git submodule status third_party/zlib | awk '{print $1}')
+#ZLIB_VERSION=v1.2.11
 git clone -b ${ZLIB_VERSION} https://github.com/madler/zlib.git ~/zlib
 (cd ~/zlib; mkdir build; cd build; cmake ..; make install)
 

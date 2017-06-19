@@ -23,7 +23,8 @@ cd cmake/build
 
 cmake ../..
 
-git clone -b v1.2.11 git@github.com:madler/zlib.git ~/zlib
+# Install cmake zlib package
+git clone -b v1.2.11 https://github.com/madler/zlib.git ~/zlib
 (cd ~/zlib; mkdir build; cmake ..; make install)
 
 exit 1

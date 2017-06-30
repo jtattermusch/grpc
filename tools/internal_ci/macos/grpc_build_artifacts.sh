@@ -37,5 +37,9 @@ npm install -g node-gyp
 curl -O http://pear.php.net/go-pear.phar
 sudo php -d detect_unicode=0 go-pear.phar
 
+# needed to build ruby artifacts
+gem install rake-compiler
+gem install rubygems-update
+update_rubygems
 
 tools/run_tests/task_runner.py -f artifact macos

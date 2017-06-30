@@ -42,4 +42,4 @@ gem install rake-compiler
 gem install rubygems-update
 update_rubygems
 
-tools/run_tests/task_runner.py -f artifact macos
+tools/run_tests/task_runner.py -f artifact macos ruby

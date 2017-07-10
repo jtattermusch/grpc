@@ -22,6 +22,11 @@ source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
 tools/run_tests/run_tests_matrix.py -f basictests macos objc dbg --internal_ci -j 2 --inner_jobs 4 || FAILED="true"
 
+ls workspace_objc_macos_dbg_native/bins || true
+
+export CONFIG=dbg
+bash workspace_objc_macos_dbg_native/src/objective-c/tests/run_tests.sh
+
 # kill port_server.py to prevent the build from hanging
 ps aux | grep port_server\\.py | awk '{print $2}' | xargs kill -9
 

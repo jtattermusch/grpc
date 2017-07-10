@@ -883,10 +883,10 @@ class ObjCLanguage(object):
 
   def test_specs(self):
     return [
-        self.config.job_spec(['src/objective-c/tests/run_tests.sh'],
-                              timeout_seconds=60*60,
-                              shortname='objc-tests',
-                              environ=_FORCE_ENVIRON_FOR_WRAPPERS),
+        #self.config.job_spec(['src/objective-c/tests/run_tests.sh'],
+        #                      timeout_seconds=60*60,
+        #                      shortname='objc-tests',
+        #                      environ=_FORCE_ENVIRON_FOR_WRAPPERS),
         self.config.job_spec(['src/objective-c/tests/build_example_test.sh'],
                               timeout_seconds=30*60,
                               shortname='objc-examples-build',

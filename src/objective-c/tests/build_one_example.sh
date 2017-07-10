@@ -36,6 +36,8 @@ rm -f Podfile.lock
 
 pod install
 
+exit 1
+
 set -o pipefail
 XCODEBUILD_FILTER='(^===|^\*\*|\bfatal\b|\berror\b|\bwarning\b|\bfail)'
 xcodebuild \

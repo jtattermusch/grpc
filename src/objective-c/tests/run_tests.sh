@@ -16,7 +16,7 @@
 # Don't run this script standalone. Instead, run from the repository root:
 # ./tools/run_tests/run_tests.py -l objc
 
-set -ev
+set -ex
 
 cd $(dirname $0)
 
@@ -29,7 +29,7 @@ PLUGIN=$BINDIR/grpc_objective_c_plugin
 rm -rf PluginTest/*pb*
 
 # Verify the output proto filename
-eval $PROTOC \
+$PROTOC \
     --plugin=protoc-gen-grpc=$PLUGIN \
     --objc_out=PluginTest \
     --grpc_out=PluginTest \
@@ -61,10 +61,27 @@ eval $PROTOC \
              "interop_server before calling this script."
     exit 1
 }
+
+
 $BINDIR/interop_server --port=5050 --max_send_message_size=8388608 &
 $BINDIR/interop_server --port=5051 --max_send_message_size=8388608 --use_tls &
 # Kill them when this script exits.
-trap 'kill -9 `jobs -p` ; echo "EXIT TIME:  $(date)"' EXIT
+trap 'kill -9 `jobs -p`; echo "EXIT TIME:  $(date)"' EXIT
+
+#xcrun simctl list devices
+
+#pkill Simulator
+
+#xcrun instruments -s
+
+#SIMULATOR_ID=$(xcrun instruments -s | grep -o "iPhone 6 (9.1) \[.*\]" | grep -o "\[.*\]" | sed "s/^\[\(.*\)\]$/\1/")
+#echo $SIMULATOR_ID
+
+#DEVELOPER_PATH=$(xcode-select -p)
+#echo $DEVELOPER_PATH
+#"${DEVELOPER_PATH}/Applications/Simulator.app/Contents/MacOS/Simulator" -CurrentDeviceUDID "${SIMULATOR_ID}" &
+
+#open -a Simulator --args -CurrentDeviceUDID $SIMULATOR_ID
 
 # xcodebuild is very verbose. We filter its output and tell Bash to fail if any
 # element of the pipe fails.
@@ -79,14 +96,15 @@ xcodebuild \
     HOST_PORT_LOCALSSL=localhost:5051 \
     HOST_PORT_LOCAL=localhost:5050 \
     HOST_PORT_REMOTE=grpc-test.sandbox.googleapis.com \
-    test | xcpretty
+    test | xcpretty 
 
-echo "TIME:  $(date)"
-xcodebuild \
-    -workspace Tests.xcworkspace \
-    -scheme CoreCronetEnd2EndTests \
-    -destination name="iPhone 6" \
-    test | xcpretty
+
+#echo "TIME:  $(date)"
+#xcodebuild \
+#    -workspace Tests.xcworkspace \
+#    -scheme CoreCronetEnd2EndTests \
+#    -destination name="iPhone 6" \
+#    test
 
 # Temporarily disabled for (possible) flakiness on Jenkins.
 # Fix or reenable after confirmation/disconfirmation that it is the source of
@@ -97,12 +115,13 @@ xcodebuild \
 #     -workspace Tests.xcworkspace \
 #     -scheme CronetUnitTests \
 #     -destination name="iPhone 6" \
-#     test | xcpretty
+#     test
 
-echo "TIME:  $(date)"
-xcodebuild \
-    -workspace Tests.xcworkspace \
-    -scheme InteropTestsRemoteWithCronet \
-    -destination name="iPhone 6" \
-    HOST_PORT_REMOTE=grpc-test.sandbox.googleapis.com \
-    test | xcpretty
+#echo "TIME:  $(date)"
+#xcodebuild \
+#    -workspace Tests.xcworkspace \
+#    -scheme InteropTestsRemoteWithCronet \
+#    -destination name="iPhone 6" \
+#    HOST_PORT_REMOTE=grpc-test.sandbox.googleapis.com \
+#    test
+

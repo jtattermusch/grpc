@@ -28,7 +28,8 @@ cd /d %~dp0\..\..\..
 
 git submodule update --init
 
-python tools/run_tests/task_runner.py -f artifact windows || goto :error
+python tools/run_tests/task_runner.py -f artifact windows python || goto :error
+
 goto :EOF
 
 :error

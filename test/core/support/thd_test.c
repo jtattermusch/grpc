@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include "test/core/util/test_config.h"
 
-#define NUM_THREADS 1500
+#define NUM_THREADS 5000
 
 struct test {
   gpr_mu mu;

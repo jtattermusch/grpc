@@ -74,7 +74,7 @@ static void test(void) {
   t.n = NUM_THREADS;
   t.is_done = 0;
   for (i = 0; i < NUM_THREADS; i++) {
-	gpr_log(GPR_WARNING, "creating thread %d", i);
+    gpr_log(GPR_ERROR, "creating thread %d", i);
     GPR_ASSERT(gpr_thd_new(&thd, &thd_body, &t, NULL));
   }
   gpr_mu_lock(&t.mu);

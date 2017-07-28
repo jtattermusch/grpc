@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include "test/core/util/test_config.h"
 
-#define NUM_THREADS 300
+#define NUM_THREADS 1500
 
 struct test {
   gpr_mu mu;
@@ -74,6 +74,7 @@ static void test(void) {
   t.n = NUM_THREADS;
   t.is_done = 0;
   for (i = 0; i < NUM_THREADS; i++) {
+	gpr_log(GPR_WARNING, "creating thread %d", i);
     GPR_ASSERT(gpr_thd_new(&thd, &thd_body, &t, NULL));
   }
   gpr_mu_lock(&t.mu);

@@ -43,6 +43,8 @@ exit_code=0
 
 $RUN_TESTS_COMMAND || exit_code=$?
 
+ps aux
+
 cd reports
 echo '<html><head></head><body>' > index.html
 find . -maxdepth 1 -mindepth 1 -type d | sort | while read d ; do

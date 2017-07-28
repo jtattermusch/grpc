@@ -26,10 +26,12 @@ bash tools/internal_ci/helper_scripts/gen_report_index.sh
 @rem netsh interface 6to4 set state disabled
 @rem netsh interface isatap set state disabled
 
-netsh interface ip set dns "Local Area Connection 8" dhcp
-netsh interface ip set dns "Local Area Connection 8" 169.254.169.254 primary
+@rem netsh interface ip set dns "Local Area Connection 8" dhcp
+netsh interface ip set dns "Local Area Connection 8" static 169.254.169.254 primary
 netsh interface ip add dnsservers "Local Area Connection 8" 8.8.8.8 index=2
 netsh interface ip add dnsservers "Local Area Connection 8" 8.8.4.4 index=3
+
+ipconfig /all
 
 @rem Needed for big_query_utils
 python -m pip install google-api-python-client

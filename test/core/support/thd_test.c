@@ -90,6 +90,7 @@ static void test(void) {
   for (i = 0; i < NUM_THREADS; i++) {
     gpr_thd_join(thds[i]);
   }
+  GPR_ASSERT(NUM_THREADS < 0);
 }
 
 /* ------------------------------------------------- */

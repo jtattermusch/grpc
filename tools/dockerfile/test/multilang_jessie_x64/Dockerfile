@@ -124,6 +124,9 @@ RUN pip install pip --upgrade
 RUN pip install virtualenv
 RUN pip install futures==2.2.0 enum34==1.0.4 protobuf==3.2.0 six==1.10.0
 
+# Pre-install packages to workaround https://github.com/grpc/grpc/issues/11968
+RUN pip install coverage==4.4 oauth2client==4.1.0 google-auth==1.0.0 requests==2.14.2
+
 # Install coverage for Python test coverage reporting
 RUN pip install coverage
 ENV PATH ~/.local/bin:$PATH

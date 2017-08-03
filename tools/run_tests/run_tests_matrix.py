@@ -150,7 +150,8 @@ def _create_test_jobs(extra_args=[], inner_jobs=_DEFAULT_INNER_JOBS):
                               configs=['dbg', 'opt'],
                               platforms=['linux', 'macos'],
                               labels=['basictests', 'corelang'],
-                              extra_args=extra_args,
+                              # .*cpp_protobuf_sync_streaming_from_client_qps_unconstrained_insecure
+                              extra_args=extra_args + ['-r', 'json_run_localhost.*_sync_'],
                               inner_jobs=inner_jobs)
   
   test_jobs += _generate_jobs(languages=['ruby', 'php'],

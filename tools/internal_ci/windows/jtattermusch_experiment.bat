@@ -24,6 +24,8 @@ cd /d %~dp0\..\..\..
 
 call tools/internal_ci/helper_scripts/prepare_build_windows.bat
 
+python tools/run_tests/run_tests.py -l c -c dbg --build_only || goto :error
+
 echo "External IP of this machine"
 bash -c "curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H 'Metadata-Flavor: Google'"
 echo

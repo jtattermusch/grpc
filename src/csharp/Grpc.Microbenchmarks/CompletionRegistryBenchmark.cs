@@ -63,7 +63,7 @@ namespace Grpc.Microbenchmarks
             stopwatch.Stop();
             Console.WriteLine("Elapsed millis: " + stopwatch.ElapsedMilliseconds);          
 
-            ctx.Dispose();
+            ctx.Recycle();
         }
 
         private class NopCompletionCallback : IOpCompletionCallback

@@ -40,17 +40,16 @@ namespace Grpc.Microbenchmarks
         public void Cleanup()
         {
             GrpcEnvironment.ReleaseAsync().Wait();
-            // TODO(jtattermusch): track GC stats
         }
 
-        public void Run(int threadCount, int iterations, int payloadSize)
+        public void Run(int threadCount, int iterations, int payloadSize, int maxPendingCompletions)
         {
-            Console.WriteLine(string.Format("SendMessageBenchmark: threads={0}, iterations={1}, payloadSize={2}", threadCount, iterations, payloadSize));
-            var threadedBenchmark = new ThreadedBenchmark(threadCount, () => ThreadBody(iterations, payloadSize));
+            Console.WriteLine(string.Format("SendMessageBenchmark: threads={0}, iterations={1}, payloadSize={2}, maxPendingCompletions={3}", threadCount, iterations, payloadSize, maxPendingCompletions));
+            var threadedBenchmark = new ThreadedBenchmark(threadCount, () => ThreadBody(iterations, payloadSize, maxPendingCompletions));
             threadedBenchmark.Run();
         }
 
-        private void ThreadBody(int iterations, int payloadSize)
+        private void ThreadBody(int iterations, int payloadSize, int maxPendingCompletions)
         {
             var completionRegistry = new CompletionRegistry(environment, () => environment.BatchContextPool.Lease());
             var cq = CompletionQueueSafeHandle.CreateAsync(completionRegistry);
@@ -60,12 +59,19 @@ namespace Grpc.Microbenchmarks
             var payload = new byte[payloadSize];
             var writeFlags = default(WriteFlags);
 
+            var callbackPointers = new IntPtr[maxPendingCompletions];
+
             var stopwatch = Stopwatch.StartNew();
-            for (int i = 0; i < iterations; i++)
+            for (int i = 0; i < iterations / maxPendingCompletions; i++)
             {
-                call.StartSendMessage(sendCompletionCallback, payload, writeFlags, false);
-                var callback = completionRegistry.Extract(completionRegistry.LastRegisteredKey);
-                callback.OnComplete(true);
+                for (int j = 0; j < maxPendingCompletions; j++) {
+                    call.StartSendMessage(sendCompletionCallback, payload, writeFlags, false);
+                    callbackPointers[j] = completionRegistry.LastRegisteredKey;
+                }
+                for (int j = 0; j < maxPendingCompletions; j++) {
+                    var callback = completionRegistry.Extract(callbackPointers[j]);
+                    callback.OnComplete(true);
+                }
             }
             stopwatch.Stop();
             Console.WriteLine("Elapsed millis: " + stopwatch.ElapsedMilliseconds);

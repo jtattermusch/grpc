@@ -41,7 +41,7 @@ namespace Grpc.Core.Internal
     /// <summary>
     /// Simple queue-based pool of objects.
     /// </summary>
-    internal class SimpleObjectPool<T> where T : IDisposable
+    internal class SimpleObjectPool<T> where T : class, IDisposable
     {
         readonly object myLock = new object();
         readonly Func<T> itemFactory;
@@ -83,13 +83,18 @@ namespace Grpc.Core.Internal
                 return itemFactory();
             }
 
-            int itemsRented = 0;
+            int itemsMoved = 0;
+            T leasedItem = null;
             lock(myLock)
             {
-                while (sharedQueue.Count > 0 && itemsRented < rentLimit)
+                if (sharedQueue.Count > 0)
+                {
+                    leasedItem = sharedQueue.Dequeue();
+                }
+                while (sharedQueue.Count > 0 && itemsMoved < rentLimit)
                 {
                     localData.Queue.Enqueue(sharedQueue.Dequeue());
-                    itemsRented ++;
+                    itemsMoved ++;
                 }
             }
 
@@ -97,14 +102,9 @@ namespace Grpc.Core.Internal
             // next time we try to lease we will just create those
             // instead of trying to grab them from the shared queue.
             // This is to guarantee we won't be accessing the shared queue too often.
-            localData.CreateBudget += rentLimit - itemsRented;
-            if (itemsRented > 0)
-            {
-                return localData.Queue.Dequeue();
-            }
+            localData.CreateBudget += rentLimit - itemsMoved;
 
-            // if both queues were empty, just create a new instance.
-            return itemFactory();
+            return leasedItem ?? itemFactory();
         }
 
         public void Return(T item)

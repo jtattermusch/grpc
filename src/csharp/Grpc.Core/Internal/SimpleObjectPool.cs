@@ -45,60 +45,112 @@ namespace Grpc.Core.Internal
     {
         readonly object myLock = new object();
         readonly Func<T> itemFactory;
-        readonly Queue<T> queue;
-        readonly ThreadLocal<Queue<T>> threadLocalQueue;
-        readonly int capacity;
+
+        // Queue shared between threads, access needs to be synchronized.
+        readonly Queue<T> sharedQueue;
+        readonly int sharedCapacity;
+
+        readonly ThreadLocal<ThreadLocalData> threadLocalData;
         readonly int threadLocalCapacity;
+        readonly int rentLimit;
 
         bool disposed;
 
-        public SimpleObjectPool(Func<T> itemFactory, int capacity, int threadLocalCapacity)
+        public SimpleObjectPool(Func<T> itemFactory, int sharedCapacity, int threadLocalCapacity)
         {
-            this.itemFactory = itemFactory;
-            this.queue = new Queue<T>(capacity);
-            this.capacity = capacity;
-            this.threadLocalQueue = new ThreadLocal<Queue<T>>(() => new Queue<T>(threadLocalCapacity), false);
+            GrpcPreconditions.CheckArgument(sharedCapacity >= 0);
+            GrpcPreconditions.CheckArgument(threadLocalCapacity >= 0);
+            this.itemFactory = GrpcPreconditions.CheckNotNull(itemFactory, nameof(itemFactory));
+            this.sharedQueue = new Queue<T>(sharedCapacity);
+            this.sharedCapacity = sharedCapacity;
+            this.threadLocalData = new ThreadLocal<ThreadLocalData>(() => new ThreadLocalData(threadLocalCapacity), false);
             this.threadLocalCapacity = threadLocalCapacity;
+            this.rentLimit = threadLocalCapacity / 2;
         }
 
         public T Lease()
         {
-            var localQueue = threadLocalQueue.Value;
-            if (localQueue.Count > 0)
+            GrpcPreconditions.CheckState(!disposed);
+
+            var localData = threadLocalData.Value;
+            if (localData.Queue.Count > 0)
             {
-                return localQueue.Dequeue();
+                return localData.Queue.Dequeue();
+            }
+            if (localData.CreateBudget > 0)
+            {
+                localData.CreateBudget --;
+                return itemFactory();
             }
 
+            int itemsRented = 0;
             lock(myLock)
             {
-                GrpcPreconditions.CheckState(!disposed);
-                if (queue.Count > 0)
+                while (sharedQueue.Count > 0 && itemsRented < rentLimit)
                 {
-                    return queue.Dequeue();
+                    localData.Queue.Enqueue(sharedQueue.Dequeue());
+                    itemsRented ++;
                 }
             }
+
+            // If the shared pool didn't contain all rentLimit items,
+            // next time we try to lease we will just create those
+            // instead of trying to grab them from the shared queue.
+            // This is to guarantee we won't be accessing the shared queue too often.
+            localData.CreateBudget += rentLimit - itemsRented;
+            if (itemsRented > 0)
+            {
+                return localData.Queue.Dequeue();
+            }
+
+            // if both queues were empty, just create a new instance.
             return itemFactory();
         }
 
         public void Return(T item)
         {
-            var localQueue = threadLocalQueue.Value;
-            if (localQueue.Count < threadLocalCapacity)
+            GrpcPreconditions.CheckState(!disposed);
+
+            var localData = threadLocalData.Value;
+            if (localData.Queue.Count < threadLocalCapacity)
             {
-                localQueue.Enqueue(item);
+                localData.Queue.Enqueue(item);
+                return;
+            }
+            if (localData.DisposeBudget > 0)
+            {
+                localData.DisposeBudget --;
+                item.Dispose();
                 return;
             }
 
+            int itemsReturned = 0;
+            int returnLimit = rentLimit + 1;
             lock(myLock)
             {
-                GrpcPreconditions.CheckState(!disposed);
-                if (queue.Count < capacity)
+                if (sharedQueue.Count < sharedCapacity)
                 {
-                    queue.Enqueue(item);
-                    return;
+                    sharedQueue.Enqueue(item);
+                    itemsReturned ++;
+                }
+                while (sharedQueue.Count < sharedCapacity && itemsReturned < returnLimit)
+                {
+                    sharedQueue.Enqueue(localData.Queue.Dequeue());
+                    itemsReturned ++;
                 }
             }
-            item.Dispose();
+
+            // If the shared pool could not accomodate all returnLimit items,
+            // next time we try to return we will just dispose the item
+            // instead of trying to return them to the shared queue.
+            // This is to guarantee we won't be accessing the shared queue too often.
+            localData.DisposeBudget += returnLimit - itemsReturned;
+
+            if (itemsReturned == 0)
+            {
+                localData.DisposeBudget --;
+                item.Dispose();
+            }
         }
 
         public void Dispose()
@@ -107,11 +159,23 @@ namespace Grpc.Core.Internal
             {
                 disposed = true;
 
-                while (queue.Count > 0)
+                while (sharedQueue.Count > 0)
                 {
-                    queue.Dequeue().Dispose();
+                    sharedQueue.Dequeue().Dispose();
                 }
             }
+        }
+
+        class ThreadLocalData
+        {
+            public ThreadLocalData(int capacity)
+            {
+                this.Queue = new Queue<T>(capacity);
+            }
+
+            public Queue<T> Queue { get; }
+            public int CreateBudget { get; set; }
+            public int DisposeBudget { get; set; }
         }
     }
 }

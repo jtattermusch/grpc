@@ -37,7 +37,7 @@ namespace Grpc.Core.Internal
     {
         static readonly NativeMethods Native = NativeMethods.Get();
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<BatchContextSafeHandle>();
-        static readonly SimpleObjectPool<BatchContextSafeHandle> SharedPool = new SimpleObjectPool<BatchContextSafeHandle>(() => Native.grpcsharp_batch_context_create(), 10000, 10);
+        static readonly SimpleObjectPool<BatchContextSafeHandle> SharedPool = new SimpleObjectPool<BatchContextSafeHandle>(() => Native.grpcsharp_batch_context_create(), 10000, 64);
 
         CompletionCallbackData completionCallbackData;
 

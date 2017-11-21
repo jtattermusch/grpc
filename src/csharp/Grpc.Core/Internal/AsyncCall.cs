@@ -91,6 +91,7 @@ namespace Grpc.Core.Internal
                     readingDone = true;
                 }
 
+                // TODO(jtatermusch): enable pooling of BatchContextSafeHandle
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 using (var ctx = BatchContextSafeHandle.Create(avoidPool: true))
                 {

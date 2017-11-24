@@ -37,24 +37,19 @@ namespace Grpc.Core.Internal
     {
         static readonly NativeMethods Native = NativeMethods.Get();
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<BatchContextSafeHandle>();
-        static readonly SimpleObjectPool<BatchContextSafeHandle> SharedPool = new SimpleObjectPool<BatchContextSafeHandle>(() => Native.grpcsharp_batch_context_create(), 10000, 64);
 
+        IObjectPool<BatchContextSafeHandle> ownedByPool;
         CompletionCallbackData completionCallbackData;
 
         private BatchContextSafeHandle()
         {
         }
 
-        public static BatchContextSafeHandle Create(bool avoidPool = false)
+        public static BatchContextSafeHandle Create(IObjectPool<BatchContextSafeHandle> ownedByPool = null)
         {
-            if (!avoidPool)
-            {
-                return SharedPool.Lease();
-            }
-            else
-            {
-                return Native.grpcsharp_batch_context_create();
-            }
+            var ctx = Native.grpcsharp_batch_context_create();
+            ctx.ownedByPool = ownedByPool;
+            return ctx;
         }
 
         public IntPtr Handle
@@ -114,13 +109,15 @@ namespace Grpc.Core.Internal
 
         public void Recycle()
         {
-            Reset();
-            SharedPool.Return(this);
-        }
-
-        public void Reset()
-        {
-            Native.grpcsharp_batch_context_reset(this);
+            if (ownedByPool != null)
+            {
+                Native.grpcsharp_batch_context_reset(this);
+                ownedByPool.Return(this);
+            }
+            else
+            {
+                Dispose();
+            }
         }
 
         protected override bool ReleaseHandle()

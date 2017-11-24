@@ -41,7 +41,8 @@ namespace Grpc.Core.Internal
     /// <summary>
     /// Simple queue-based pool of objects.
     /// </summary>
-    internal class SimpleObjectPool<T> where T : class, IDisposable
+    internal class SimpleObjectPool<T> : IObjectPool<T>
+        where T : class, IDisposable
     {
         readonly object myLock = new object();
         readonly Func<T> itemFactory;

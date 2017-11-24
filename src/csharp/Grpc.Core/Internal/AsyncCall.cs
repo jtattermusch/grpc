@@ -93,7 +93,7 @@ namespace Grpc.Core.Internal
 
                 using (var metadataArray = MetadataArraySafeHandle.Create(details.Options.Headers))
                 {
-                    var ctx = BatchContextSafeHandle.Create();
+                    var ctx = details.Channel.Environment.BatchContextPool.Lease();
                     try
                     {
                         call.StartUnary(ctx, payload, GetWriteFlagsForCall(), metadataArray, details.Options.Flags);

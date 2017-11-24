@@ -50,7 +50,7 @@ namespace Grpc.Microbenchmarks
 
         private void ThreadBody(int iterations)
         {
-            var completionRegistry = new CompletionRegistry(environment);
+            var completionRegistry = new CompletionRegistry(environment, () => BatchContextSafeHandle.Create());
             var ctx = BatchContextSafeHandle.Create();
   
             var stopwatch = Stopwatch.StartNew();

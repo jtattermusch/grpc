@@ -51,7 +51,7 @@ namespace Grpc.Microbenchmarks
 
         private void ThreadBody(int iterations, int payloadSize, int maxPendingCompletions)
         {
-            var completionRegistry = new CompletionRegistry(environment);
+            var completionRegistry = new CompletionRegistry(environment, () => BatchContextSafeHandle.Create());
             var cq = CompletionQueueSafeHandle.CreateAsync(completionRegistry);
             var call = CreateFakeCall(cq);
 

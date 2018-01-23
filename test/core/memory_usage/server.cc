@@ -235,6 +235,7 @@ int main(int argc, char** argv) {
                      gpr_time_from_micros(1000000, GPR_TIMESPAN)),
         nullptr);
     fling_call* s = static_cast<fling_call*>(ev.tag);
+    int cleanup_snapshot_call = 0;
     switch (ev.type) {
       case GRPC_OP_COMPLETE:
         switch (s->state) {
@@ -287,18 +288,21 @@ int main(int argc, char** argv) {
                 send_status(&calls[k]);
               }
             }
-          // no break here since we want to continue to case
-          // FLING_SERVER_SEND_STATUS_SNAPSHOT to destroy the snapshot call
-          case FLING_SERVER_SEND_STATUS_SNAPSHOT:
-            grpc_byte_buffer_destroy(payload_buffer);
-            grpc_byte_buffer_destroy(terminal_buffer);
-            grpc_call_unref(s->call);
-            grpc_call_details_destroy(&s->call_details);
-            grpc_metadata_array_destroy(&s->initial_metadata_send);
-            grpc_metadata_array_destroy(&s->request_metadata_recv);
-            terminal_buffer = nullptr;
-            payload_buffer = nullptr;
+            cleanup_snapshot_call = 1;
             break;
+          case FLING_SERVER_SEND_STATUS_SNAPSHOT:
+            cleanup_snapshot_call = 1;
+            break;
+        }
+        if (cleanup_snapshot_call) {
+          grpc_byte_buffer_destroy(payload_buffer);
+          grpc_byte_buffer_destroy(terminal_buffer);
+          grpc_call_unref(s->call);
+          grpc_call_details_destroy(&s->call_details);
+          grpc_metadata_array_destroy(&s->initial_metadata_send);
+          grpc_metadata_array_destroy(&s->request_metadata_recv);
+          terminal_buffer = nullptr;
+          payload_buffer = nullptr;
         }
         break;
       case GRPC_QUEUE_SHUTDOWN:

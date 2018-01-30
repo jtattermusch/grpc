@@ -1,3 +1,4 @@
+codeowners experiment, do not merge
 """Generates C++ grpc stubs from proto_library rules.
 
 This is an internal rule used by cc_grpc_library, and shouldn't be used

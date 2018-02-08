@@ -68,6 +68,9 @@ set_property(CACHE gRPC_PROTOBUF_PACKAGE_TYPE PROPERTY STRINGS "CONFIG" "MODULE"
 set(gRPC_GFLAGS_PROVIDER "module" CACHE STRING "Provider of gflags library")
 set_property(CACHE gRPC_GFLAGS_PROVIDER PROPERTY STRINGS "module" "package")
 
+set(gRPC_GMOCK_PROVIDER "module" CACHE STRING "Provider of gmock library")
+set_property(CACHE gRPC_GMOCK_PROVIDER PROPERTY STRINGS "module" "package")
+
 set(gRPC_BENCHMARK_PROVIDER "module" CACHE STRING "Provider of benchmark library")
 set_property(CACHE gRPC_BENCHMARK_PROVIDER PROPERTY STRINGS "module" "package")
 
@@ -111,6 +114,7 @@ include(cmake/cares.cmake)
 include(cmake/protobuf.cmake)
 include(cmake/ssl.cmake)
 include(cmake/gflags.cmake)
+include(cmake/gmock.cmake)
 include(cmake/benchmark.cmake)
 
 if(NOT MSVC)
@@ -2623,10 +2627,7 @@ target_include_directories(grpc++_core_stats
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3157,10 +3158,7 @@ target_include_directories(grpc++_proto_reflection_desc_db
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3272,10 +3270,7 @@ target_include_directories(grpc++_test_config
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3348,10 +3343,7 @@ target_include_directories(grpc++_test_util
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3486,10 +3478,7 @@ target_include_directories(grpc++_test_util_unsecure
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3817,10 +3806,7 @@ target_include_directories(grpc_benchmark
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -3832,6 +3818,7 @@ target_link_libraries(grpc_benchmark
   grpc_test_util_unsecure
   grpc_unsecure
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 
@@ -3874,10 +3861,7 @@ target_include_directories(grpc_cli_libs
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4008,10 +3992,7 @@ target_include_directories(http2_client_main
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4061,10 +4042,7 @@ target_include_directories(interop_client_helper
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4129,10 +4107,7 @@ target_include_directories(interop_client_main
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4178,10 +4153,7 @@ target_include_directories(interop_server_helper
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4245,10 +4217,7 @@ target_include_directories(interop_server_lib
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4294,10 +4263,7 @@ target_include_directories(interop_server_main
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -4380,10 +4346,7 @@ target_include_directories(qps
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GFLAGS_MOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8269,8 +8232,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(alarm_test
   test/cpp/common/alarm_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8283,10 +8244,7 @@ target_include_directories(alarm_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8300,6 +8258,7 @@ target_link_libraries(alarm_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -8307,8 +8266,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(async_end2end_test
   test/cpp/end2end/async_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8321,10 +8278,7 @@ target_include_directories(async_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8338,6 +8292,7 @@ target_link_libraries(async_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -8345,8 +8300,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(auth_property_iterator_test
   test/cpp/common/auth_property_iterator_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8359,10 +8312,7 @@ target_include_directories(auth_property_iterator_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8376,6 +8326,7 @@ target_link_libraries(auth_property_iterator_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -8383,8 +8334,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(backoff_test
   test/core/backoff/backoff_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8397,10 +8346,7 @@ target_include_directories(backoff_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8412,6 +8358,7 @@ target_link_libraries(backoff_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -8419,8 +8366,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(bdp_estimator_test
   test/core/transport/bdp_estimator_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8433,10 +8378,7 @@ target_include_directories(bdp_estimator_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8450,6 +8392,7 @@ target_link_libraries(bdp_estimator_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -8458,8 +8401,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_arena
   test/cpp/microbenchmarks/bm_arena.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8472,10 +8413,7 @@ target_include_directories(bm_arena
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8491,6 +8429,7 @@ target_link_libraries(bm_arena
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8500,8 +8439,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_call_create
   test/cpp/microbenchmarks/bm_call_create.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8514,10 +8451,7 @@ target_include_directories(bm_call_create
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8533,6 +8467,7 @@ target_link_libraries(bm_call_create
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8542,8 +8477,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_chttp2_hpack
   test/cpp/microbenchmarks/bm_chttp2_hpack.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8556,10 +8489,7 @@ target_include_directories(bm_chttp2_hpack
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8575,6 +8505,7 @@ target_link_libraries(bm_chttp2_hpack
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8584,8 +8515,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_chttp2_transport
   test/cpp/microbenchmarks/bm_chttp2_transport.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8598,10 +8527,7 @@ target_include_directories(bm_chttp2_transport
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8617,6 +8543,7 @@ target_link_libraries(bm_chttp2_transport
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8626,8 +8553,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_closure
   test/cpp/microbenchmarks/bm_closure.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8640,10 +8565,7 @@ target_include_directories(bm_closure
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8659,6 +8581,7 @@ target_link_libraries(bm_closure
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8668,8 +8591,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_cq
   test/cpp/microbenchmarks/bm_cq.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8682,10 +8603,7 @@ target_include_directories(bm_cq
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8701,6 +8619,7 @@ target_link_libraries(bm_cq
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8710,8 +8629,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_cq_multiple_threads
   test/cpp/microbenchmarks/bm_cq_multiple_threads.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8724,10 +8641,7 @@ target_include_directories(bm_cq_multiple_threads
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8743,6 +8657,7 @@ target_link_libraries(bm_cq_multiple_threads
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8752,8 +8667,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_error
   test/cpp/microbenchmarks/bm_error.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8766,10 +8679,7 @@ target_include_directories(bm_error
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8785,6 +8695,7 @@ target_link_libraries(bm_error
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8794,8 +8705,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_fullstack_streaming_ping_pong
   test/cpp/microbenchmarks/bm_fullstack_streaming_ping_pong.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8808,10 +8717,7 @@ target_include_directories(bm_fullstack_streaming_ping_pong
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8827,6 +8733,7 @@ target_link_libraries(bm_fullstack_streaming_ping_pong
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8836,8 +8743,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_fullstack_streaming_pump
   test/cpp/microbenchmarks/bm_fullstack_streaming_pump.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8850,10 +8755,7 @@ target_include_directories(bm_fullstack_streaming_pump
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8869,6 +8771,7 @@ target_link_libraries(bm_fullstack_streaming_pump
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8878,8 +8781,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_fullstack_trickle
   test/cpp/microbenchmarks/bm_fullstack_trickle.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8892,10 +8793,7 @@ target_include_directories(bm_fullstack_trickle
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8912,6 +8810,7 @@ target_link_libraries(bm_fullstack_trickle
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8921,8 +8820,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_fullstack_unary_ping_pong
   test/cpp/microbenchmarks/bm_fullstack_unary_ping_pong.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8935,10 +8832,7 @@ target_include_directories(bm_fullstack_unary_ping_pong
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8954,6 +8848,7 @@ target_link_libraries(bm_fullstack_unary_ping_pong
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -8963,8 +8858,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_metadata
   test/cpp/microbenchmarks/bm_metadata.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -8977,10 +8870,7 @@ target_include_directories(bm_metadata
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -8996,6 +8886,7 @@ target_link_libraries(bm_metadata
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -9005,8 +8896,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(bm_pollset
   test/cpp/microbenchmarks/bm_pollset.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9019,10 +8908,7 @@ target_include_directories(bm_pollset
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9038,6 +8924,7 @@ target_link_libraries(bm_pollset
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -9046,8 +8933,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(channel_arguments_test
   test/cpp/common/channel_arguments_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9060,10 +8945,7 @@ target_include_directories(channel_arguments_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9074,6 +8956,7 @@ target_link_libraries(channel_arguments_test
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9081,8 +8964,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(channel_filter_test
   test/cpp/common/channel_filter_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9095,10 +8976,7 @@ target_include_directories(channel_filter_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9109,6 +8987,7 @@ target_link_libraries(channel_filter_test
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9116,8 +8995,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(chttp2_settings_timeout_test
   test/core/transport/chttp2/settings_timeout_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9130,10 +9007,7 @@ target_include_directories(chttp2_settings_timeout_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9145,6 +9019,7 @@ target_link_libraries(chttp2_settings_timeout_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9152,8 +9027,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(cli_call_test
   test/cpp/util/cli_call_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9166,10 +9039,7 @@ target_include_directories(cli_call_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9184,6 +9054,7 @@ target_link_libraries(cli_call_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9195,8 +9066,6 @@ add_executable(client_channel_stress_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.grpc.pb.h
   test/cpp/client/client_channel_stress_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -9212,10 +9081,7 @@ target_include_directories(client_channel_stress_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9229,6 +9095,7 @@ target_link_libraries(client_channel_stress_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9237,8 +9104,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(client_crash_test
   test/cpp/end2end/client_crash_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9251,10 +9116,7 @@ target_include_directories(client_crash_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9268,6 +9130,7 @@ target_link_libraries(client_crash_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -9276,8 +9139,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(client_crash_test_server
   test/cpp/end2end/client_crash_test_server.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9290,10 +9151,7 @@ target_include_directories(client_crash_test_server
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9307,6 +9165,7 @@ target_link_libraries(client_crash_test_server
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9314,8 +9173,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(client_lb_end2end_test
   test/cpp/end2end/client_lb_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9328,10 +9185,7 @@ target_include_directories(client_lb_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9345,6 +9199,7 @@ target_link_libraries(client_lb_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9372,8 +9227,6 @@ add_executable(codegen_test_full
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/stats.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/stats.grpc.pb.h
   test/cpp/codegen/codegen_test_full.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -9401,10 +9254,7 @@ target_include_directories(codegen_test_full
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9416,6 +9266,7 @@ target_link_libraries(codegen_test_full
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9444,8 +9295,6 @@ add_executable(codegen_test_minimal
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/stats.grpc.pb.h
   test/cpp/codegen/codegen_test_minimal.cc
   src/cpp/codegen/codegen_init.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -9473,10 +9322,7 @@ target_include_directories(codegen_test_minimal
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9487,6 +9333,7 @@ target_link_libraries(codegen_test_minimal
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9494,8 +9341,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(credentials_test
   test/cpp/client/credentials_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9508,10 +9353,7 @@ target_include_directories(credentials_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9522,6 +9364,7 @@ target_link_libraries(credentials_test
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9529,8 +9372,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(cxx_byte_buffer_test
   test/cpp/util/byte_buffer_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9543,10 +9384,7 @@ target_include_directories(cxx_byte_buffer_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9559,6 +9397,7 @@ target_link_libraries(cxx_byte_buffer_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9566,8 +9405,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(cxx_slice_test
   test/cpp/util/slice_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9580,10 +9417,7 @@ target_include_directories(cxx_slice_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9596,6 +9430,7 @@ target_link_libraries(cxx_slice_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9603,8 +9438,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(cxx_string_ref_test
   test/cpp/util/string_ref_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9617,10 +9450,7 @@ target_include_directories(cxx_string_ref_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9630,6 +9460,7 @@ target_link_libraries(cxx_string_ref_test
   grpc++
   grpc
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9637,8 +9468,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(cxx_time_test
   test/cpp/util/time_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9651,10 +9480,7 @@ target_include_directories(cxx_time_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9667,6 +9493,7 @@ target_link_libraries(cxx_time_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9674,8 +9501,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(end2end_test
   test/cpp/end2end/end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9688,10 +9513,7 @@ target_include_directories(end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9705,6 +9527,7 @@ target_link_libraries(end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9716,8 +9539,6 @@ add_executable(error_details_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.grpc.pb.h
   test/cpp/util/error_details_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -9733,10 +9554,7 @@ target_include_directories(error_details_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9746,6 +9564,7 @@ target_link_libraries(error_details_test
   grpc++_error_details
   grpc++
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9753,8 +9572,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(exception_test
   test/cpp/end2end/exception_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9767,10 +9584,7 @@ target_include_directories(exception_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9784,6 +9598,7 @@ target_link_libraries(exception_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9791,8 +9606,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(filter_end2end_test
   test/cpp/end2end/filter_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9805,10 +9618,7 @@ target_include_directories(filter_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9822,6 +9632,7 @@ target_link_libraries(filter_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9829,8 +9640,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(generic_end2end_test
   test/cpp/end2end/generic_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9843,10 +9652,7 @@ target_include_directories(generic_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9860,6 +9666,7 @@ target_link_libraries(generic_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9871,8 +9678,6 @@ add_executable(golden_file_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/compiler_test.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/compiler_test.grpc.pb.h
   test/cpp/codegen/golden_file_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -9888,10 +9693,7 @@ target_include_directories(golden_file_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9902,6 +9704,7 @@ target_link_libraries(golden_file_test
   grpc
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -9909,8 +9712,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(grpc_cli
   test/cpp/util/grpc_cli.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -9923,10 +9724,7 @@ target_include_directories(grpc_cli
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -9940,6 +9738,7 @@ target_link_libraries(grpc_cli
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10193,8 +9992,6 @@ add_executable(grpc_tool_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.grpc.pb.h
   test/cpp/util/grpc_tool_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -10213,10 +10010,7 @@ target_include_directories(grpc_tool_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10233,6 +10027,7 @@ target_link_libraries(grpc_tool_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10244,8 +10039,6 @@ add_executable(grpclb_api_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.grpc.pb.h
   test/cpp/grpclb/grpclb_api_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -10261,10 +10054,7 @@ target_include_directories(grpclb_api_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10276,6 +10066,7 @@ target_link_libraries(grpclb_api_test
   grpc++
   grpc
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10287,8 +10078,6 @@ add_executable(grpclb_end2end_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.grpc.pb.h
   test/cpp/end2end/grpclb_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -10304,10 +10093,7 @@ target_include_directories(grpclb_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10321,6 +10107,7 @@ target_link_libraries(grpclb_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10332,8 +10119,6 @@ add_executable(grpclb_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/lb/v1/load_balancer.grpc.pb.h
   test/cpp/grpclb/grpclb_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -10349,10 +10134,7 @@ target_include_directories(grpclb_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10366,6 +10148,7 @@ target_link_libraries(grpclb_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10373,8 +10156,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(h2_ssl_cert_test
   test/core/end2end/h2_ssl_cert_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10387,10 +10168,7 @@ target_include_directories(h2_ssl_cert_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10403,6 +10181,7 @@ target_link_libraries(h2_ssl_cert_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10410,8 +10189,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(health_service_end2end_test
   test/cpp/end2end/health_service_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10424,10 +10201,7 @@ target_include_directories(health_service_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10441,6 +10215,7 @@ target_link_libraries(health_service_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10448,8 +10223,6 @@ if (gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(http2_client
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10462,10 +10235,7 @@ target_include_directories(http2_client
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10479,6 +10249,7 @@ target_link_libraries(http2_client
   grpc
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10487,8 +10258,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(hybrid_end2end_test
   test/cpp/end2end/hybrid_end2end_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10501,10 +10270,7 @@ target_include_directories(hybrid_end2end_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10518,6 +10284,7 @@ target_link_libraries(hybrid_end2end_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10525,8 +10292,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(inlined_vector_test
   test/core/gprpp/inlined_vector_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10539,10 +10304,7 @@ target_include_directories(inlined_vector_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10555,6 +10317,7 @@ target_link_libraries(inlined_vector_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10563,8 +10326,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(inproc_sync_unary_ping_pong_test
   test/cpp/qps/inproc_sync_unary_ping_pong_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10577,10 +10338,7 @@ target_include_directories(inproc_sync_unary_ping_pong_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10597,6 +10355,7 @@ target_link_libraries(inproc_sync_unary_ping_pong_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10605,8 +10364,6 @@ if (gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(interop_client
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10619,10 +10376,7 @@ target_include_directories(interop_client
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10639,6 +10393,7 @@ target_link_libraries(interop_client
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10647,8 +10402,6 @@ if (gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(interop_server
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10661,10 +10414,7 @@ target_include_directories(interop_server
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10682,6 +10432,7 @@ target_link_libraries(interop_server
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10691,8 +10442,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(interop_test
   test/cpp/interop/interop_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10705,10 +10454,7 @@ target_include_directories(interop_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10721,6 +10467,7 @@ target_link_libraries(interop_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10730,8 +10477,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(json_run_localhost
   test/cpp/qps/json_run_localhost.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10744,10 +10489,7 @@ target_include_directories(json_run_localhost
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10762,6 +10504,7 @@ target_link_libraries(json_run_localhost
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -10770,8 +10513,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(memory_test
   test/core/gprpp/memory_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10784,10 +10525,7 @@ target_include_directories(memory_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10800,6 +10538,7 @@ target_link_libraries(memory_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10811,8 +10550,6 @@ add_executable(metrics_client
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/metrics.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/metrics.grpc.pb.h
   test/cpp/interop/metrics_client.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -10828,10 +10565,7 @@ target_include_directories(metrics_client
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10843,6 +10577,7 @@ target_link_libraries(metrics_client
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10850,8 +10585,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(mock_test
   test/cpp/end2end/mock_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10864,10 +10597,7 @@ target_include_directories(mock_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10881,6 +10611,7 @@ target_link_libraries(mock_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10888,8 +10619,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(noop-benchmark
   test/cpp/microbenchmarks/noop-benchmark.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10902,10 +10631,7 @@ target_include_directories(noop-benchmark
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10914,6 +10640,7 @@ target_link_libraries(noop-benchmark
   ${_gRPC_ALLTARGETS_LIBRARIES}
   ${_gRPC_BENCHMARK_LIBRARIES}
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10921,8 +10648,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(orphanable_test
   test/core/gprpp/orphanable_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10935,10 +10660,7 @@ target_include_directories(orphanable_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10951,6 +10673,7 @@ target_link_libraries(orphanable_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10958,8 +10681,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(proto_server_reflection_test
   test/cpp/end2end/proto_server_reflection_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -10972,10 +10693,7 @@ target_include_directories(proto_server_reflection_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -10991,6 +10709,7 @@ target_link_libraries(proto_server_reflection_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -10998,8 +10717,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(proto_utils_test
   test/cpp/codegen/proto_utils_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11012,10 +10729,7 @@ target_include_directories(proto_utils_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11025,6 +10739,7 @@ target_link_libraries(proto_utils_test
   grpc++
   grpc
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11033,8 +10748,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(qps_interarrival_test
   test/cpp/qps/qps_interarrival_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11047,10 +10760,7 @@ target_include_directories(qps_interarrival_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11066,6 +10776,7 @@ target_link_libraries(qps_interarrival_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -11074,8 +10785,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(qps_json_driver
   test/cpp/qps/qps_json_driver.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11088,10 +10797,7 @@ target_include_directories(qps_json_driver
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11108,6 +10814,7 @@ target_link_libraries(qps_json_driver
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11116,8 +10823,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(qps_openloop_test
   test/cpp/qps/qps_openloop_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11130,10 +10835,7 @@ target_include_directories(qps_openloop_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11150,6 +10852,7 @@ target_link_libraries(qps_openloop_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -11158,8 +10861,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(qps_worker
   test/cpp/qps/worker.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11172,10 +10873,7 @@ target_include_directories(qps_worker
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11192,6 +10890,7 @@ target_link_libraries(qps_worker
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11211,8 +10910,6 @@ add_executable(reconnect_interop_client
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.h
   test/cpp/interop/reconnect_interop_client.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -11234,10 +10931,7 @@ target_include_directories(reconnect_interop_client
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11252,6 +10946,7 @@ target_link_libraries(reconnect_interop_client
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11271,8 +10966,6 @@ add_executable(reconnect_interop_server
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.h
   test/cpp/interop/reconnect_interop_server.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -11294,10 +10987,7 @@ target_include_directories(reconnect_interop_server
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11314,6 +11004,7 @@ target_link_libraries(reconnect_interop_server
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11321,8 +11012,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(ref_counted_ptr_test
   test/core/gprpp/ref_counted_ptr_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11335,10 +11024,7 @@ target_include_directories(ref_counted_ptr_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11351,6 +11037,7 @@ target_link_libraries(ref_counted_ptr_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11358,8 +11045,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(ref_counted_test
   test/core/gprpp/ref_counted_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11372,10 +11057,7 @@ target_include_directories(ref_counted_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11388,6 +11070,7 @@ target_link_libraries(ref_counted_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11395,8 +11078,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(secure_auth_context_test
   test/cpp/common/secure_auth_context_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11409,10 +11090,7 @@ target_include_directories(secure_auth_context_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11426,6 +11104,7 @@ target_link_libraries(secure_auth_context_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11434,8 +11113,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(secure_sync_unary_ping_pong_test
   test/cpp/qps/secure_sync_unary_ping_pong_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11448,10 +11125,7 @@ target_include_directories(secure_sync_unary_ping_pong_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11468,6 +11142,7 @@ target_link_libraries(secure_sync_unary_ping_pong_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -11476,8 +11151,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(server_builder_plugin_test
   test/cpp/end2end/server_builder_plugin_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11490,10 +11163,7 @@ target_include_directories(server_builder_plugin_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11507,6 +11177,7 @@ target_link_libraries(server_builder_plugin_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11522,8 +11193,6 @@ add_executable(server_builder_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.grpc.pb.h
   test/cpp/server/server_builder_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -11542,10 +11211,7 @@ target_include_directories(server_builder_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11559,6 +11225,7 @@ target_link_libraries(server_builder_test
   grpc_unsecure
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11566,8 +11233,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(server_context_test_spouse_test
   test/cpp/test/server_context_test_spouse_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11580,10 +11245,7 @@ target_include_directories(server_context_test_spouse_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11596,6 +11258,7 @@ target_link_libraries(server_context_test_spouse_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11604,8 +11267,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(server_crash_test
   test/cpp/end2end/server_crash_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11618,10 +11279,7 @@ target_include_directories(server_crash_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11635,6 +11293,7 @@ target_link_libraries(server_crash_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -11643,8 +11302,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(server_crash_test_client
   test/cpp/end2end/server_crash_test_client.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11657,10 +11314,7 @@ target_include_directories(server_crash_test_client
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11674,6 +11328,7 @@ target_link_libraries(server_crash_test_client
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11681,8 +11336,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(server_early_return_test
   test/cpp/end2end/server_early_return_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11695,10 +11348,7 @@ target_include_directories(server_early_return_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11712,6 +11362,7 @@ target_link_libraries(server_early_return_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11727,8 +11378,6 @@ add_executable(server_request_call_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.grpc.pb.h
   test/cpp/server/server_request_call_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -11747,10 +11396,7 @@ target_include_directories(server_request_call_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11764,6 +11410,7 @@ target_link_libraries(server_request_call_test
   grpc_unsecure
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11771,8 +11418,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(shutdown_test
   test/cpp/end2end/shutdown_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11785,10 +11430,7 @@ target_include_directories(shutdown_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11802,6 +11444,7 @@ target_link_libraries(shutdown_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11809,8 +11452,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(stats_test
   test/core/debug/stats_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11823,10 +11464,7 @@ target_include_directories(stats_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11839,6 +11477,7 @@ target_link_libraries(stats_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11846,8 +11485,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(status_test
   test/cpp/util/status_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11860,10 +11497,7 @@ target_include_directories(status_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11876,6 +11510,7 @@ target_link_libraries(status_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11884,8 +11519,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(streaming_throughput_test
   test/cpp/end2end/streaming_throughput_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -11898,10 +11531,7 @@ target_include_directories(streaming_throughput_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11915,6 +11545,7 @@ target_link_libraries(streaming_throughput_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -11942,8 +11573,6 @@ add_executable(stress_test
   test/cpp/interop/stress_interop_client.cc
   test/cpp/interop/stress_test.cc
   test/cpp/util/metrics_server.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 protobuf_generate_grpc_cpp(
@@ -11968,10 +11597,7 @@ target_include_directories(stress_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -11986,6 +11612,7 @@ target_link_libraries(stress_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -11993,8 +11620,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(thread_manager_test
   test/cpp/thread_manager/thread_manager_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -12007,10 +11632,7 @@ target_include_directories(thread_manager_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -12022,6 +11644,7 @@ target_link_libraries(thread_manager_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -12029,8 +11652,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(thread_stress_test
   test/cpp/end2end/thread_stress_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -12043,10 +11664,7 @@ target_include_directories(thread_stress_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -12060,6 +11678,7 @@ target_link_libraries(thread_stress_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -12067,8 +11686,6 @@ if (gRPC_BUILD_TESTS)
 
 add_executable(transport_pid_controller_test
   test/core/transport/pid_controller_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -12081,10 +11698,7 @@ target_include_directories(transport_pid_controller_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -12098,6 +11712,7 @@ target_link_libraries(transport_pid_controller_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif (gRPC_BUILD_TESTS)
@@ -12106,8 +11721,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(writes_per_rpc_test
   test/cpp/performance/writes_per_rpc_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -12120,10 +11733,7 @@ target_include_directories(writes_per_rpc_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -12137,6 +11747,7 @@ target_link_libraries(writes_per_rpc_test
   gpr_test_util
   gpr
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -13576,8 +13187,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(resolver_component_test_unsecure
   test/cpp/naming/resolver_component_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -13590,10 +13199,7 @@ target_include_directories(resolver_component_test_unsecure
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -13608,6 +13214,7 @@ target_link_libraries(resolver_component_test_unsecure
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -13617,8 +13224,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(resolver_component_test
   test/cpp/naming/resolver_component_test.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -13631,10 +13236,7 @@ target_include_directories(resolver_component_test
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -13649,6 +13251,7 @@ target_link_libraries(resolver_component_test
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -13658,8 +13261,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(resolver_component_tests_runner_invoker_unsecure
   test/cpp/naming/resolver_component_tests_runner_invoker.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -13672,10 +13273,7 @@ target_include_directories(resolver_component_tests_runner_invoker_unsecure
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -13690,6 +13288,7 @@ target_link_libraries(resolver_component_tests_runner_invoker_unsecure
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()
@@ -13699,8 +13298,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
 add_executable(resolver_component_tests_runner_invoker
   test/cpp/naming/resolver_component_tests_runner_invoker.cc
-  third_party/googletest/googletest/src/gtest-all.cc
-  third_party/googletest/googlemock/src/gmock-all.cc
 )
 
 
@@ -13713,10 +13310,7 @@ target_include_directories(resolver_component_tests_runner_invoker
   PRIVATE ${_gRPC_BENCHMARK_INCLUDE_DIR}
   PRIVATE ${_gRPC_CARES_INCLUDE_DIR}
   PRIVATE ${_gRPC_GFLAGS_INCLUDE_DIR}
-  PRIVATE third_party/googletest/googletest/include
-  PRIVATE third_party/googletest/googletest
-  PRIVATE third_party/googletest/googlemock/include
-  PRIVATE third_party/googletest/googlemock
+  PRIVATE ${_gRPC_GMOCK_INCLUDE_DIR}
   PRIVATE ${_gRPC_PROTO_GENS_DIR}
 )
 
@@ -13731,6 +13325,7 @@ target_link_libraries(resolver_component_tests_runner_invoker
   gpr
   grpc++_test_config
   ${_gRPC_GFLAGS_LIBRARIES}
+  ${_gRPC_GMOCK_LIBRARIES}
 )
 
 endif()

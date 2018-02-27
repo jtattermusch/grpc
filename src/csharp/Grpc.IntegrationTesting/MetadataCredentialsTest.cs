@@ -151,6 +151,19 @@ namespace Grpc.IntegrationTesting
         }
 
         [Test]
+        public void MetadataCredentials_InterceptorTakesLongerThanCallDeadline()
+        {
+            var channelCredentials = ChannelCredentials.Create(TestCredentials.CreateSslCredentials(),
+                CallCredentials.FromInterceptor(new AsyncAuthInterceptor(async (context, metadata) => await Task.Delay(10000))));
+            channel = new Channel(Host, server.Ports.Single().BoundPort, channelCredentials, options);
+            client = new TestService.TestServiceClient(channel);
+
+            client.UnaryCall(new SimpleRequest { }, deadline: DateTime.UtcNow.AddSeconds(1));
+            // StatusCode.Unknown as the server-side handler throws an exception after not receiving the authorization header.
+            //Assert.AreEqual(StatusCode.Unknown, ex.Status.StatusCode);
+        }
+
+        [Test]
         public void MetadataCredentials_InterceptorThrows()
         {
             var callCredentials = CallCredentials.FromInterceptor(new AsyncAuthInterceptor((context, metadata) =>

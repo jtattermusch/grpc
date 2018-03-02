@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,89 +59,89 @@ namespace Math.Tests
             server.ShutdownAsync().Wait();
         }
 
-        [Test]
-        public void Div1()
-        {
-            DivReply response = client.Div(new DivArgs { Dividend = 10, Divisor = 3 });
-            Assert.AreEqual(3, response.Quotient);
-            Assert.AreEqual(1, response.Remainder);
-        }
+        //[Test]
+        //public void Div1()
+        //{
+        //    DivReply response = client.Div(new DivArgs { Dividend = 10, Divisor = 3 });
+        //    Assert.AreEqual(3, response.Quotient);
+        //    Assert.AreEqual(1, response.Remainder);
+        //}
 
-        [Test]
-        public void Div2()
-        {
-            DivReply response = client.Div(new DivArgs { Dividend = 0, Divisor = 1 });
-            Assert.AreEqual(0, response.Quotient);
-            Assert.AreEqual(0, response.Remainder);
-        }
+        //[Test]
+        //public void Div2()
+        //{
+        //    DivReply response = client.Div(new DivArgs { Dividend = 0, Divisor = 1 });
+        //    Assert.AreEqual(0, response.Quotient);
+        //    Assert.AreEqual(0, response.Remainder);
+        //}
 
-        [Test]
-        public void DivByZero()
-        {
-            var ex = Assert.Throws<RpcException>(() => client.Div(new DivArgs { Dividend = 0, Divisor = 0 }));
-            Assert.AreEqual(StatusCode.InvalidArgument, ex.Status.StatusCode);
-        }
+        //[Test]
+        //public void DivByZero()
+        //{
+        //    var ex = Assert.Throws<RpcException>(() => client.Div(new DivArgs { Dividend = 0, Divisor = 0 }));
+        //    Assert.AreEqual(StatusCode.InvalidArgument, ex.Status.StatusCode);
+        //}
 
-        [Test]
-        public async Task DivAsync()
-        {
-            DivReply response = await client.DivAsync(new DivArgs { Dividend = 10, Divisor = 3 });
-            Assert.AreEqual(3, response.Quotient);
-            Assert.AreEqual(1, response.Remainder);
-        }
+        //[Test]
+        //public async Task DivAsync()
+        //{
+        //    DivReply response = await client.DivAsync(new DivArgs { Dividend = 10, Divisor = 3 });
+        //    Assert.AreEqual(3, response.Quotient);
+        //    Assert.AreEqual(1, response.Remainder);
+        //}
 
-        [Test]
-        public async Task Fib()
-        {
-            using (var call = client.Fib(new FibArgs { Limit = 6 }))
-            {
-                var responses = await call.ResponseStream.ToListAsync();
-                CollectionAssert.AreEqual(new List<long> { 1, 1, 2, 3, 5, 8 },
-                    responses.Select((n) => n.Num_));
-            }
-        }
+        //[Test]
+        //public async Task Fib()
+        //{
+        //    using (var call = client.Fib(new FibArgs { Limit = 6 }))
+        //    {
+        //        var responses = await call.ResponseStream.ToListAsync();
+        //        CollectionAssert.AreEqual(new List<long> { 1, 1, 2, 3, 5, 8 },
+        //            responses.Select((n) => n.Num_));
+        //    }
+        //}
 
-        [Test]
-        public async Task FibWithCancel()
-        {
-            var cts = new CancellationTokenSource();
+        //[Test]
+        //public async Task FibWithCancel()
+        //{
+        //    var cts = new CancellationTokenSource();
 
-            using (var call = client.Fib(new FibArgs { Limit = 0 }, cancellationToken: cts.Token))
-            {
-                List<long> responses = new List<long>();
+        //    using (var call = client.Fib(new FibArgs { Limit = 0 }, cancellationToken: cts.Token))
+        //    {
+        //        List<long> responses = new List<long>();
 
-                try
-                {
-                    while (await call.ResponseStream.MoveNext())
-                    {
-                        if (responses.Count == 0)
-                        {
-                            cts.CancelAfter(500);  // make sure we cancel soon
-                        }
-                        responses.Add(call.ResponseStream.Current.Num_);
-                    }
-                    Assert.Fail();
-                }
-                catch (RpcException e)
-                {
-                    Assert.IsTrue(responses.Count > 0);
-                    Assert.AreEqual(StatusCode.Cancelled, e.Status.StatusCode);
-                }
-            }
-        }
+        //        try
+        //        {
+        //            while (await call.ResponseStream.MoveNext())
+        //            {
+        //                if (responses.Count == 0)
+        //                {
+        //                    cts.CancelAfter(500);  // make sure we cancel soon
+        //                }
+        //                responses.Add(call.ResponseStream.Current.Num_);
+        //            }
+        //            Assert.Fail();
+        //        }
+        //        catch (RpcException e)
+        //        {
+        //            Assert.IsTrue(responses.Count > 0);
+        //            Assert.AreEqual(StatusCode.Cancelled, e.Status.StatusCode);
+        //        }
+        //    }
+        //}
 
-        [Test]
-        public void FibWithDeadline()
-        {
-            using (var call = client.Fib(new FibArgs { Limit = 0 }, 
-                deadline: DateTime.UtcNow.AddMilliseconds(500)))
-            {
-                var ex = Assert.ThrowsAsync<RpcException>(async () => await call.ResponseStream.ToListAsync());
+        //[Test]
+        //public void FibWithDeadline()
+        //{
+        //    using (var call = client.Fib(new FibArgs { Limit = 0 }, 
+        //        deadline: DateTime.UtcNow.AddMilliseconds(500)))
+        //    {
+        //        var ex = Assert.ThrowsAsync<RpcException>(async () => await call.ResponseStream.ToListAsync());
 
-                // We can't guarantee the status code always DeadlineExceeded. See issue #2685.
-                Assert.Contains(ex.Status.StatusCode, new[] { StatusCode.DeadlineExceeded, StatusCode.Internal });
-            }
-        }
+        //        // We can't guarantee the status code always DeadlineExceeded. See issue #2685.
+        //        Assert.Contains(ex.Status.StatusCode, new[] { StatusCode.DeadlineExceeded, StatusCode.Internal });
+        //    }
+        //}
 
         // TODO: test Fib with limit=0 and cancellation
         [Test]
@@ -149,31 +150,43 @@ namespace Math.Tests
             using (var call = client.Sum())
             {
                 var numbers = new List<long> { 10, 20, 30 }.Select(n => new Num { Num_ = n });
+                for (int i = 0; i < 100; i++) {
+                    await call.RequestStream.WriteAsync(new Num { Num_ = 1 });
+                }
 
-                await call.RequestStream.WriteAllAsync(numbers);
+                var stopwatch = Stopwatch.StartNew();
+                int msgs = 100000;
+                for (int i = 0; i < msgs; i++)
+                {
+                    await call.RequestStream.WriteAsync(new Num { Num_ = 1 });
+                }
+                await call.RequestStream.CompleteAsync();
                 var result = await call.ResponseAsync;
-                Assert.AreEqual(60, result.Num_);
+                stopwatch.Stop();
+
+                Console.WriteLine("MSGS per second:" + (double) msgs / stopwatch.Elapsed.TotalSeconds);
+                
             }
         }
 
-        [Test]
-        public async Task DivMany()
-        {
-            var divArgsList = new List<DivArgs>
-            {
-                new DivArgs { Dividend = 10, Divisor = 3 },
-                new DivArgs { Dividend = 100, Divisor = 21 },
-                new DivArgs { Dividend = 7, Divisor = 2 }
-            };
+        //[Test]
+        //public async Task DivMany()
+        //{
+        //    var divArgsList = new List<DivArgs>
+        //    {
+        //        new DivArgs { Dividend = 10, Divisor = 3 },
+        //        new DivArgs { Dividend = 100, Divisor = 21 },
+        //        new DivArgs { Dividend = 7, Divisor = 2 }
+        //    };
 
-            using (var call = client.DivMany())
-            {
-                await call.RequestStream.WriteAllAsync(divArgsList);
-                var result = await call.ResponseStream.ToListAsync();
+        //    using (var call = client.DivMany())
+        //    {
+        //        await call.RequestStream.WriteAllAsync(divArgsList);
+        //        var result = await call.ResponseStream.ToListAsync();
 
-                CollectionAssert.AreEqual(new long[] { 3, 4, 3 }, result.Select((divReply) => divReply.Quotient));
-                CollectionAssert.AreEqual(new long[] { 1, 16, 1 }, result.Select((divReply) => divReply.Remainder));
-            }
-        }
+        //        CollectionAssert.AreEqual(new long[] { 3, 4, 3 }, result.Select((divReply) => divReply.Quotient));
+        //        CollectionAssert.AreEqual(new long[] { 1, 16, 1 }, result.Select((divReply) => divReply.Remainder));
+        //    }
+        //}
     }
 }

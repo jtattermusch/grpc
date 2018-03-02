@@ -20,6 +20,7 @@ using System;
 using System.Reflection;
 using Grpc.Core;
 using Grpc.Core.Logging;
+using Math.Tests;
 using NUnit.Common;
 using NUnitLite;
 
@@ -35,10 +36,18 @@ namespace Grpc.Examples.Tests
             // Make logger immune to NUnit capturing stdout and stderr to workaround https://github.com/nunit/nunit/issues/1406.
             GrpcEnvironment.SetLogger(new ConsoleLogger());
 #if NETCOREAPP1_0
-            return new AutoRun(typeof(NUnitMain).GetTypeInfo().Assembly).Execute(args, new ExtendedTextWrapper(Console.Out), Console.In);
+            //return new AutoRun(typeof(NUnitMain).GetTypeInfo().Assembly).Execute(args, new ExtendedTextWrapper(Console.Out), Console.In);
 #else
-            return new AutoRun().Execute(args);
+            //return new AutoRun().Execute(args);
 #endif
+
+            var test = new MathClientServerTest();
+            test.Init();
+            test.Sum().Wait();
+            test.Cleanup();
+
+            Console.ReadKey();
+            return 0;
         }
     }
 }

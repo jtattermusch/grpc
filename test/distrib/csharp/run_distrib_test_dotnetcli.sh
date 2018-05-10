@@ -29,11 +29,12 @@ dotnet restore DistribTestDotNet.csproj
 
 dotnet build DistribTestDotNet.csproj
 dotnet publish -f netcoreapp1.0 DistribTestDotNet.csproj
+dotnet publish -f net45 DistribTestDotNet.csproj
 
-ls -lR bin
+ls -R bin
 
 # .NET 4.5 target after dotnet build
-mono bin/Debug/net45/*-x64/DistribTest.exe
+mono bin/Debug/net45/DistribTestDotNet.exe
 
 # .NET 4.5 target after dotnet publish
 mono bin/Debug/net45/*-x64/publish/DistribTest.exe

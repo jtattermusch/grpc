@@ -28,7 +28,7 @@ cd DistribTest
 dotnet restore DistribTestDotNet.csproj
 
 dotnet build DistribTestDotNet.csproj
-dotnet publish DistribTestDotNet.csproj
+dotnet publish -f netcoreapp1.0 DistribTestDotNet.csproj
 
 # .NET 4.5 target after dotnet build
 mono bin/Debug/net45/*-x64/DistribTest.exe

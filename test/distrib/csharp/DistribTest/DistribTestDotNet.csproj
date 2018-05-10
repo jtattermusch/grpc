@@ -2,10 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +16,4 @@
     <PackageReference Include="Grpc.Auth" Version="__GRPC_NUGET_VERSION__" />
     <PackageReference Include="Grpc.Tools" Version="__GRPC_NUGET_VERSION__" />
   </ItemGroup>
-
 </Project>

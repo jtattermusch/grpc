@@ -25,10 +25,10 @@ cd DistribTest
 
 # TODO(jtattermusch): make sure we don't pollute the global nuget cache with
 # the nugets being tested.
-dotnet restore DistribTest/DistribTestDotNet.csproj
+dotnet restore DistribTestDotNet.csproj
 
-dotnet build
-dotnet publish
+dotnet build DistribTestDotNet.csproj
+dotnet publish DistribTestDotNet.csproj
 
 # .NET 4.5 target after dotnet build
 mono bin/Debug/net45/*-x64/DistribTest.exe

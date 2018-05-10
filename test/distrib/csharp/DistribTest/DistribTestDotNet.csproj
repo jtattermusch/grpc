@@ -1,7 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyTitle>DistribTest</AssemblyTitle>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <AssemblyName>DistribTest</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

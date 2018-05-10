@@ -25,7 +25,7 @@ cd DistribTest
 
 # TODO(jtattermusch): make sure we don't pollute the global nuget cache with
 # the nugets being tested.
-dotnet restore
+dotnet restore DistribTest/DistribTestDotNet.csproj
 
 dotnet build
 dotnet publish

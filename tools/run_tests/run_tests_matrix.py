@@ -191,7 +191,7 @@ def _create_test_jobs(extra_args=[], inner_jobs=_DEFAULT_INNER_JOBS):
         configs=['dbg', 'opt'],
         platforms=['linux', 'macos', 'windows'],
         labels=['basictests', 'corelang'],
-        extra_args=extra_args + ['-r', 'h2_load_reporting_nosec_test.ping_pong_streaming', '-n', '5000'],
+        extra_args=extra_args + ['-r', 'ping_pong_streaming', '-n', '5000'],
         inner_jobs=inner_jobs,
         timeout_seconds=_CPP_RUNTESTS_TIMEOUT)
 

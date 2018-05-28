@@ -1610,8 +1610,7 @@ def make_jobspec(cfg, targets, makefile='Makefile'):
                         'EXTRA_DEFINES=GRPC_TEST_SLOWDOWN_MACHINE_FACTOR=%f' %
                         args.slowdown,
                         'CONFIG=%s' % cfg, 'Q='
-                    ] + language_make_options +
-                    ([] if not args.travis else ['JENKINS_BUILD=1']) + targets,
+                    ] + language_make_options + targets,
                     timeout_seconds=None)
             ]
         else:

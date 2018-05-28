@@ -1493,9 +1493,6 @@ if need_to_regenerate_projects:
 run_config = _CONFIGS[args.config]
 build_config = run_config.build_config
 
-if args.travis:
-    _FORCE_ENVIRON_FOR_WRAPPERS = {'GRPC_TRACE': 'api'}
-
 if 'all' in args.language:
     lang_list = _LANGUAGES.keys()
 else:

@@ -138,6 +138,9 @@ def long_path(path):
 def main():
     os.chdir(GRPC_ROOT)
 
+    print('Collecting files required for building grpcio_tools package.')
+    # TODO(jtattermusch): it is not clear why all these files need to be copied
+    # and why copying is being done by relatively complex python code.
     for source, target in [(GRPC_PROTOBUF, GRPC_PYTHON_PROTOBUF),
                            (GRPC_PROTOC_PLUGINS, GRPC_PYTHON_PROTOC_PLUGINS),
                            (GRPC_INCLUDE, GRPC_PYTHON_INCLUDE)]:

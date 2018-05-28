@@ -1078,8 +1078,11 @@ argp.add_argument(
     help=
     'Override the default service account key file to use for auth interop tests.',
     default=None)
+# NOTE: Travis CI is no longer being used for running tests
+# but we are keeping the original flag name for backwards compatibility.
 argp.add_argument(
-    '-t', '--travis', default=False, action='store_const', const=True)
+    '-t', '--travis', default=False, action='store_const', const=True,
+    help='Use this flag to indicate the script is running on an automated CI.')
 argp.add_argument(
     '-v', '--verbose', default=False, action='store_const', const=True)
 argp.add_argument(

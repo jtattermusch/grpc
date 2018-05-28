@@ -508,7 +508,7 @@ if __name__ == "__main__":
         action='store_const',
         const=True,
         help='Put reports into subdirectories to improve presentation of '
-        'results by Internal CI.')
+        'results by Internal CI (=Kokoro).')
     argp.add_argument(
         '--bq_result_table',
         default='',

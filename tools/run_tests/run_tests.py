@@ -1304,8 +1304,10 @@ argp.add_argument(
     type=runs_per_test_type,
     help='A positive integer or "inf". If "inf", all tests will run in an '
     'infinite loop. Especially useful in combination with "-f"')
-argp.add_argument('-r', '--regex', default='.*', type=str)
-argp.add_argument('--regex_exclude', default='', type=str)
+argp.add_argument('-r', '--regex', default='.*', type=str,
+    help='Only run tests matching given regular expression.')
+argp.add_argument('--regex_exclude', default='', type=str,
+    help='Do not run tests matching given regular expression.')
 argp.add_argument('-j', '--jobs', default=multiprocessing.cpu_count(), type=int)
 argp.add_argument('-s', '--slowdown', default=1.0, type=float)
 argp.add_argument(
@@ -1316,8 +1318,11 @@ argp.add_argument(
     help='Run a random sample with that percentage of tests')
 argp.add_argument(
     '-f', '--forever', default=False, action='store_const', const=True)
+# NOTE: Travis CI is no longer being used for running tests
+# but we are keeping the original flag name for backwards compatibility.
 argp.add_argument(
-    '-t', '--travis', default=False, action='store_const', const=True)
+    '-t', '--travis', default=False, action='store_const', const=True,
+    help='Use this flag to indicate the script is running on an automated CI.')
 argp.add_argument(
     '--newline_on_success', default=False, action='store_const', const=True)
 argp.add_argument(
@@ -1390,7 +1395,8 @@ argp.add_argument(
     +
     'Submodules are specified as SUBMODULE_NAME:BRANCH; if BRANCH is omitted, master is assumed.'
 )
-argp.add_argument('-a', '--antagonists', default=0, type=int)
+argp.add_argument('-a', '--antagonists', default=0, type=int,
+    help='Run X antagonist processes along with the tests; helps reproducing flakes.')
 argp.add_argument(
     '-x',
     '--xml_report',
@@ -1424,7 +1430,8 @@ argp.add_argument(
     'Example: --force_use_pollers epollsig,poll '
     ' (This flag has no effect if --force_default_poller flag is also used)')
 argp.add_argument(
-    '--max_time', default=-1, type=int, help='Maximum test runtime in seconds')
+    '--max_time', default=-1, type=int,
+    help='Maximum runtime in seconds for the entire testsuite. Remaining tests will be skipped.')
 argp.add_argument(
     '--bq_result_table',
     default='',

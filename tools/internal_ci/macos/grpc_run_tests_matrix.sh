@@ -22,7 +22,11 @@ echo running_processes
 ps aux 
 
 
+docker-machine ls || true
+
 /Applications/Docker.app/Contents/MacOS/Docker --uninstall
+
+docker-machine ls || true
 
 echo running_processes
 ps aux

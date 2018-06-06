@@ -18,9 +18,18 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
+echo running_processes
+ps aux 
+
 source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
+echo running_processes
+ps aux
+
 tools/run_tests/run_tests_matrix.py $RUN_TESTS_FLAGS || FAILED="true"
+
+echo running_processes
+ps aux
 
 # kill port_server.py to prevent the build from hanging
 ps aux | grep port_server\\.py | awk '{print $2}' | xargs kill -9

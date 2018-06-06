@@ -21,6 +21,13 @@ cd $(dirname $0)/../../..
 echo running_processes
 ps aux 
 
+
+/Applications/Docker.app/Contents/MacOS/Docker --uninstall
+
+echo running_processes
+ps aux
+
+
 source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
 echo running_processes

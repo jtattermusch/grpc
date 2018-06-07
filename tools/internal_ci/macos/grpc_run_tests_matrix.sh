@@ -18,6 +18,8 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
+nuget 
+
 echo running_processes
 ps aux 
 

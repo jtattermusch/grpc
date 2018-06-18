@@ -49,6 +49,8 @@ ps aux | grep port_server\\.py | awk '{print $2}' | xargs kill -9
 
 tools/internal_ci/helper_scripts/delete_nonartifacts.sh || true
 
+sleep 1000000
+
 if [ "$FAILED" != "" ]
 then
   exit 1

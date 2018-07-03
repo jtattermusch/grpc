@@ -189,6 +189,7 @@ void NativeDnsResolver::OnResolvedLocked(void* arg, grpc_error* error) {
       grpc_error_set_str(error, GRPC_ERROR_STR_TARGET_ADDRESS,
                          grpc_slice_from_copied_string(r->name_to_resolve_));
   if (r->addresses_ != nullptr) {
+    gpr_log(GPR_DEBUG, "Resolution successful (OnResolvedLocked r->addresses_ != nullptr)");
     grpc_lb_addresses* addresses = grpc_lb_addresses_create(
         r->addresses_->naddrs, nullptr /* user_data_vtable */);
     for (size_t i = 0; i < r->addresses_->naddrs; ++i) {

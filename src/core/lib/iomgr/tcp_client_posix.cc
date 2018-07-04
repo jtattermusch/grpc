@@ -140,11 +140,11 @@ static void on_writable(void* acp, grpc_error* error) {
 
   GRPC_ERROR_REF(error);
 
-  if (grpc_tcp_trace.enabled()) {
+  //if (grpc_tcp_trace.enabled()) {
     const char* str = grpc_error_string(error);
     gpr_log(GPR_INFO, "CLIENT_CONNECT: %s: on_writable: error=%s", ac->addr_str,
             str);
-  }
+  //}
 
   gpr_mu_lock(&ac->mu);
   GPR_ASSERT(ac->fd);

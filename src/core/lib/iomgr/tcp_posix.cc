@@ -221,9 +221,9 @@ static void notify_on_read(grpc_tcp* tcp) {
 }
 
 static void notify_on_write(grpc_tcp* tcp) {
-  if (grpc_tcp_trace.enabled()) {
+  //if (grpc_tcp_trace.enabled()) {
     gpr_log(GPR_INFO, "TCP:%p notify_on_write", tcp);
-  }
+  //}
   cover_self(tcp);
   GRPC_CLOSURE_INIT(&tcp->write_done_closure,
                     tcp_drop_uncovered_then_handle_write, tcp,

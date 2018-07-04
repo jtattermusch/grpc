@@ -168,6 +168,7 @@ static void start_handshake_locked(chttp2_connector* c) {
 }
 
 static void connected(void* arg, grpc_error* error) {
+  gpr_log(GPR_INFO, "chttp2_connector: connected");
   chttp2_connector* c = static_cast<chttp2_connector*>(arg);
   gpr_mu_lock(&c->mu);
   GPR_ASSERT(c->connecting);

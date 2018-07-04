@@ -41,6 +41,8 @@ static void client_channel_factory_unref(
 
 static grpc_subchannel* client_channel_factory_create_subchannel(
     grpc_client_channel_factory* cc_factory, const grpc_subchannel_args* args) {
+  gpr_log(GPR_INFO, "client_channel_factory_create_subchannel");
+  
   grpc_subchannel_args final_sc_args;
   memcpy(&final_sc_args, args, sizeof(*args));
   final_sc_args.args = grpc_default_authority_add_if_not_present(args->args);

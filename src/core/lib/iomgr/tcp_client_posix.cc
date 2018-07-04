@@ -340,6 +340,7 @@ static void tcp_connect(grpc_closure* closure, grpc_endpoint** ep,
                         const grpc_channel_args* channel_args,
                         const grpc_resolved_address* addr,
                         grpc_millis deadline) {
+  gpr_log(GPR_INFO, "tcp_connect");
   grpc_resolved_address mapped_addr;
   grpc_fd* fdobj = nullptr;
   grpc_error* error;

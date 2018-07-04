@@ -320,6 +320,7 @@ static void parse_args_for_backoff_values(
 
 grpc_subchannel* grpc_subchannel_create(grpc_connector* connector,
                                         const grpc_subchannel_args* args) {
+  gpr_log(GPR_INFO, "grpc_subchannel_create");
   grpc_subchannel_key* key = grpc_subchannel_key_create(args);
   grpc_subchannel* c = grpc_subchannel_index_find(key);
   if (c) {

@@ -20,7 +20,7 @@ cd $(dirname $0)/../../..
 
 source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
-GRPC_TRACE=api,http,channel,client_channel,connectivity_state GRPC_VERBOSITY=debug tools/run_tests/run_tests_matrix.py $RUN_TESTS_FLAGS || FAILED="true"
+GRPC_TRACE=api,http,channel,client_channel,connectivity_state,polling_api GRPC_VERBOSITY=debug tools/run_tests/run_tests_matrix.py $RUN_TESTS_FLAGS || FAILED="true"
 
 # kill port_server.py to prevent the build from hanging
 ps aux | grep port_server\\.py | awk '{print $2}' | xargs kill -9

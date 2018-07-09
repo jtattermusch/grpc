@@ -619,6 +619,7 @@ static void fd_end_poll(grpc_fd_watcher* watcher, int got_read, int got_write,
   }
 
   gpr_mu_lock(&fd->mu);
+  gpr_log(GPR_INFO, "fd_end_poll %d", fd->fd);
 
   if (watcher == fd->read_watcher) {
     /* remove read watcher, kick if we still need a read */
@@ -650,6 +651,7 @@ static void fd_end_poll(grpc_fd_watcher* watcher, int got_read, int got_write,
     }
   }
   if (got_write) {
+    gpr_log(GPR_INFO, "fd_end_poll: got_write %d", fd->fd);
     if (set_ready_locked(fd, &fd->write_closure)) {
       kick = 1;
     }

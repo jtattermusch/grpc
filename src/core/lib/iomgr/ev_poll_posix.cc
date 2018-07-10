@@ -619,20 +619,24 @@ static void fd_end_poll(grpc_fd_watcher* watcher, int got_read, int got_write,
   }
 
   gpr_mu_lock(&fd->mu);
-  gpr_log(GPR_INFO, "fd_end_poll %d", fd->fd);
+  gpr_log(GPR_INFO, "fd_end_poll %p, fd %d, got_read %d, got_write %d", fd, fd->fd, got_read, got_write);
 
   if (watcher == fd->read_watcher) {
+    gpr_log(GPR_INFO, "fd_end_poll: removing read watcher %p, fd %d", fd, fd->fd);
     /* remove read watcher, kick if we still need a read */
     was_polling = 1;
     if (!got_read) {
+      gpr_log(GPR_INFO, "fd_end_poll: kick=1 %p, fd %d", fd, fd->fd);
       kick = 1;
     }
     fd->read_watcher = nullptr;
   }
   if (watcher == fd->write_watcher) {
+    gpr_log(GPR_INFO, "fd_end_poll: removing write watcher %p, fd %d", fd, fd->fd);
     /* remove write watcher, kick if we still need a write */
     was_polling = 1;
     if (!got_write) {
+      gpr_log(GPR_INFO, "fd_end_poll: kick=1 %p, fd %d", fd, fd->fd);
       kick = 1;
     }
     fd->write_watcher = nullptr;
@@ -643,6 +647,7 @@ static void fd_end_poll(grpc_fd_watcher* watcher, int got_read, int got_write,
     watcher->prev->next = watcher->next;
   }
   if (got_read) {
+    gpr_log(GPR_INFO, "fd_end_poll: got_read %p, fd %d", fd, fd->fd);
     if (set_ready_locked(fd, &fd->read_closure)) {
       kick = 1;
     }
@@ -651,7 +656,7 @@ static void fd_end_poll(grpc_fd_watcher* watcher, int got_read, int got_write,
     }
   }
   if (got_write) {
-    gpr_log(GPR_INFO, "fd_end_poll: got_write %d", fd->fd);
+    gpr_log(GPR_INFO, "fd_end_poll: got_write %p, fd %d", fd, fd->fd);
     if (set_ready_locked(fd, &fd->write_closure)) {
       kick = 1;
     }

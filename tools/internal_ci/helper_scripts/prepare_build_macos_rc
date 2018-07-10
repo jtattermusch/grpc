@@ -25,6 +25,9 @@ ulimit -n 10000
 # show current limits
 ulimit -a
 
+# show the firewall status
+defaults read /Library/Preferences/com.apple.alf globalstate
+
 # synchronize the clock
 date
 sudo systemsetup -setusingnetworktime off

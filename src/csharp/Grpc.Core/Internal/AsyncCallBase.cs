@@ -218,10 +218,12 @@ namespace Grpc.Core.Internal
             return serializer(msg);
         }
 
-        protected Exception TryDeserialize(byte[] payload, out TRead msg)
+        protected Exception TryDeserialize(IBufferReader reader, out TRead msg)
         {
             try
             {
+                // TODO: reader to payload...
+                var payload = BufferReaderToByteArray(reader);
                 msg = deserializer(payload);
                 return null;
             }
@@ -230,6 +232,26 @@ namespace Grpc.Core.Internal
                 msg = default(TRead);
                 return e;
             }
+        }
+
+        private byte[] BufferReaderToByteArray(IBufferReader reader)
+        {
+            if (!reader.TotalLength.HasValue)
+            {
+                return null;
+            }
+
+            // TODO: use array pool instead of allocating a new array each time
+            int len = (int) reader.TotalLength.Value;
+            var payload = new byte[len];
+
+            int offset = 0;
+            while (reader.TryGetNextSlice(out Slice slice))
+            {
+                slice.CopyTo(new Span<byte>(payload, offset, (int) slice.length));
+                offset += (int) slice.length;
+            }
+            return payload;
         }
 
         /// <summary>
@@ -316,21 +338,21 @@ namespace Grpc.Core.Internal
         /// <summary>
         /// Handles streaming read completion.
         /// </summary>
-        protected void HandleReadFinished(bool success, byte[] receivedMessage)
+        protected void HandleReadFinished(bool success, IBufferReader receivedMessageReader)
         {
             // if success == false, received message will be null. It that case we will
             // treat this completion as the last read an rely on C core to handle the failed
             // read (e.g. deliver approriate statusCode on the clientside).
 
             TRead msg = default(TRead);
-            var deserializeException = (success && receivedMessage != null) ? TryDeserialize(receivedMessage, out msg) : null;
+            var deserializeException = (success && receivedMessageReader.TotalLength.HasValue) ? TryDeserialize(receivedMessageReader, out msg) : null;
 
             TaskCompletionSource<TRead> origTcs = null;
             bool releasedResources;
             lock (myLock)
             {
                 origTcs = streamingReadTcs;
-                if (receivedMessage == null)
+                if (!receivedMessageReader.TotalLength.HasValue)
                 {
                     // This was the last read.
                     readingDone = true;
@@ -374,9 +396,9 @@ namespace Grpc.Core.Internal
 
         IReceivedMessageCallback ReceivedMessageCallback => this;
 
-        void IReceivedMessageCallback.OnReceivedMessage(bool success, byte[] receivedMessage)
+        void IReceivedMessageCallback.OnReceivedMessage(bool success, IBufferReader receivedMessageReader)
         {
-            HandleReadFinished(success, receivedMessage);
+            HandleReadFinished(success, receivedMessageReader);
         }
     }
 }

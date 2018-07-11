@@ -30,10 +30,17 @@ namespace Grpc.Core.Internal
         void OnComplete(bool success);
     }
 
+    internal interface IBufferReader
+    {
+        long? TotalLength { get; }
+
+        bool TryGetNextSlice(out Slice slice);
+    }
+
     /// <summary>
     /// grpcsharp_batch_context
     /// </summary>
-    internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid, IOpCompletionCallback, IPooledObject<BatchContextSafeHandle>
+    internal class BatchContextSafeHandle : SafeHandleZeroIsInvalid, IOpCompletionCallback, IPooledObject<BatchContextSafeHandle>, IBufferReader
     {
         static readonly NativeMethods Native = NativeMethods.Get();
         static readonly ILogger Logger = GrpcEnvironment.Logger.ForType<BatchContextSafeHandle>();
@@ -106,6 +113,58 @@ namespace Grpc.Core.Internal
             return data;
         }
 
+        public bool GetReceivedMessageNextSlice(out Slice slice)
+        {
+            // TODO: calling this when receivedMessage is null will lead to crash
+            UIntPtr sliceLen;
+            IntPtr sliceDataPtr;
+            Slice.InlineData inlineBuffer;
+            if (0 == Native.grpcsharp_batch_context_recv_message_next_slice(this, out sliceLen, out sliceDataPtr, out inlineBuffer, new UIntPtr((uint) Slice.InlineDataMaxLength)))
+            {
+                slice = default(Slice);
+                return false;
+            }
+            slice = new Slice((long) sliceLen, sliceDataPtr, inlineBuffer);
+            return true;
+        }
+
+        public ReadOnlySliceBuffer GetReceivedMessageAsSliceBuffer(ReadOnlySliceBuffer sliceBuffer)
+        {
+            if (Native.grpcsharp_batch_context_recv_message_length(this) == new IntPtr(-1))
+            {
+                // -1 means that the received message is NULL.
+                return null;
+            }
+
+            if (sliceBuffer != null)
+            {
+                sliceBuffer.Reset();  // make sure it's empty
+            } else
+            {
+                sliceBuffer = new ReadOnlySliceBuffer(100);  // use buffer with some default capacity
+            }
+
+            while (GetReceivedMessageNextSlice(out Slice slice))
+            {
+                if (sliceBuffer.SliceCount >= sliceBuffer.Capacity)
+                {
+                    // if the slices won't fit into the current sliceBuffer, we need to allocate a new one
+                    // but this should happen very rarely.
+                    var oldSliceBuffer = sliceBuffer;
+                    sliceBuffer = sliceBuffer.Copy(sliceBuffer.Capacity * 2);
+                    oldSliceBuffer.Reset();
+                }
+                sliceBuffer.AddSlice(slice);
+            }
+
+            return sliceBuffer;
+        }
+
+        public IBufferReader GetReceivedMessageReader()
+        {
+            return this;
+        }
+
         // Gets data of receive_close_on_server completion.
         public bool GetReceivedCloseOnServerCancelled()
         {
@@ -151,6 +210,20 @@ namespace Grpc.Core.Internal
                 completionCallbackData = default(CompletionCallbackData);
                 Recycle();
             }
+        }
+
+        long? IBufferReader.TotalLength
+        {
+            get
+            {
+                var len = Native.grpcsharp_batch_context_recv_message_length(this);
+                return len != new IntPtr(-1) ? (long?) len : null;
+            }
+        }
+
+        bool IBufferReader.TryGetNextSlice(out Slice slice)
+        {
+            return GetReceivedMessageNextSlice(out slice);
         }
 
         struct CompletionCallbackData

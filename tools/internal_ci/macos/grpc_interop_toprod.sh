@@ -22,9 +22,11 @@ source tools/internal_ci/helper_scripts/prepare_build_macos_interop_rc
 source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
 df -h
+ls -l /
+ls -l /tmpfs 
 
 # using run_interop_tests.py without --use_docker, so we need to build first
-tools/run_tests/run_tests.py -l c++ -c opt --build_only
+tools/run_tests/run_tests.py -l c++ -c opt --build_only || df -h
 
 export GRPC_DEFAULT_SSL_ROOTS_FILE_PATH="$(pwd)/etc/roots.pem"
 

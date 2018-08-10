@@ -26,6 +26,8 @@ tools/run_tests/run_tests.py -l c++ -c opt --build_only
 
 export GRPC_DEFAULT_SSL_ROOTS_FILE_PATH="$(pwd)/etc/roots.pem"
 
+df -h
+
 # NOTE: only tests a subset of languages for time & dependency constraints
 # building all languages in the same working copy can also lead to conflicts
 # due to different compilation flags
@@ -33,6 +35,8 @@ tools/run_tests/run_interop_tests.py -l c++ \
     --cloud_to_prod --cloud_to_prod_auth --prod_servers default gateway_v4 \
     --service_account_key_file="${KOKORO_GFILE_DIR}/GrpcTesting-726eb1347f15.json" \
     --skip_compute_engine_creds --internal_ci -t -j 4 || FAILED="true"
+
+df -h
 
 tools/internal_ci/helper_scripts/delete_nonartifacts.sh || true
 

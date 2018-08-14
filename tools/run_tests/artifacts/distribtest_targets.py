@@ -298,6 +298,7 @@ def targets():
     """Gets list of supported targets"""
     return [
         CppDistribTest('linux', 'x64', 'jessie', 'routeguide'),
+        CppDistribTest('linux', 'x64', 'jessie', 'staticbuild'),
         CppDistribTest('linux', 'x64', 'jessie', 'cmake'),
         CppDistribTest('linux', 'x64', 'jessie', 'cmake_as_externalproject'),
         CppDistribTest('linux', 'x64', 'jessie', 'cmake_as_submodule'),

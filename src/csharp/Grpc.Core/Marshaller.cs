@@ -29,6 +29,12 @@ namespace Grpc.Core
         readonly Func<T, byte[]> serializer;
         readonly Func<byte[], T> deserializer;
 
+        // TODO: support injecting global context in default gRPC serializers...
+        // TODO: add hook for Marshaller.Create() (which gets invoked by generated stubs).
+        // TODO: need ability to create "Context" Instances...
+        readonly Action<T, SerializationContext> contextualSerializer;
+        readonly Func<DeserializationContext, T> contextualDeserializer;
+
         /// <summary>
         /// Initializes a new marshaller.
         /// </summary>
@@ -36,30 +42,69 @@ namespace Grpc.Core
         /// <param name="deserializer">Function that will be used to deserialize messages.</param>
         public Marshaller(Func<T, byte[]> serializer, Func<byte[], T> deserializer)
         {
-            this.serializer = GrpcPreconditions.CheckNotNull(serializer, "serializer");
-            this.deserializer = GrpcPreconditions.CheckNotNull(deserializer, "deserializer");
+            this.serializer = GrpcPreconditions.CheckNotNull(serializer, nameof(serializer));
+            this.deserializer = GrpcPreconditions.CheckNotNull(deserializer, nameof(deserializer));
+            this.contextualSerializer = EmulateContextualSerializer;
+            this.contextualDeserializer = EmulateContextualDeserializer;
+        }
+
+        /// <summary>
+        /// Initializes a new marshaller.
+        /// </summary>
+        /// <param name="serializer">Function that will be used to serialize messages.</param>
+        /// <param name="deserializer">Function that will be used to deserialize messages.</param>
+        public Marshaller(Action<T, SerializationContext> serializer, Func<DeserializationContext, T> deserializer)
+        {
+            this.contextualSerializer = GrpcPreconditions.CheckNotNull(serializer, nameof(serializer));
+            this.contextualDeserializer = GrpcPreconditions.CheckNotNull(deserializer, nameof(deserializer));
+            this.serializer = EmulateSimpleSerializer;
+            this.deserializer = EmulateSimpleDeserializer;
         }
 
         /// <summary>
         /// Gets the serializer function.
         /// </summary>
-        public Func<T, byte[]> Serializer
-        {
-            get
-            {
-                return this.serializer;
-            }
-        }
+        public Func<T, byte[]> Serializer => this.serializer;
 
         /// <summary>
         /// Gets the deserializer function.
         /// </summary>
-        public Func<byte[], T> Deserializer
+        public Func<byte[], T> Deserializer => this.deserializer;
+
+        /// <summary>
+        /// Gets the serializer function.
+        /// </summary>
+        public Action<T, SerializationContext> ContextualSerializer => this.contextualSerializer;
+
+        /// <summary>
+        /// Gets the serializer function.
+        /// </summary>
+        public Func<DeserializationContext, T> ContextualDeserializer => this.contextualDeserializer;
+
+        private byte[] EmulateSimpleSerializer(T msg)
         {
-            get
-            {
-                return this.deserializer;
-            }
+            // TODO(jtattermusch): avoid the allocation
+            var context = new EmulatedSerializationContext();
+            this.contextualSerializer(msg, context);
+            return context.GetResult();
+        }
+
+        private T EmulateSimpleDeserializer(byte[] payload)
+        {
+            // TODO(jtattermusch): avoid the allocation
+            var context = new EmulatedDeserializationContext<byte>(payload);
+            return this.contextualDeserializer(context);
+        }
+
+        private void EmulateContextualSerializer(T message, SerializationContext context)
+        {
+            var payload = this.serializer(message);
+            context.Complete(payload);
+        }
+
+        private T EmulateContextualDeserializer(DeserializationContext context)
+        {
+            return this.deserializer(context.PayloadAsNewBuffer());
         }
     }
 

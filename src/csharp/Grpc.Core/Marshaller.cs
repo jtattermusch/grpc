@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Buffers;
 using Grpc.Core.Utils;
 
 namespace Grpc.Core
@@ -139,6 +140,7 @@ namespace Grpc.Core
         {
             readonly byte[] payload;
             bool alreadyCalledPayloadAsNewBuffer;
+            bool bufferSegmentReturned;
 
             public EmulatedDeserializationContext(byte[] payload)
             {
@@ -152,6 +154,42 @@ namespace Grpc.Core
                 GrpcPreconditions.CheckState(!alreadyCalledPayloadAsNewBuffer);
                 alreadyCalledPayloadAsNewBuffer = true;
                 return payload;
+            }
+
+            internal override IMemoryOwner<byte> PayloadAsRentedBuffer()
+            {
+                if (payload == null)
+                {
+                    return null;
+                }
+                return new OwnedByteArray(payload);
+            }
+
+            internal override bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment)
+            {
+                GrpcPreconditions.CheckNotNull(payload);
+                if (bufferSegmentReturned)
+                {
+                    bufferSegment = default(Span<byte>);
+                    return false;
+                }
+                bufferSegment = new ReadOnlySpan<byte>(payload);
+                bufferSegmentReturned = true;
+                return true;
+            }
+
+            internal class OwnedByteArray : IMemoryOwner<byte>
+            {
+                readonly Memory<byte> memory;
+                public OwnedByteArray(byte[] buffer)
+                {
+                    this.memory = new Memory<byte>(buffer);
+                }
+                public Memory<byte> Memory => memory;
+                public void Dispose()
+                {
+                    // nothing to do
+                }
             }
         }
     }

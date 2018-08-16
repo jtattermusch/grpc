@@ -16,6 +16,9 @@
 
 #endregion
 
+using System;
+using System.Buffers;
+
 namespace Grpc.Core
 {
     /// <summary>
@@ -42,5 +45,30 @@ namespace Grpc.Core
         /// </summary>
         /// <returns>byte array containing the entire payload.</returns>
         public abstract byte[] PayloadAsNewBuffer();
+
+        // TODO(jtattermusch): make the method public
+        /// <summary>
+        /// Gets the entire payload as a rented buffer.
+        /// Caller is reponsible for disposing the rented buffer once the done processing it to signal that the buffer can be reclaimed by gRPC
+        /// and used again for deserialization of another message.
+        /// In most cases, using this method involves copying to the entire buffer (as the payload is internally
+        /// delivered in multiple buffer segments and they need to be joined together to form a single monolithic buffer).
+        /// On the other hand, this method is much more efficient in terms of GC pressure than <see cref="PayloadAsNewBuffer"/>
+        /// as the buffer is reused rather than thrown away. This comes at the cost of the additional complexity where one needs
+        /// to call <c>Dispose()</c> once done reading the data.
+        /// </summary>
+        /// <returns>a rented buffer the entire payload or null if payload is null.</returns>
+        internal abstract IMemoryOwner<byte> PayloadAsRentedBuffer();
+
+        // TODO(jtattermusch): make the method public
+        // TODO(jtattermusch): better name that's more aligned with other methods?
+        /// <summary>
+        /// Tries to get next segment of the payload.
+        /// This is the most efficient method of accessing the payload, no additional copying or allocation is made in most cases.
+        /// Throws an exception if payload is null.
+        /// </summary>
+        /// <param name="bufferSegment">will be set to the next buffer segment if operation is successful.</param>
+        /// <returns><c>true</c> the next segment was read, <c>false</c> if all segments have already been read.</returns>
+        internal abstract bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment);
     }
 }

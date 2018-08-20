@@ -280,12 +280,12 @@ def _create_portability_test_jobs(extra_args=[],
     test_jobs = []
     # portability C x86
     test_jobs += _generate_jobs(
-        languages=['c'],
+        languages=['c', 'c++'],
         configs=['dbg'],
         platforms=['linux'],
         arch='x86',
         compiler='default',
-        labels=['portability', 'corelang'],
+        labels=['portability', 'corelang', 'x86'],
         extra_args=extra_args,
         inner_jobs=inner_jobs)
 

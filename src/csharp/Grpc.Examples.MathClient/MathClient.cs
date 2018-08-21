@@ -17,6 +17,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Grpc.Core;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Math
 {
@@ -24,21 +26,32 @@ namespace Math
     {
         public static void Main(string[] args)
         {
-            var channel = new Channel("127.0.0.1", 23456, ChannelCredentials.Insecure);
-            Math.MathClient client = new Math.MathClient(channel);
-            MathExamples.DivExample(client);
+            TryChannels().Wait();
+        }
 
-            MathExamples.DivAsyncExample(client).Wait();
+        private static async Task TryChannels()
+        {
+            Environment.SetEnvironmentVariable("GRPC_TRACE", "subchannel");
+            Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "DEBUG");
 
-            MathExamples.FibExample(client).Wait();
-
-            MathExamples.SumExample(client).Wait();
-
-            MathExamples.DivManyExample(client).Wait();
-
-            MathExamples.DependendRequestsExample(client).Wait();
-
-            channel.ShutdownAsync().Wait();
+            var channels = new List<Channel>();
+            for (int i = 0; i < 10; i++)
+            {
+                //new Channel("bigtable.googleapis.com", 443, channelCredentials)
+                channels.Add(new Channel("bigtable.googleapis.com", 443, new SslCredentials()));
+            }
+            foreach (var channel in channels)
+            {
+                await channel.ConnectAsync();
+            }
+            Console.WriteLine("Channels connected, press enter to close them");
+            Console.ReadLine();
+            Console.WriteLine("Closing channels");
+            foreach (var channel in channels)
+            {
+                await channel.ShutdownAsync();
+            }
+            
         }
     }
 }

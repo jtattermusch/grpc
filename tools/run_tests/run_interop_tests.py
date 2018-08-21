@@ -775,6 +775,7 @@ def cloud_to_prod_jobspec(language,
         '--server_host_override=%s' % server_host, '--server_port=443',
         '--test_case=%s' % test_case
     ]
+    transport_security_options = []
     if transport_security == 'tls':
         transport_security_options += ['--use_tls=true']
     elif transport_security == 'google_default_credentials' and language == 'c++':
@@ -793,6 +794,7 @@ def cloud_to_prod_jobspec(language,
         environ.update(auth_env)
     cmdline = bash_cmdline(language.client_cmd(cmdargs))
     cwd = language.client_cwd
+    print(cmdline)
 
     if docker_image:
         container_name = dockerjob.random_name(

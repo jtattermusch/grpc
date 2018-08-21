@@ -104,6 +104,24 @@ namespace Grpc.IntegrationTesting
                 };
             }
             var channel = new Channel(options.ServerHost, options.ServerPort, credentials, channelOptions);
+
+            var channels = new List<Channel>();
+            for (int i = 0; i < 10; i++)
+            {
+                channels.Add(new Channel(options.ServerHost, options.ServerPort, credentials, channelOptions));
+            }
+            foreach (var cha in channels)
+            {
+                await cha.ConnectAsync();
+            }
+            Console.WriteLine("Channels connected, press enter to close them");
+            Console.ReadLine();
+            Console.WriteLine("Closing channels");
+            foreach (var cha in channels)
+            {
+                await cha.ShutdownAsync();
+            }
+
             await RunTestCaseAsync(channel, options);
             await channel.ShutdownAsync();
         }

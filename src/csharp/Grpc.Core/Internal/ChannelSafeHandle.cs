@@ -45,6 +45,7 @@ namespace Grpc.Core.Internal
             // Increment reference count for the native gRPC environment to make sure we don't do grpc_shutdown() before destroying the server handle.
             // Doing so would make object finalizer crash if we end up abandoning the handle.
             GrpcEnvironment.GrpcNativeInit();
+            Console.WriteLine("creating channel: credentials:" + credentials.DangerousGetHandle());
             return Native.grpcsharp_secure_channel_create(credentials, target, channelArgs);
         }
 

@@ -21,28 +21,13 @@ set DOTNET=dotnet
 
 mkdir ..\..\artifacts
 
-@rem Collect the artifacts built by the previous build step
-mkdir nativelibs
-powershell -Command "cp -r ..\..\input_artifacts\csharp_ext_* nativelibs"
+%NUGET% update -self
 
-@rem Collect protoc artifacts built by the previous build step
-mkdir protoc_plugins
-powershell -Command "cp -r ..\..\input_artifacts\protoc_* protoc_plugins"
-
-%DOTNET% restore Grpc.sln || goto :error
-
-@rem To be able to build, we also need to put grpc_csharp_ext to its normal location
-xcopy /Y /I nativelibs\csharp_ext_windows_x64\grpc_csharp_ext.dll ..\..\cmake\build\x64\Release\
-
-%DOTNET% pack --configuration Release Grpc.Core --output ..\..\..\artifacts || goto :error
-%DOTNET% pack --configuration Release Grpc.Core.Testing --output ..\..\..\artifacts || goto :error
-%DOTNET% pack --configuration Release Grpc.Auth --output ..\..\..\artifacts || goto :error
-%DOTNET% pack --configuration Release Grpc.HealthCheck --output ..\..\..\artifacts || goto :error
-%DOTNET% pack --configuration Release Grpc.Reflection --output ..\..\..\artifacts || goto :error
+%NUGET%
 
 %NUGET% pack Grpc.nuspec -Version %VERSION% -OutputDirectory ..\..\artifacts || goto :error
-%NUGET% pack Grpc.Core.NativeDebug.nuspec -Version %VERSION% -OutputDirectory ..\..\artifacts
-%NUGET% pack Grpc.Tools.nuspec -Version %VERSION% -OutputDirectory ..\..\artifacts
+
+%NUGET% sign ..\..\artifacts\Grpc.%VERSION%.nupkg -CertificateSubjectName "Google Inc" -Timestamper http://timestamp.comodoca.com/authenticode
 
 @rem copy resulting nuget packages to artifacts directory
 xcopy /Y /I *.nupkg ..\..\artifacts\ || goto :error
@@ -50,6 +35,8 @@ xcopy /Y /I *.nupkg ..\..\artifacts\ || goto :error
 @rem create a zipfile with the artifacts as well
 powershell -Command "Add-Type -Assembly 'System.IO.Compression.FileSystem'; [System.IO.Compression.ZipFile]::CreateFromDirectory('..\..\artifacts', 'csharp_nugets_windows_dotnetcli.zip');"
 xcopy /Y /I csharp_nugets_windows_dotnetcli.zip ..\..\artifacts\ || goto :error
+
+goto :error
 
 goto :EOF
 

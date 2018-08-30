@@ -46,6 +46,8 @@ namespace Grpc.Core.Internal
         readonly WaitCallback runCompletionQueueEventCallbackFailure;
         readonly AtomicCounter queuedContinuationCounter = new AtomicCounter();
 
+        readonly AtomicCounter completionCallbacksRunning = new AtomicCounter();
+
         readonly List<BasicProfiler> threadProfilers = new List<BasicProfiler>();  // profilers assigned to threadpool threads
 
         bool stopRequested;
@@ -229,6 +231,7 @@ namespace Grpc.Core.Internal
         {
             try
             {
+                completionCallbacksRunning.Increment();
                 callback.OnComplete(success);
             }
             catch (Exception e)
@@ -237,6 +240,7 @@ namespace Grpc.Core.Internal
             }
             finally
             {
+                completionCallbacksRunning.Decrement();
                 queuedContinuationCounter.Decrement();
             }
         }

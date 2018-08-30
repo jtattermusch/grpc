@@ -112,6 +112,11 @@ namespace Grpc.Core.Internal
             return Native.grpcsharp_batch_context_recv_close_on_server_cancelled(this) != 0;
         }
 
+        public void EarlyReset()
+        {
+            Native.grpcsharp_batch_context_reset(this);
+        }
+
         public void Recycle()
         {
             if (returnToPoolAction != null)

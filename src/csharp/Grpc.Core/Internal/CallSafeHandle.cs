@@ -39,11 +39,21 @@ namespace Grpc.Core.Internal
         static readonly BatchCompletionDelegate CompletionHandler_IReceivedStatusOnClientCallback =
             (success, context, state) => ((IReceivedStatusOnClientCallback)state).OnReceivedStatusOnClient(success, context.GetReceivedStatusOnClient());
         static readonly BatchCompletionDelegate CompletionHandler_IReceivedMessageCallback =
-            (success, context, state) => ((IReceivedMessageCallback)state).OnReceivedMessage(success, context.GetReceivedMessage());
+            (success, context, state) =>
+            {
+                var recvMessage = context.GetReceivedMessage();
+                //context.EarlyReset();
+                // reset the buffer...
+                ((IReceivedMessageCallback)state).OnReceivedMessage(success, recvMessage);
+            };
         static readonly BatchCompletionDelegate CompletionHandler_IReceivedResponseHeadersCallback =
             (success, context, state) => ((IReceivedResponseHeadersCallback)state).OnReceivedResponseHeaders(success, context.GetReceivedInitialMetadata());
         static readonly BatchCompletionDelegate CompletionHandler_ISendCompletionCallback =
-            (success, context, state) => ((ISendCompletionCallback)state).OnSendCompletion(success);
+            (success, context, state) =>
+            {
+                //context.EarlyReset();
+                ((ISendCompletionCallback)state).OnSendCompletion(success);
+            };
         static readonly BatchCompletionDelegate CompletionHandler_ISendStatusFromServerCompletionCallback =
             (success, context, state) => ((ISendStatusFromServerCompletionCallback)state).OnSendStatusFromServerCompletion(success);
         static readonly BatchCompletionDelegate CompletionHandler_IReceivedCloseOnServerCallback =

@@ -32,6 +32,7 @@ namespace Grpc.Core.Tests
     {
         public static int Main(string[] args)
         {
+            //GrpcEnvironment.SetHandlerInlining(true);
             // Make logger immune to NUnit capturing stdout and stderr to workaround https://github.com/nunit/nunit/issues/1406.
             GrpcEnvironment.SetLogger(new ConsoleLogger());
 #if NETCOREAPP1_0

@@ -61,16 +61,9 @@ export KOKORO_FOUNDRY_PROJECT_ID="projects/grpc-testing/instances/default_instan
   --test_env=GRPC_VERBOSITY=debug \
   --remote_instance_name=projects/grpc-testing/instances/default_instance \
   --test_env=GRPC_TRACE=client_channel \
-  --run_per_test=500 \
+  --runs_per_test=500 \
   $@ \
   -- //test/cpp/end2end:client_lb_end2end_test || FAILED="true"
-
-if [ "$UPLOAD_TEST_RESULTS" != "" ]
-then
-  # Sleep to let ResultStore finish writing results before querying
-  sleep 60
-  python ./tools/run_tests/python_utils/upload_rbe_results.py
-fi
 
 if [ "$FAILED" != "" ]
 then

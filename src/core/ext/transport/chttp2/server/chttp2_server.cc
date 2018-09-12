@@ -43,6 +43,7 @@
 #include "src/core/lib/slice/slice_internal.h"
 #include "src/core/lib/surface/api_trace.h"
 #include "src/core/lib/surface/server.h"
+#include "src/core/lib/gpr/string.h"
 
 typedef struct {
   grpc_server* server;
@@ -300,14 +301,14 @@ grpc_error* grpc_chttp2_server_add_port(grpc_server* server, const char* addr,
       count++;
 
       grpc_resolved_address* ad = &resolved->addrs[i];
-      gpr_log(GPR_ERROR, "successfully bound %s", (char*)(&(ad->addr)));
+      gpr_log(GPR_ERROR, "successfully bound addr %s", gpr_dump((char*)(&(ad->addr)), ad->len, GPR_DUMP_ASCII | GPR_DUMP_HEX));
       gpr_log(GPR_ERROR, "addr_len %d", (int)(ad->len));
     
     }
     else
     {
         grpc_resolved_address* ad = &resolved->addrs[i];
-        gpr_log(GPR_ERROR, "Error binding %s", (char*)(&(ad->addr)));
+        gpr_log(GPR_ERROR, "Error binding addr %s", gpr_dump((char*)(&(ad->addr)), ad->len, GPR_DUMP_ASCII | GPR_DUMP_HEX));
         gpr_log(GPR_ERROR, "addr_len %d", (int)(ad->len));
     
     }

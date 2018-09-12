@@ -298,11 +298,18 @@ grpc_error* grpc_chttp2_server_add_port(grpc_server* server, const char* addr,
         GPR_ASSERT(*port_num == port_temp);
       }
       count++;
+
+      grpc_resolved_address* ad = &resolved->addrs[i];
+      gpr_log(GPR_ERROR, "successfully bound %s", (char*)(&(ad->addr)));
+      gpr_log(GPR_ERROR, "addr_len %d", (int)(ad->len));
+    
     }
     else
     {
         grpc_resolved_address* ad = &resolved->addrs[i];
         gpr_log(GPR_ERROR, "Error binding %s", (char*)(&(ad->addr)));
+        gpr_log(GPR_ERROR, "addr_len %d", (int)(ad->len));
+    
     }
   }
   if (count == 0) {

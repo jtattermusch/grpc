@@ -299,6 +299,11 @@ grpc_error* grpc_chttp2_server_add_port(grpc_server* server, const char* addr,
       }
       count++;
     }
+    else
+    {
+        grpc_resolved_address* ad = &resolved->addrs[i];
+        gpr_log(GPR_ERROR, "Error binding %s", (char*)(&(ad->addr)));
+    }
   }
   if (count == 0) {
     char* msg;
@@ -319,6 +324,8 @@ grpc_error* grpc_chttp2_server_add_port(grpc_server* server, const char* addr,
     const char* warning_message = grpc_error_string(err);
     gpr_log(GPR_INFO, "WARNING: %s", warning_message);
 
+    gpr_log(GPR_INFO, "addr: %s", addr);
+    GPR_ASSERT(0);
     /* we managed to bind some addresses: continue */
   }
   grpc_resolved_addresses_destroy(resolved);

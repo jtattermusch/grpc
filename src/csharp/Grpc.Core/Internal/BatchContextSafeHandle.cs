@@ -128,38 +128,6 @@ namespace Grpc.Core.Internal
             return true;
         }
 
-        public ReadOnlySliceBuffer GetReceivedMessageAsSliceBuffer(ReadOnlySliceBuffer sliceBuffer)
-        {
-            if (Native.grpcsharp_batch_context_recv_message_length(this) == new IntPtr(-1))
-            {
-                // -1 means that the received message is NULL.
-                return null;
-            }
-
-            if (sliceBuffer != null)
-            {
-                sliceBuffer.Reset();  // make sure it's empty
-            } else
-            {
-                sliceBuffer = new ReadOnlySliceBuffer(100);  // use buffer with some default capacity
-            }
-
-            while (GetReceivedMessageNextSlice(out Slice slice))
-            {
-                if (sliceBuffer.SliceCount >= sliceBuffer.Capacity)
-                {
-                    // if the slices won't fit into the current sliceBuffer, we need to allocate a new one
-                    // but this should happen very rarely.
-                    var oldSliceBuffer = sliceBuffer;
-                    sliceBuffer = sliceBuffer.Copy(sliceBuffer.Capacity * 2);
-                    oldSliceBuffer.Reset();
-                }
-                sliceBuffer.AddSlice(slice);
-            }
-
-            return sliceBuffer;
-        }
-
         public IBufferReader GetReceivedMessageReader()
         {
             return this;

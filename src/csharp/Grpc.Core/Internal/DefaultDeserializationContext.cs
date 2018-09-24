@@ -28,11 +28,12 @@ namespace Grpc.Core.Internal
 
         public DefaultDeserializationContext(IBufferReader bufferReader)
         {
+            // TODO: fetch the total length immediately...
             this.bufferReader = bufferReader;
         }
 
-        // TODO(jtattermusch): revisit the narrowing conversion
-        public override int? PayloadLength => (int?)bufferReader.TotalLength;
+        // TODO: revisit narrowing conversion
+        public override int PayloadLength => bufferReader.TotalLength.Value;
 
         public override byte[] PayloadAsNewBuffer()
         {

@@ -32,7 +32,7 @@ namespace Grpc.Core.Internal
 
     internal interface IBufferReader
     {
-        long? TotalLength { get; }
+        int? TotalLength { get; }
 
         bool TryGetNextSlice(out Slice slice);
     }
@@ -212,12 +212,12 @@ namespace Grpc.Core.Internal
             }
         }
 
-        long? IBufferReader.TotalLength
+        int? IBufferReader.TotalLength
         {
             get
             {
                 var len = Native.grpcsharp_batch_context_recv_message_length(this);
-                return len != new IntPtr(-1) ? (long?) len : null;
+                return len != new IntPtr(-1) ? (int?) len : null;
             }
         }
 

@@ -705,7 +705,7 @@ namespace Grpc.Core.Internal.Tests
             this.currentIndex = 0;
         }
 
-        public long? TotalLength => data != null ? (long?) data.Length : null;
+        public int? TotalLength => data != null ? (int?) data.Length : null;
 
         public bool TryGetNextSlice(out Slice slice)
         {

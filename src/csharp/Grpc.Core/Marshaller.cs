@@ -170,7 +170,7 @@ namespace Grpc.Core
                 GrpcPreconditions.CheckNotNull(payload);
                 if (bufferSegmentReturned)
                 {
-                    bufferSegment = default(Span<byte>);
+                    bufferSegment = default(ReadOnlySpan<byte>);
                     return false;
                 }
                 bufferSegment = new ReadOnlySpan<byte>(payload);

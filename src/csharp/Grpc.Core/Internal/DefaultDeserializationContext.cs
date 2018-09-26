@@ -47,7 +47,7 @@ namespace Grpc.Core.Internal
             return buffer;
         }
 
-        internal override IMemoryOwner<byte> PayloadAsRentedBuffer()
+        public override IMemoryOwner<byte> PayloadAsRentedBuffer()
         {
             if (!bufferReader.TotalLength.HasValue)
             {
@@ -60,7 +60,7 @@ namespace Grpc.Core.Internal
             return rentedBuffer;
         }
 
-        internal override bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment)
+        public override bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment)
         {
             // TODO:....
             throw new NotImplementedException();

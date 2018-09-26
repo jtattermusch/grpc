@@ -16,6 +16,8 @@
 
 #endregion
 
+using System;
+
 namespace Grpc.Core
 {
     /// <summary>
@@ -23,13 +25,15 @@ namespace Grpc.Core
     /// </summary>
     public abstract class SerializationContext
     {
-        // TODO: make virtual, not abstract ....
         /// <summary>
         /// Use the byte array as serialized form of current message and mark serialization process as complete.
         /// Complete() can only be called once. By calling this method the caller gives up the ownership of the
         /// payload which must not be accessed afterwards.
         /// </summary>
         /// <param name="payload">the serialized form of current message</param>
-        public abstract void Complete(byte[] payload);
+        public virtual void Complete(byte[] payload)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -101,16 +101,6 @@ namespace Grpc.Core.Tests
             {
                 return payload;
             }
-
-            internal override IMemoryOwner<byte> PayloadAsRentedBuffer()
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

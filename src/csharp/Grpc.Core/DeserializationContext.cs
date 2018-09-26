@@ -26,7 +26,6 @@ namespace Grpc.Core
     /// </summary>
     public abstract class DeserializationContext
     {
-        // TODO: make methods virtual, not abstract
         /// <summary>
         /// Get the total length of the payload in bytes.
         /// </summary>
@@ -45,10 +44,11 @@ namespace Grpc.Core
         /// (as there is no practical reason for doing so) and <c>DeserializationContext</c> implementations are free to assume so.
         /// </summary>
         /// <returns>byte array containing the entire payload.</returns>
-        public abstract byte[] PayloadAsNewBuffer();
+        public virtual byte[] PayloadAsNewBuffer()
+        {
+            throw new NotImplementedException();
+        }
 
-        // TODO(jtattermusch): how do internal abstract members work when users want to subclass?
-        // TODO(jtattermusch): make the method public
         /// <summary>
         /// Gets the entire payload as a rented buffer.
         /// Caller is reponsible for disposing the rented buffer once the done processing it to signal that the buffer can be reclaimed by gRPC
@@ -60,9 +60,11 @@ namespace Grpc.Core
         /// to call <c>Dispose()</c> once done reading the data.
         /// </summary>
         /// <returns>a rented buffer the entire payload or null if payload is null.</returns>
-        internal abstract IMemoryOwner<byte> PayloadAsRentedBuffer();
+        public virtual IMemoryOwner<byte> PayloadAsRentedBuffer()
+        {
+            throw new NotImplementedException();
+        }
 
-        // TODO(jtattermusch): make the method public
         // TODO(jtattermusch): better name that's more aligned with other methods?
         /// <summary>
         /// Tries to get next segment of the payload.
@@ -71,6 +73,9 @@ namespace Grpc.Core
         /// </summary>
         /// <param name="bufferSegment">will be set to the next buffer segment if operation is successful.</param>
         /// <returns><c>true</c> the next segment was read, <c>false</c> if all segments have already been read.</returns>
-        internal abstract bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment);
+        public virtual bool TryGetNextBufferSegment(out ReadOnlySpan<byte> bufferSegment)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

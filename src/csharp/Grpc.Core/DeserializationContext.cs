@@ -26,6 +26,7 @@ namespace Grpc.Core
     /// </summary>
     public abstract class DeserializationContext
     {
+        // TODO: make methods virtual, not abstract
         /// <summary>
         /// Get the total length of the payload in bytes.
         /// </summary>
@@ -46,6 +47,7 @@ namespace Grpc.Core
         /// <returns>byte array containing the entire payload.</returns>
         public abstract byte[] PayloadAsNewBuffer();
 
+        // TODO(jtattermusch): how do internal abstract members work when users want to subclass?
         // TODO(jtattermusch): make the method public
         /// <summary>
         /// Gets the entire payload as a rented buffer.

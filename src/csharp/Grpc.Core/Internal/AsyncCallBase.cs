@@ -238,26 +238,6 @@ namespace Grpc.Core.Internal
             }
         }
 
-        private byte[] BufferReaderToByteArray(IBufferReader reader)
-        {
-            if (!reader.TotalLength.HasValue)
-            {
-                return null;
-            }
-
-            // TODO: use array pool instead of allocating a new array each time
-            int len = (int) reader.TotalLength.Value;
-            var payload = new byte[len];
-
-            int offset = 0;
-            while (reader.TryGetNextSlice(out Slice slice))
-            {
-                slice.CopyTo(new Span<byte>(payload, offset, (int) slice.length));
-                offset += (int) slice.length;
-            }
-            return payload;
-        }
-
         /// <summary>
         /// Handles send completion (including SendCloseFromClient).
         /// </summary>

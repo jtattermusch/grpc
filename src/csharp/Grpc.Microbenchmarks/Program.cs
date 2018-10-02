@@ -22,6 +22,8 @@ using Grpc.Core.Internal;
 using Grpc.Core.Logging;
 using CommandLine;
 using CommandLine.Text;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 
 namespace Grpc.Microbenchmarks
 {
@@ -43,32 +45,8 @@ namespace Grpc.Microbenchmarks
         public static void Main(string[] args)
         {
             GrpcEnvironment.SetLogger(new ConsoleLogger());
-            var parserResult = Parser.Default.ParseArguments<BenchmarkOptions>(args)
-                .WithNotParsed(errors => {
-                    Console.WriteLine("Supported benchmarks:");
-                    foreach (var enumValue in Enum.GetValues(typeof(MicrobenchmarkType)))
-                    {
-                        Console.WriteLine("  " + enumValue);
-                    }
-                    Environment.Exit(1);
-                })
-                .WithParsed(options =>
-                {
-                    switch (options.Benchmark)
-                    {
-                        case MicrobenchmarkType.CompletionRegistry:
-                          RunCompletionRegistryBenchmark();
-                          break;
-                        case MicrobenchmarkType.PInvokeByteArray:
-                          RunPInvokeByteArrayBenchmark();
-                          break;
-                        case MicrobenchmarkType.SendMessage:
-                          RunSendMessageBenchmark();
-                          break;
-                        default:
-                          throw new ArgumentException("Unsupported benchmark.");
-                    }
-                });
+
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
         }
 
         static void RunCompletionRegistryBenchmark()

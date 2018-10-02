@@ -29,5 +29,24 @@ namespace Grpc.Microbenchmarks
 
         //[Benchmark]
         //public byte[] Md5() => md5.ComputeHash(data);
+
+        // TODO:
+        // microbenchmark: reading messages, deserializing messages, parse metadata from native (
+
+        // TODO:
+        //microbenchmark: metadataarraysafehandle.create(), fill existing  metadataarraysafehandle
+
+        // TODO:
+        //microbenchmark: read metadata from ptr unsafe
+
+        // TODO:
+        // microbenchmark of batch context safe handle: get received status on client, get received message, get received initial metadata
+
+       // TODO:
+       // microbenchmark of request call context safe handle: getserverrpcnew
+
+       // optimization idea: intern well known metadata keys and values: e.g.   user-agent: 10 bytes key
+
+       // optimization idea: channelsafehandle: create call copies method and host
     }
 }

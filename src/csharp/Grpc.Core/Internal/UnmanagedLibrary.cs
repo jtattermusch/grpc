@@ -139,7 +139,12 @@ namespace Grpc.Core.Internal
             {
                 if (PlatformApis.IsMono)
                 {
-                    return Mono.dlopen(libraryPath, RTLD_GLOBAL + RTLD_LAZY);
+                    var ret = Mono.dlopen(libraryPath, RTLD_GLOBAL + RTLD_LAZY);
+                    if (ret == IntPtr.Zero)
+                    {
+                        Console.WriteLine("dlopen error: " + Marshal.PtrToStringAnsi(Mono.dlerror()));
+                    }
+                    return ret;
                 }
                 if (PlatformApis.IsNetCore)
                 {
@@ -184,6 +189,9 @@ namespace Grpc.Core.Internal
             internal static extern IntPtr dlopen(string filename, int flags);
 
             [DllImport("libdl.so")]
+            internal static extern IntPtr dlerror();
+
+            [DllImport("libdl.so")]
             internal static extern IntPtr dlsym(IntPtr handle, string symbol);
         }
 
@@ -207,6 +215,9 @@ namespace Grpc.Core.Internal
         {
             [DllImport("__Internal")]
             internal static extern IntPtr dlopen(string filename, int flags);
+
+            [DllImport("__Internal")]
+            internal static extern IntPtr dlerror();
 
             [DllImport("__Internal")]
             internal static extern IntPtr dlsym(IntPtr handle, string symbol);

@@ -1304,6 +1304,7 @@ try:
 
     jobs = []
     if args.cloud_to_prod:
+        # TODO(jtattermusch): why?????
         if args.transport_security not in ['tls', 'google_default_credentials']:
             print(
                 'TLS or google default credential is always enabled for cloud_to_prod scenarios.'

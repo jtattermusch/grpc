@@ -257,23 +257,22 @@ class JavaOkHttpClient:
 class GoLanguage:
 
     def __init__(self):
-        # TODO: this relies on running inside docker
-        self.client_cwd = '/go/src/google.golang.org/grpc/interop/client'
-        self.server_cwd = '/go/src/google.golang.org/grpc/interop/server'
-        self.http2_cwd = '/go/src/google.golang.org/grpc/interop/http2'
+        self.client_cwd = None
+        self.server_cwd = None
+        self.http2_cwd = None
         self.safename = str(self)
 
     def client_cmd(self, args):
-        return ['go', 'run', 'client.go'] + args
+        return ['/go/bin/client'] + args
 
     def client_cmd_http2interop(self, args):
-        return ['go', 'run', 'negative_http2_client.go'] + args
+        return ['/go/bin/negative_http2_client'] + args
 
     def cloud_to_prod_env(self):
         return {}
 
     def server_cmd(self, args):
-        return ['go', 'run', 'server.go'] + args
+        return ['/go/bin/server'] + args
 
     def global_env(self):
         return {}

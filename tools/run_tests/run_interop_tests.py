@@ -769,9 +769,11 @@ def cloud_to_prod_jobspec(language,
                           transport_security='tls'):
     """Creates jobspec for cloud-to-prod interop test"""
     container_name = None
+    # TODO(jtattermusch): dont always set the override!!!!
+    # '--server_host_override=%s' % server_host,
     cmdargs = [
         '--server_host=%s' % server_host,
-        '--server_host_override=%s' % server_host, '--server_port=443',
+        '--server_port=443',
         '--test_case=%s' % test_case
     ]
     if transport_security == 'tls':

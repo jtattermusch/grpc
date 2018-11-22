@@ -29,6 +29,7 @@
     "Grpc.Core.Tests.MarshallerTest",
     "Grpc.Core.Tests.MarshallingErrorsTest",
     "Grpc.Core.Tests.MetadataTest",
+    "Grpc.Core.Tests.OneWayStreamTest",
     "Grpc.Core.Tests.PerformanceTest",
     "Grpc.Core.Tests.PInvokeTest",
     "Grpc.Core.Tests.ResponseHeadersTest",

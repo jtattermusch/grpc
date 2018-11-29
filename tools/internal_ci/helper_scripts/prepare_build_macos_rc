@@ -27,6 +27,8 @@ sudo systemsetup -settimezone America/Los_Angeles
 sudo systemsetup -setusingnetworktime on
 date
 
+sudo ntpdate -u time.apple.com
+
 # Add GCP credentials for BQ access
 # pin google-api-python-client to avoid https://github.com/grpc/grpc/issues/15600
 pip install google-api-python-client oauth2client --user python

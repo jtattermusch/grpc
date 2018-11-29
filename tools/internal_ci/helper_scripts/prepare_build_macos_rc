@@ -29,7 +29,7 @@ date
 
 # Add GCP credentials for BQ access
 # pin google-api-python-client to avoid https://github.com/grpc/grpc/issues/15600
-pip install google-api-python-client==1.6.7 --user python
+pip install google-api-python-client oauth2client --user python
 export GOOGLE_APPLICATION_CREDENTIALS=${KOKORO_GFILE_DIR}/GrpcTesting-d0eeee2db331.json
 ls ${KOKORO_GFILE_DIR}
 

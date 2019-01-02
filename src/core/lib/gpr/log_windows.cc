@@ -96,7 +96,7 @@ void gpr_default_log(gpr_log_func_args* args) {
           gpr_log_severity_string(args->severity), time_buffer,
           (int)(now.tv_nsec), GetCurrentThreadId(), display_file, args->line,
           args->message);
-  fflush(stderr);
+  //fflush(stderr);
 }
 
 #endif /* GPR_WINDOWS_LOG */

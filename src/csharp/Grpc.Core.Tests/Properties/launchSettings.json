@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Grpc.Core.Tests": {
+      "commandName": "Project",
+      "commandLineArgs": " --test=Grpc.Core.Tests.OneWayStreamTest",
+      "environmentVariables": {
+        "GRPC_VERBOSITY": "debug",
+        "GRPC_TRACE": "resource_quota"
+      }
+    }
+  }
+}

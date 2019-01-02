@@ -338,9 +338,11 @@ static void win_write(grpc_endpoint* ep, grpc_slice_buffer* slices,
   if (grpc_tcp_trace.enabled()) {
     size_t i;
     for (i = 0; i < slices->count; i++) {
+      gpr_log(GPR_INFO, "WRITE %p dumping slice", tcp);
       char* data =
           grpc_dump_slice(slices->slices[i], GPR_DUMP_HEX | GPR_DUMP_ASCII);
       gpr_log(GPR_INFO, "WRITE %p (peer=%s): %s", tcp, tcp->peer_string, data);
+      gpr_log(GPR_INFO, "WRITE %p dump done", tcp);
       gpr_free(data);
     }
   }

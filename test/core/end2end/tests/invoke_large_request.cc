@@ -130,6 +130,8 @@ static void test_invoke_large_request(grpc_end2end_test_config config,
   grpc_slice details;
   int was_cancelled = 2;
 
+  gpr_log(GPR_INFO, "CHECKPOINT");
+
   gpr_timespec deadline = n_seconds_from_now(30);
   c = grpc_channel_create_call(f.client, nullptr, GRPC_PROPAGATE_DEFAULTS, f.cq,
                                grpc_slice_from_static_string("/foo"), nullptr,
@@ -183,7 +185,14 @@ static void test_invoke_large_request(grpc_end2end_test_config config,
                                &request_metadata_recv, f.cq, f.cq, tag(101));
   GPR_ASSERT(GRPC_CALL_OK == error);
   CQ_EXPECT_COMPLETION(cqv, tag(101), 1);
+
+  
+  gpr_log(GPR_INFO, "CHECKPOINT");
+
   cq_verify(cqv);
+
+  
+  gpr_log(GPR_INFO, "CHECKPOINT");
 
   memset(ops, 0, sizeof(ops));
   op = ops;
@@ -203,6 +212,9 @@ static void test_invoke_large_request(grpc_end2end_test_config config,
 
   CQ_EXPECT_COMPLETION(cqv, tag(102), 1);
   cq_verify(cqv);
+
+  
+  gpr_log(GPR_INFO, "CHECKPOINT");
 
   memset(ops, 0, sizeof(ops));
   op = ops;
@@ -231,6 +243,9 @@ static void test_invoke_large_request(grpc_end2end_test_config config,
   CQ_EXPECT_COMPLETION(cqv, tag(103), 1);
   CQ_EXPECT_COMPLETION(cqv, tag(1), 1);
   cq_verify(cqv);
+
+  
+  gpr_log(GPR_INFO, "CHECKPOINT");
 
   GPR_ASSERT(status == GRPC_STATUS_UNIMPLEMENTED);
   GPR_ASSERT(0 == grpc_slice_str_cmp(details, "xyz"));

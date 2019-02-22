@@ -16,6 +16,9 @@
 @rem set path to python 2.7
 set PATH=C:\tools\msys64\usr\bin;C:\Python27;%PATH%
 
+@rem win2016 workers do not have cmake on path
+set PATH=%PATH%;C:\Program Files\CMake\bin
+
 @rem If this is a PR using RUN_TESTS_FLAGS var, then add flags to filter tests
 if defined KOKORO_GITHUB_PULL_REQUEST_NUMBER if defined RUN_TESTS_FLAGS (
   chocolatey install -y jq

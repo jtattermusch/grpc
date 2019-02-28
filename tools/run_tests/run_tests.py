@@ -1634,7 +1634,10 @@ def build_step_environ(cfg):
 build_steps = list(
     set(
         jobset.JobSpec(
-            cmdline, environ=build_step_environ(build_config), flake_retries=2)
+            cmdline,
+            environ=build_step_environ(build_config),
+            timeout_seconds=10 * 60,
+            flake_retries=2)
         for l in languages
         for cmdline in l.pre_build_steps()))
 if make_targets:

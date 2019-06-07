@@ -47,13 +47,14 @@ namespace Grpc.Core
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of <c>ClientBase</c> class.
-        /// </summary>
-        /// <param name="channel">The channel to use for remote call invocation.</param>
-        public ClientBase(Channel channel) : base(channel)
-        {
-        }
+        ///// <summary>
+        ///// Initializes a new instance of <c>ClientBase</c> class.
+        ///// </summary>
+        ///// <param name="channel">The channel to use for remote call invocation.</param>
+        //public ClientBase(Channel channel) : base(channel)
+        //{
+            // TODOOOOOOO: fix this....
+        //}
 
         /// <summary>
         /// Initializes a new instance of <c>ClientBase</c> class.
@@ -109,13 +110,14 @@ namespace Grpc.Core
             this.callInvoker = configuration.CreateDecoratedCallInvoker();
         }
 
-        /// <summary>
-        /// Initializes a new instance of <c>ClientBase</c> class.
-        /// </summary>
-        /// <param name="channel">The channel to use for remote call invocation.</param>
-        public ClientBase(Channel channel) : this(new DefaultCallInvoker(channel))
-        {
-        }
+        ///// <summary>
+        ///// Initializes a new instance of <c>ClientBase</c> class.
+        ///// </summary>
+        ///// <param name="channel">The channel to use for remote call invocation.</param>
+        //public ClientBase(Channel channel) : this(new DefaultCallInvoker(channel))
+        //{
+            // TODOOOOOOO: fix this....
+        //}
 
         /// <summary>
         /// Initializes a new instance of <c>ClientBase</c> class.

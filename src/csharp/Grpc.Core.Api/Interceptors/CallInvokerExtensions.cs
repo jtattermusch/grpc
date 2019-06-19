@@ -32,6 +32,53 @@ namespace Grpc.Core.Interceptors
         /// the invoker with the given interceptor.
         /// </summary>
         /// <param name="invoker">The underlying invoker to intercept.</param>
+        /// <param name="interceptor">The interceptor to intercept calls to the invoker with.</param>
+        /// <remarks>
+        /// Multiple interceptors can be added on top of each other by calling
+        /// "invoker.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+        /// Interceptors can be later added to an existing intercepted CallInvoker, effectively
+        /// building a chain like "invoker.Intercept(c).Intercept(b).Intercept(a)".  Note that
+        /// in this case, the last interceptor added will be the first to take control.
+        /// </remarks>
+        public static CallInvoker Intercept(this CallInvoker invoker, Interceptor interceptor)
+        {
+            return new InterceptingCallInvoker(invoker, interceptor);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Grpc.Core.CallInvoker" /> instance that intercepts
+        /// the invoker with the given interceptors.
+        /// </summary>
+        /// <param name="invoker">The channel to intercept.</param>
+        /// <param name="interceptors">
+        /// An array of interceptors to intercept the calls to the invoker with.
+        /// Control is passed to the interceptors in the order specified.
+        /// </param>
+        /// <remarks>
+        /// Multiple interceptors can be added on top of each other by calling
+        /// "invoker.Intercept(a, b, c)".  The order of invocation will be "a", "b", and then "c".
+        /// Interceptors can be later added to an existing intercepted CallInvoker, effectively
+        /// building a chain like "invoker.Intercept(c).Intercept(b).Intercept(a)".  Note that
+        /// in this case, the last interceptor added will be the first to take control.
+        /// </remarks>
+        public static CallInvoker Intercept(this CallInvoker invoker, params Interceptor[] interceptors)
+        {
+            GrpcPreconditions.CheckNotNull(invoker, nameof(invoker));
+            GrpcPreconditions.CheckNotNull(interceptors, nameof(interceptors));
+
+            foreach (var interceptor in interceptors.Reverse())
+            {
+                invoker = Intercept(invoker, interceptor);
+            }
+
+            return invoker;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Grpc.Core.CallInvoker" /> instance that intercepts
+        /// the invoker with the given interceptor.
+        /// </summary>
+        /// <param name="invoker">The underlying invoker to intercept.</param>
         /// <param name="interceptor">
         /// An interceptor delegate that takes the request metadata to be sent with an outgoing call
         /// and returns a <see cref="Grpc.Core.Metadata" /> instance that will replace the existing

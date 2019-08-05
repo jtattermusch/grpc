@@ -199,17 +199,46 @@ namespace Grpc.IntegrationTesting
 
         private void RunUnary(Channel channel, IInterarrivalTimer timer, BasicProfiler optionalProfiler)
         {
+              
+            var native = NativeMethods.Get();
+
+            
+            // replace the implementation of a native method with a fake
+            NativeMethods.Delegates.grpcsharp_call_start_unary_delegate fakeCallStartUnary = (CallSafeHandle call, BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags metadataFlags) => {
+                return native.grpcsharp_test_call_start_unary_echo(call, ctx, sendBuffer, sendBufferLen, writeFlags, metadataArray, metadataFlags);
+            };
+            var origCallStartUnary = native.grpcsharp_call_start_unary;
+            native.GetType().GetField(nameof(native.grpcsharp_call_start_unary)).SetValue(native, fakeCallStartUnary);
+            
+
+            NativeMethods.Delegates.grpcsharp_completion_queue_pluck_delegate fakeCqPluck = (CompletionQueueSafeHandle cq, IntPtr tag) => {
+                return new CompletionQueueEvent {
+                    type = CompletionQueueEvent.CompletionType.OpComplete,
+                    success = 1,
+                    tag = tag
+                };
+            };
+            var origCqPluck = native.grpcsharp_completion_queue_pluck;
+            native.GetType().GetField(nameof(native.grpcsharp_completion_queue_pluck)).SetValue(native, fakeCqPluck);
+
             if (optionalProfiler != null)
             {
                 Profilers.SetForCurrentThread(optionalProfiler);
             }
+
+            
 
             bool profilerReset = false;
 
             var client = new BenchmarkService.BenchmarkServiceClient(channel);
             var request = CreateSimpleRequest();
             var stopwatch = new Stopwatch();
+            
+            //var native = NativeMethods.Get();
 
+            int oldCpu = native.gprsharp_cpu_current_cpu();
+            int numOfCpuChanges = 0;
+            bool statsReset = false;
             while (!stoppedCts.Token.IsCancellationRequested)
             {
                 // after the first stats reset, also reset the profiler.
@@ -219,9 +248,26 @@ namespace Grpc.IntegrationTesting
                     profilerReset = true;
                 }
 
+                if (!statsReset && statsResetCount.Count > 0)
+                {
+                    //Console.WriteLine("switching back to normal impl.");
+                    //native.GetType().GetField(nameof(native.grpcsharp_call_start_unary)).SetValue(native, origCallStartUnary);
+                    //native.GetType().GetField(nameof(native.grpcsharp_completion_queue_pluck)).SetValue(native, origCqPluck);
+
+                    statsReset = true;
+                }
+
                 stopwatch.Restart();
                 client.UnaryCall(request);
                 stopwatch.Stop();
+
+                int newCpu = native.gprsharp_cpu_current_cpu();
+                if (newCpu != oldCpu)
+                {
+                    numOfCpuChanges ++;
+                    Console.WriteLine("CPU change " + oldCpu + " -> " + newCpu + "(total " + numOfCpuChanges +")");
+                    oldCpu = newCpu;
+                }
 
                 // spec requires data point in nanoseconds.
                 threadLocalHistogram.Value.AddObservation(stopwatch.Elapsed.TotalSeconds * SecondsToNanos);
@@ -318,7 +364,23 @@ namespace Grpc.IntegrationTesting
             {
                 GrpcPreconditions.CheckArgument(rpcType == RpcType.Unary, "Sync client can only be used for Unary calls in C#");
                 // create a dedicated thread for the synchronous client
-                return Task.Factory.StartNew(() => RunUnary(channel, timer, optionalProfiler), TaskCreationOptions.LongRunning);
+                
+                var thread = new Thread(new ThreadStart(() => { 
+                    
+                    //foreach(ProcessThread pt in Process.GetCurrentProcess().Threads)
+                    //{
+                        //int utid = GetCurrentThreadId();
+                        //if (utid == pt.Id)
+                        //{
+                          //pt.ProcessorAffinity = (IntPtr)(1); // Set affinity for this
+                        // }
+                    //}
+                    //Thread.BeginThreadAffinity(); 
+                    
+                    RunUnary(channel, timer, optionalProfiler); } ));
+                thread.Start();
+
+                return Task.Factory.StartNew(() => { thread.Join(); }, TaskCreationOptions.LongRunning);
             }
             else if (clientType == ClientType.AsyncClient)
             {

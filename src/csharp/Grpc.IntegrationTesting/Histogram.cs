@@ -48,6 +48,7 @@ namespace Grpc.IntegrationTesting
         double sumOfSquares;
         double min;
         double max;
+        public int resetCount = 0;
 
         public Histogram(double resolution, double maxPossible)
         {
@@ -160,6 +161,7 @@ namespace Grpc.IntegrationTesting
             {
                 this.buckets[i] = 0;
             }
+            this.resetCount ++;
         }
     }
 }

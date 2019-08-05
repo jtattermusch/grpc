@@ -17,10 +17,12 @@
 #endregion
 
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using BenchmarkDotNet.Attributes;
 using Grpc.Core;
 using Grpc.Core.Internal;
 using System;
+using System.Threading;
 
 namespace Grpc.Microbenchmarks
 {
@@ -30,6 +32,7 @@ namespace Grpc.Microbenchmarks
 
     [ClrJob, CoreJob] // test .NET Core and .NET Framework
     [MemoryDiagnoser] // allocations
+    //[GcMode(Server=true)]
     public class UnaryCallOverheadBenchmark
     {
         private static readonly Task<string> CompletedString = Task.FromResult("");
@@ -39,8 +42,14 @@ namespace Grpc.Microbenchmarks
         private int payloadSize;
         private byte[] payload;
 
+        private readonly ConcurrentQueue<EchoParams> workQueue = new ConcurrentQueue<EchoParams>();
+        private readonly ConcurrentQueue<byte[]> resultQueue = new ConcurrentQueue<byte[]>();
+        private Thread workerThread;
+
+        NativeMethods native = NativeMethods.Get();
+
         // size of payload that is sent as request and received as response.
-        [Params(0, 1, 10, 100, 1000)]
+        [Params(0)]
         public int PayloadSize
         {
             get { return payloadSize; }
@@ -51,14 +60,62 @@ namespace Grpc.Microbenchmarks
             }
         }
 
+        [Params(true, false)]
+        public bool DispatchToOtherThread
+        { get; set; }
+
         [Benchmark]
         public byte[] SyncUnaryCallOverhead()
         {
             return client.Ping(payload, new CallOptions());
         }
 
+        //[Benchmark]
+        //public byte[] SyncUnaryCallOverheadDispatch()
+        //{
+        //    return PingFromDifferentThread();
+        //}
+
+        //[Benchmark]
+        public void Sleepnano()
+        {
+            native.grpcsharp_sleep_micros(100);
+
+        }
+
+        private void StartUnaryEchoDispatch(EchoParams args)
+        {
+            workQueue.Enqueue(args);
+            byte[] result;
+            while (!resultQueue.TryDequeue(out result))
+            {
+            }
+            //return result;
+        }
+
         Channel channel;
         PingClient client;
+
+        private void WorkerBody()
+        {
+            Console.WriteLine("started thread");
+            while(true)
+            {
+                EchoParams arg;
+                while (!workQueue.TryDequeue(out arg))
+                {
+                }
+                if (arg.call == null)
+                {
+                    // exit the worker
+                    return;
+                }
+                //Console.WriteLine("processing");
+                native.grpcsharp_test_call_start_unary_echo(arg.call, arg.ctx, arg.sendBuffer, arg.sendBufferLen, arg.writeFlags, arg.metadataArray, arg.metadataFlags);
+                
+                resultQueue.Enqueue(null);
+            }
+        }
 
         [GlobalSetup]
         public void Setup()
@@ -71,7 +128,27 @@ namespace Grpc.Microbenchmarks
 
             // replace the implementation of a native method with a fake
             NativeMethods.Delegates.grpcsharp_call_start_unary_delegate fakeCallStartUnary = (CallSafeHandle call, BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags metadataFlags) => {
-                return native.grpcsharp_test_call_start_unary_echo(call, ctx, sendBuffer, sendBufferLen, writeFlags, metadataArray, metadataFlags);
+                if (DispatchToOtherThread)
+                {
+                    var args = new EchoParams
+                    {
+                        call = call,
+                        ctx = ctx,
+                        sendBuffer = sendBuffer,
+                        sendBufferLen = sendBufferLen,
+                        writeFlags = writeFlags,
+                        metadataArray = metadataArray,
+                        metadataFlags = metadataFlags
+
+                    };
+                    StartUnaryEchoDispatch(args);
+                    return CallError.OK;
+                }
+                else 
+                {
+                    return native.grpcsharp_test_call_start_unary_echo(call, ctx, sendBuffer, sendBufferLen, writeFlags, metadataArray, metadataFlags);
+                }
+                
             };
             native.GetType().GetField(nameof(native.grpcsharp_call_start_unary)).SetValue(native, fakeCallStartUnary);
 
@@ -83,11 +160,16 @@ namespace Grpc.Microbenchmarks
                 };
             };
             native.GetType().GetField(nameof(native.grpcsharp_completion_queue_pluck)).SetValue(native, fakeCqPluck);
+
+            workerThread = new Thread(new ThreadStart(WorkerBody));
+            workerThread.Start();
         }
 
         [GlobalCleanup]
         public async Task Cleanup()
         {
+            workQueue.Enqueue(default(EchoParams));
+            workerThread.Join();
             await channel.ShutdownAsync();
         }
 
@@ -99,6 +181,17 @@ namespace Grpc.Microbenchmarks
             {
                 return CallInvoker.BlockingUnaryCall(PingMethod, null, options, request);
             }
+        }
+
+         struct EchoParams
+        {
+            public CallSafeHandle call;
+            public BatchContextSafeHandle ctx;
+            public byte[] sendBuffer;
+            public UIntPtr sendBufferLen;
+            public WriteFlags writeFlags;
+            public MetadataArraySafeHandle metadataArray;
+            public CallFlags metadataFlags;
         }
     }
 }

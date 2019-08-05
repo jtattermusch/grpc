@@ -27,6 +27,7 @@
 #include <grpc/support/thd_id.h>
 
 #include <string.h>
+#include <sched.h>
 
 #ifdef GPR_WINDOWS
 #define GPR_EXPORT __declspec(dllexport)
@@ -649,7 +650,28 @@ GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_test_call_start_unary_echo(
   // echo initial metadata as if received from server (as trailing metadata)
   grpcsharp_metadata_array_move(&(ctx->recv_status_on_client.trailing_metadata),
                                 initial_metadata);
+
+  gpr_timespec orig = gpr_now(GPR_CLOCK_PRECISE);
+  gpr_timespec until = gpr_time_add(orig,
+                                 gpr_time_from_micros(10, GPR_TIMESPAN));
+  gpr_sleep_until(until);
+
+  //while (gpr_time_cmp(until, gpr_now(GPR_CLOCK_PRECISE)) > 0) {
+  //}
+
   return GRPC_CALL_OK;
+}
+
+GPR_EXPORT void GPR_CALLTYPE grpcsharp_sleep_micros(int micros) {
+  gpr_timespec orig = gpr_now(GPR_CLOCK_PRECISE);
+  gpr_timespec until = gpr_time_add(orig,
+                                 gpr_time_from_micros(micros, GPR_TIMESPAN));
+  gpr_sleep_until(until);
+
+  //while (gpr_time_cmp(until, gpr_now(GPR_CLOCK_PRECISE)) > 0) {
+  //}
+
+  return;
 }
 
 GPR_EXPORT grpc_call_error GPR_CALLTYPE grpcsharp_call_start_client_streaming(
@@ -1186,6 +1208,29 @@ typedef void(GPR_CALLTYPE* test_callback_funcptr)(int32_t success);
 GPR_EXPORT const char* GPR_CALLTYPE grpcsharp_version_string() {
   return grpc_version_string();
 }
+
+GPR_EXPORT int GPR_CALLTYPE gprsharp_cpu_current_cpu() {
+  
+  int cpucore = (int) gpr_cpu_current_cpu();
+
+  if (cpucore != 0)
+  {
+    int num_cores = (int)(gpr_cpu_num_cores());
+    cpu_set_t *cpup = CPU_ALLOC(num_cores);
+    GPR_ASSERT(cpup);
+    size_t size = CPU_ALLOC_SIZE(num_cores);
+    CPU_ZERO_S(size, cpup);
+    // Randomly choose the starting core
+    //int setstart = rand() % num_cores;
+    //for (int i = 0; i < cores; i++) {
+      CPU_SET_S(0, size, cpup);
+    //}
+    GPR_ASSERT(sched_setaffinity(0, size, cpup) == 0);
+    CPU_FREE(cpup);
+  }
+  return cpucore;
+}
+
 
 /* For testing */
 GPR_EXPORT void GPR_CALLTYPE

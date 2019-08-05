@@ -97,6 +97,8 @@ native_method_signatures = [
     'IntPtr grpcsharp_test_nop(IntPtr ptr)',
     'void grpcsharp_test_override_method(string methodName, string variant)',
     'CallError grpcsharp_test_call_start_unary_echo(CallSafeHandle call, BatchContextSafeHandle ctx, byte[] sendBuffer, UIntPtr sendBufferLen, WriteFlags writeFlags, MetadataArraySafeHandle metadataArray, CallFlags metadataFlags)',
+    'int gprsharp_cpu_current_cpu()',
+    'void grpcsharp_sleep_micros(int micros)',
 ]
 
 import re

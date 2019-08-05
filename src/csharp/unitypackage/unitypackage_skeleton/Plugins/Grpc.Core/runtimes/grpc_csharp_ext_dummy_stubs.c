@@ -410,3 +410,11 @@ void grpcsharp_test_call_start_unary_echo() {
   fprintf(stderr, "Should never reach here");
   abort();
 }
+void gprsharp_cpu_current_cpu() {
+  fprintf(stderr, "Should never reach here");
+  abort();
+}
+void grpcsharp_sleep_micros() {
+  fprintf(stderr, "Should never reach here");
+  abort();
+}

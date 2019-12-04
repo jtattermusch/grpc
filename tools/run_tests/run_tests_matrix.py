@@ -203,8 +203,7 @@ def _create_test_jobs(extra_args=[], inner_jobs=_DEFAULT_INNER_JOBS):
         configs=['dbg', 'opt'],
         platforms=['linux', 'macos', 'windows'],
         labels=['basictests', 'corelang'],
-        extra_args=
-        extra_args,  # don't use multi_target report because C has too many test cases
+        extra_args=extra_args + ['--report_multi_target'],
         inner_jobs=inner_jobs,
         timeout_seconds=_CPP_RUNTESTS_TIMEOUT)
 
@@ -242,8 +241,7 @@ def _create_test_jobs(extra_args=[], inner_jobs=_DEFAULT_INNER_JOBS):
         configs=['dbg', 'opt'],
         platforms=['linux', 'macos'],
         labels=['basictests', 'corelang'],
-        extra_args=
-        extra_args,  # don't use multi_target report because C++ has too many test cases
+        extra_args=extra_args + ['--report_multi_target'],
         inner_jobs=inner_jobs,
         timeout_seconds=_CPP_RUNTESTS_TIMEOUT)
 

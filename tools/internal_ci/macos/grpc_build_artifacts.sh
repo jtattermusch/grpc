@@ -18,6 +18,8 @@ set -ex
 # change to grpc repo root
 cd $(dirname $0)/../../..
 
+mono --version || echo true
+
 source tools/internal_ci/helper_scripts/prepare_build_macos_rc
 
 # install cython for all python versions
@@ -33,7 +35,7 @@ time bash tools/distrib/build_ruby_environment_macos.sh
 gem install rubygems-update
 update_rubygems
 
-tools/run_tests/task_runner.py -f artifact macos || FAILED="true"
+tools/run_tests/task_runner.py -f artifact macos csharp || FAILED="true"
 
 tools/internal_ci/helper_scripts/delete_nonartifacts.sh || true
 

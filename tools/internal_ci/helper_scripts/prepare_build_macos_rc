@@ -105,23 +105,6 @@ then
   export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
   export DOTNET_CLI_TELEMETRY_OPTOUT=true
 
-  # Xcode 10+ doesn't support building for i386 architecture
-  # sudo xcode-select -switch /Applications/Xcode_9.11.app/Contents/Developer/
-
-  mono --version
-
-  ls -l /Library/Frameworks/Mono.framework/Versions || true
-
-  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/ || true
-
-  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/ || true
-
-  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild || true
-
-  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild/Current || true
-
-  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild/Current/bin/ || true
-
   time curl -O https://download.mono-project.com/archive/6.4.0/macos-10-universal/MonoFramework-MDK-6.4.0.198.macos10.xamarin.universal.pkg
   time sudo installer -pkg ./MonoFramework-MDK-6.4.0.198.macos10.xamarin.universal.pkg -target /
 

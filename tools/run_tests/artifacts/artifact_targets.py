@@ -351,13 +351,20 @@ class ProtocArtifact:
 def targets():
     """Gets list of supported targets"""
     return ([
-        Cls(platform, arch) for Cls in (CSharpExtArtifact, ProtocArtifact)
-        for platform in ('linux', 'macos', 'windows') for arch in ('x86', 'x64')
-    ] + [
+        CSharpExtArtifact('linux', 'x86'),
+        CSharpExtArtifact('linux', 'x64'),
+        CSharpExtArtifact('macos', 'x64'),  # x64 macos artifact no longer supported
+        CSharpExtArtifact('windows', 'x64'),
+        CSharpExtArtifact('windows', 'x64'),
         CSharpExtArtifact('linux', 'android', arch_abi='arm64-v8a'),
         CSharpExtArtifact('linux', 'android', arch_abi='armeabi-v7a'),
         CSharpExtArtifact('linux', 'android', arch_abi='x86'),
         CSharpExtArtifact('macos', 'ios'),
+        ProtocArtifact('linux', 'x86'),
+        ProtocArtifact('linux', 'x64'),
+        ProtocArtifact('macos', 'x64'),  # x86 macos artifact no longer supported
+        ProtocArtifact('windows', 'x86'),
+        ProtocArtifact('windows', 'x64'),
         # TODO(https://github.com/grpc/grpc/issues/20283)
         # Add manylinux2010_x86 targets once this issue is resolved.
         PythonArtifact('manylinux2010', 'x86', 'cp27-cp27m'),

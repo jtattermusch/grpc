@@ -122,6 +122,9 @@ then
 
   ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild/Current/bin/ || true
 
+  time curl -O https://download.mono-project.com/archive/6.4.0/macos-10-universal/MonoFramework-MDK-6.4.0.198.macos10.xamarin.universal.pkg
+  time sudo installer -pkg ./MonoFramework-MDK-6.4.0.198.macos10.xamarin.universal.pkg -target /
+
   # make sure we have the golang 1.13+
   # recent golang is currently required by boringssl's cmake build
   # and C# uses cmake to build grpc_csharp_ext

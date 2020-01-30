@@ -111,6 +111,15 @@ then
   mono --version
 
   ls -l /Library/Frameworks/Mono.framework/Versions || true
+
+  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/ || true
+
+  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/ || true
+
+  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild || true
+
+  ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild/Current || true
+
   ls /Library/Frameworks/Mono.framework/Versions/Current/lib/mono/msbuild/Current/bin/ || true
 
   # make sure we have the golang 1.13+

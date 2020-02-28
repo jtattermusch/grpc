@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <grpc/support/alloc.h>
 #include <grpc/support/log.h>
@@ -284,6 +285,15 @@ static void test_stress(int amount_of_stress) {
 
 int main(int argc, char* argv[]) {
   grpc::testing::TestEnvironment env(argc, argv);
+
+  int nanos = gpr_now(GPR_CLOCK_MONOTONIC).tv_nsec;
+  srand((unsigned) nanos);
+  int r = rand();
+
+  if (r % 3 == 0)  // 33% flaky
+  {
+      GPR_ASSERT(0);
+  }
 
   test_get();
   test_ll();

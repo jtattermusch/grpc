@@ -21,6 +21,7 @@ grpc_package(name = "test/core/avl")
 grpc_cc_test(
     name = "avl_test",
     srcs = ["avl_test.cc"],
+    flaky = True,
     language = "C++",
     uses_polling = False,
     deps = [

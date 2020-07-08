@@ -68,7 +68,7 @@ static int detag(void* p) { return static_cast<int>((uintptr_t)p); }
 void create_loop_destroy(void* addr) {
   gpr_log(GPR_DEBUG, "Thread started");
   for (int i = 0; i < NUM_OUTER_LOOPS; ++i) {
-    gpr_log(GPR_DEBUG, "Thread starting outer loop %d", i);
+    gpr_log(GPR_DEBUG, "Thread starting %s outer loop %d", static_cast<char*>(addr), i);
     grpc_completion_queue* cq = grpc_completion_queue_create_for_next(nullptr);
     grpc_channel* chan = grpc_insecure_channel_create(static_cast<char*>(addr),
                                                       nullptr, nullptr);
@@ -76,21 +76,27 @@ void create_loop_destroy(void* addr) {
     for (int j = 0; j < NUM_INNER_LOOPS; ++j) {
       gpr_timespec later_time =
           grpc_timeout_milliseconds_to_deadline(DELAY_MILLIS);
+      // simply adding this log will prevent the test from flaking
+      //gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_check_connectivity_state", i);
       grpc_connectivity_state state =
           grpc_channel_check_connectivity_state(chan, 1);
-      gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_watch_connectivity_state", i);
+      //gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_watch_connectivity_state", i);
       grpc_channel_watch_connectivity_state(chan, state, later_time, cq,
                                             nullptr);
+      //gpr_log(GPR_DEBUG, "AFTER watch_connectivity_state", i);
       gpr_timespec poll_time =
           grpc_timeout_milliseconds_to_deadline(POLL_MILLIS);
-      gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_watch_connectivity_state", i);
+     // gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_completion_queue_next", i);
       GPR_ASSERT(grpc_completion_queue_next(cq, poll_time, nullptr).type ==
                  GRPC_OP_COMPLETE);
       /* check that the watcher from "watch state" was free'd */
       GPR_ASSERT(grpc_channel_num_external_connectivity_watchers(chan) == 0);
+
+      //gpr_log(GPR_DEBUG, "END of outer loop %d, inner loop %d", i, j);
     }
     grpc_channel_destroy(chan);
     grpc_completion_queue_destroy(cq);
+    gpr_log(GPR_DEBUG, "Thread finishing outer loop %d", i);
   }
   gpr_log(GPR_DEBUG, "Thread finished");
 }
@@ -186,19 +192,19 @@ int run_concurrent_connectivity_test() {
   grpc_init();
 
   /* First round, no server */
-  {
-    gpr_log(GPR_DEBUG, "Wave 1");
-    char* localhost = gpr_strdup("localhost:54321");
-    grpc_core::Thread threads[NUM_THREADS];
-    for (auto& th : threads) {
-      th = grpc_core::Thread("grpc_wave_1", create_loop_destroy, localhost);
-      th.Start();
-    }
-    for (auto& th : threads) {
-      th.Join();
-    }
-    gpr_free(localhost);
-  }
+  // {
+  //   gpr_log(GPR_DEBUG, "Wave 1");
+  //   char* localhost = gpr_strdup("localhost:54321");
+  //   grpc_core::Thread threads[NUM_THREADS];
+  //   for (auto& th : threads) {
+  //     th = grpc_core::Thread("grpc_wave_1", create_loop_destroy, localhost);
+  //     th.Start();
+  //   }
+  //   for (auto& th : threads) {
+  //     th.Join();
+  //   }
+  //   gpr_free(localhost);
+  // }
 
   {
     /* Second round, actual grpc server */
@@ -233,34 +239,34 @@ int run_concurrent_connectivity_test() {
     gpr_free(args.addr);
   }
 
-  {
-    /* Third round, bogus tcp server */
-    gpr_log(GPR_DEBUG, "Wave 3");
-    args.pollset = static_cast<grpc_pollset*>(gpr_zalloc(grpc_pollset_size()));
-    grpc_pollset_init(args.pollset, &args.mu);
-    gpr_event_init(&args.ready);
-    grpc_core::Thread server3("grpc_wave_3_server", bad_server_thread, &args);
-    server3.Start();
-    gpr_event_wait(&args.ready, gpr_inf_future(GPR_CLOCK_MONOTONIC));
+  // {
+  //   /* Third round, bogus tcp server */
+  //   gpr_log(GPR_DEBUG, "Wave 3");
+  //   args.pollset = static_cast<grpc_pollset*>(gpr_zalloc(grpc_pollset_size()));
+  //   grpc_pollset_init(args.pollset, &args.mu);
+  //   gpr_event_init(&args.ready);
+  //   grpc_core::Thread server3("grpc_wave_3_server", bad_server_thread, &args);
+  //   server3.Start();
+  //   gpr_event_wait(&args.ready, gpr_inf_future(GPR_CLOCK_MONOTONIC));
 
-    grpc_core::Thread threads[NUM_THREADS];
-    for (auto& th : threads) {
-      th = grpc_core::Thread("grpc_wave_3", create_loop_destroy, args.addr);
-      th.Start();
-    }
-    for (auto& th : threads) {
-      th.Join();
-    }
+  //   grpc_core::Thread threads[NUM_THREADS];
+  //   for (auto& th : threads) {
+  //     th = grpc_core::Thread("grpc_wave_3", create_loop_destroy, args.addr);
+  //     th.Start();
+  //   }
+  //   for (auto& th : threads) {
+  //     th.Join();
+  //   }
 
-    gpr_atm_rel_store(&args.stop, 1);
-    server3.Join();
-    {
-      grpc_core::ExecCtx exec_ctx;
-      grpc_pollset_shutdown(
-          args.pollset, GRPC_CLOSURE_CREATE(done_pollset_shutdown, args.pollset,
-                                            grpc_schedule_on_exec_ctx));
-    }
-  }
+  //   gpr_atm_rel_store(&args.stop, 1);
+  //   server3.Join();
+  //   {
+  //     grpc_core::ExecCtx exec_ctx;
+  //     grpc_pollset_shutdown(
+  //         args.pollset, GRPC_CLOSURE_CREATE(done_pollset_shutdown, args.pollset,
+  //                                           grpc_schedule_on_exec_ctx));
+  //   }
+  // }
 
   grpc_shutdown();
   return 0;

@@ -91,8 +91,20 @@ static void print_current_stack() {
   frames = frames < MAX_CALLERS_SHOWN ? frames : MAX_CALLERS_SHOWN;
   for (unsigned int i = 0; i < frames; i++) {
     SymFromAddrW(process, (DWORD64)(callers_stack[i]), 0, symbol);
-    fwprintf(stderr, L"*** %d: %016I64X %ls - %016I64X\n", i,
-             (DWORD64)callers_stack[i], symbol->Name, (DWORD64)symbol->Address);
+
+    PWSTR file_name = L"<<no line info>>";
+    int line_number = 0;
+    IMAGEHLP_LINE line;
+    line.SizeOfStruct = sizeof(IMAGEHLP_LINE);
+    DWORD displacement = 0;
+    if (SymGetLineFromAddrW(process, (DWORD64)(callers_stack[i]), &displacement, &line))
+    {
+        file_name = line.FileName;
+        line_number = (int)line.LineNumber;
+    }
+
+    fwprintf(stderr, L"*** %d: %016I64X %ls - %016I64X (%ls:%d)\n", i,
+             (DWORD64)callers_stack[i], symbol->Name, (DWORD64)symbol->Address, file_name, line_number);
     fflush(stderr);
   }
 

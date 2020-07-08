@@ -51,7 +51,7 @@ static unsigned seed(void) { return (unsigned)_getpid(); }
 #include <windows.h>
 
 #include <tchar.h>
-#include <tlhelp32.h>
+//#include <tlhelp32.h>
 
 // disable warning 4091 - dbghelp.h is broken for msvc2015
 #pragma warning(disable : 4091)
@@ -62,11 +62,71 @@ static unsigned seed(void) { return (unsigned)_getpid(); }
 #pragma comment(lib, "dbghelp.lib")
 #endif
 
-static void print_stack_other_thread(HANDLE thread, CONTEXT c) {
-  //CONTEXT c;
-  //SuspendThread(thread);
-  //GPR_ASSERT(GetThreadContext(thread, &c));
+// BOOL ListProcessThreads( DWORD dwOwnerPID ) 
+// { 
+//   HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
+//   THREADENTRY32 te32;
+ 
+//   // Take a snapshot of all running threads  
+//   hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
+//   if( hThreadSnap == INVALID_HANDLE_VALUE ) 
+//     return( FALSE ); 
+ 
+//   // Fill in the size of the structure before using it. 
+//   te32.dwSize = sizeof(THREADENTRY32 ); 
+ 
+//   // Retrieve information about the first thread,
+//   // and exit if unsuccessful
+//   if( !Thread32First( hThreadSnap, &te32 ) ) 
+//   {   
+//     fwprintf(stderr, L"Error listing threads\n");
+//     fflush(stderr);
 
+//     CloseHandle( hThreadSnap );     // Must clean up the snapshot object!
+//     return( FALSE );
+//   }
+
+//   // Now walk the thread list of the system,
+//   // and display information about each thread
+//   // associated with the specified process
+//   do 
+//   { 
+//     if( te32.th32OwnerProcessID == dwOwnerPID )
+//     {
+//       fwprintf(stderr, L"  THREAD ID %d\n", (int) te32.th32ThreadID);
+//       fflush(stderr);
+
+//       //if (GetThreadId(hThread) == GetCurrentThreadId())
+//       if (te32.th32ThreadID != GetCurrentThreadId())
+//       {
+//          HANDLE thread_handle = OpenThread(THREAD_ALL_ACCESS, false, te32.th32ThreadID);
+//          GPR_ASSERT(thread_handle);
+//          CONTEXT c;
+//          memset(&c, 0, sizeof(CONTEXT));
+//          c.ContextFlags = CONTEXT_FULL;
+//          SuspendThread(thread_handle);  // TODO: resume thread at some point
+//          GPR_ASSERT(GetThreadContext(thread_handle, &c));
+//          print_stack_other_thread(thread_handle, c);
+//       }
+//       else 
+//       {
+//          CONTEXT c;
+//          RtlCaptureContext(&c);
+//          print_stack_other_thread(GetCurrentThread(), c);
+//          fwprintf(stderr, L"skipping thread\n");
+//       }
+
+//       fwprintf(stderr, L"\n");
+//       fflush(stderr);
+//     }
+//   } while( Thread32Next(hThreadSnap, &te32 ) );
+
+// //  Don't forget to clean up the snapshot object.
+//   CloseHandle( hThreadSnap );
+//   return( TRUE );
+// }
+
+static void print_stack_from_context(HANDLE thread, CONTEXT c) {
   STACKFRAME s;  // in/out stackframe
   memset(&s, 0, sizeof(s));
   DWORD imageType;
@@ -102,28 +162,17 @@ static void print_stack_other_thread(HANDLE thread, CONTEXT c) {
 #endif
 
   HANDLE process = GetCurrentProcess();
-  //HANDLE thread = GetCurrentThread();
-
-  SymInitialize(process, NULL, TRUE);
 
   SYMBOL_INFOW* symbol =
       (SYMBOL_INFOW*)calloc(sizeof(SYMBOL_INFOW) + 256 * sizeof(wchar_t), 1);
   symbol->MaxNameLen = 255;
   symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
 
-  int max_callers = 50;
-  int i = 0;
-
-  while (StackWalk(imageType, process, thread, &s, &c, 0,
-                   SymFunctionTableAccess, SymGetModuleBase, 0)) {
-    BOOL has_symbol =
-        SymFromAddrW(process, (DWORD64)(s.AddrPC.Offset), 0, symbol);
+  const unsigned short MAX_CALLERS_SHOWN = 32;
+  for (int frame = 0; frame < MAX_CALLERS_SHOWN && StackWalk(imageType, process, thread, &s, &c, 0,
+                   SymFunctionTableAccess, SymGetModuleBase, 0); frame++) {
+    SymFromAddrW(process, (DWORD64)(s.AddrPC.Offset), 0, symbol);
     
-    //fwprintf(
-    //    stderr, L"*** %016I64X %ls - %016I64X\n", (DWORD64)(s.AddrPC.Offset),
-    //    has_symbol ? symbol->Name : L"<<no symbol>>", (DWORD64)symbol->Address);
-    //#fflush(stderr);
-
     PWSTR file_name = L"<<no line info>>";
     int line_number = 0;
     IMAGEHLP_LINE line;
@@ -135,192 +184,19 @@ static void print_stack_other_thread(HANDLE thread, CONTEXT c) {
         line_number = (int)line.LineNumber;
     }
 
-    fwprintf(stderr, L"*** %d: %016I64X %ls - %016I64X (%ls:%d)\n", i,
+    fwprintf(stderr, L"*** %d: %016I64X %ls - %016I64X (%ls:%d)\n", frame,
              (DWORD64)(s.AddrPC.Offset), symbol->Name, (DWORD64)symbol->Address, file_name, line_number);
     fflush(stderr);
-
-    max_callers --;
-    i++;
-
-    if (max_callers <= 0)
-    {
-      break;
-    }
   }
 
   free(symbol);
-}
-
-BOOL ListProcessThreads( DWORD dwOwnerPID ) 
-{ 
-  HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
-  THREADENTRY32 te32;
- 
-  // Take a snapshot of all running threads  
-  hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
-  if( hThreadSnap == INVALID_HANDLE_VALUE ) 
-    return( FALSE ); 
- 
-  // Fill in the size of the structure before using it. 
-  te32.dwSize = sizeof(THREADENTRY32 ); 
- 
-  // Retrieve information about the first thread,
-  // and exit if unsuccessful
-  if( !Thread32First( hThreadSnap, &te32 ) ) 
-  {   
-    fwprintf(stderr, L"Error listing threads\n");
-    fflush(stderr);
-
-    CloseHandle( hThreadSnap );     // Must clean up the snapshot object!
-    return( FALSE );
-  }
-
-  // Now walk the thread list of the system,
-  // and display information about each thread
-  // associated with the specified process
-  do 
-  { 
-    if( te32.th32OwnerProcessID == dwOwnerPID )
-    {
-      fwprintf(stderr, L"  THREAD ID %d\n", (int) te32.th32ThreadID);
-      fflush(stderr);
-
-      //if (GetThreadId(hThread) == GetCurrentThreadId())
-      if (te32.th32ThreadID != GetCurrentThreadId())
-      {
-         HANDLE thread_handle = OpenThread(THREAD_ALL_ACCESS, false, te32.th32ThreadID);
-         GPR_ASSERT(thread_handle);
-         CONTEXT c;
-         memset(&c, 0, sizeof(CONTEXT));
-         c.ContextFlags = CONTEXT_FULL;
-         SuspendThread(thread_handle);  // TODO: resume thread at some point
-         GPR_ASSERT(GetThreadContext(thread_handle, &c));
-         print_stack_other_thread(thread_handle, c);
-      }
-      else 
-      {
-         CONTEXT c;
-         RtlCaptureContext(&c);
-         print_stack_other_thread(GetCurrentThread(), c);
-         fwprintf(stderr, L"skipping thread\n");
-      }
-
-      fwprintf(stderr, L"\n");
-      fflush(stderr);
-    }
-  } while( Thread32Next(hThreadSnap, &te32 ) );
-
-//  Don't forget to clean up the snapshot object.
-  CloseHandle( hThreadSnap );
-  return( TRUE );
 }
 
 static void print_current_stack() {
-  typedef USHORT(WINAPI * CaptureStackBackTraceType)(
-      __in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
-  CaptureStackBackTraceType func = (CaptureStackBackTraceType)(GetProcAddress(
-      LoadLibrary(_T("kernel32.dll")), "RtlCaptureStackBackTrace"));
-
-  if (func == NULL) return;  // WOE 29.SEP.2010
-
-// Quote from Microsoft Documentation:
-// ## Windows Server 2003 and Windows XP:
-// ## The sum of the FramesToSkip and FramesToCapture parameters must be less
-// than 63.
-#define MAX_CALLERS 62
-
-  void* callers_stack[MAX_CALLERS];
-  unsigned short frames;
-  SYMBOL_INFOW* symbol;
-  HANDLE process;
-  process = GetCurrentProcess();
-  SymInitialize(process, NULL, TRUE);
-  frames = (func)(0, MAX_CALLERS, callers_stack, NULL);
-  symbol =
-      (SYMBOL_INFOW*)calloc(sizeof(SYMBOL_INFOW) + 256 * sizeof(wchar_t), 1);
-  symbol->MaxNameLen = 255;
-  symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
-
-  const unsigned short MAX_CALLERS_SHOWN = 32;
-  frames = frames < MAX_CALLERS_SHOWN ? frames : MAX_CALLERS_SHOWN;
-  for (unsigned int i = 0; i < frames; i++) {
-    SymFromAddrW(process, (DWORD64)(callers_stack[i]), 0, symbol);
-
-    PWSTR file_name = L"<<no line info>>";
-    int line_number = 0;
-    IMAGEHLP_LINE line;
-    line.SizeOfStruct = sizeof(IMAGEHLP_LINE);
-    DWORD displacement = 0;
-    if (SymGetLineFromAddrW(process, (DWORD64)(callers_stack[i]), &displacement, &line))
-    {
-        file_name = line.FileName;
-        line_number = (int)line.LineNumber;
-    }
-
-    fwprintf(stderr, L"*** %d: %016I64X %ls - %016I64X (%ls:%d)\n", i,
-             (DWORD64)callers_stack[i], symbol->Name, (DWORD64)symbol->Address, file_name, line_number);
-    fflush(stderr);
-  }
-
-  free(symbol);
+  CONTEXT context;
+  RtlCaptureContext(&context);
+  print_stack_from_context(GetCurrentThread(), context);
 }
-
-static void print_stack_from_context(CONTEXT c) {
-  STACKFRAME s;  // in/out stackframe
-  memset(&s, 0, sizeof(s));
-  DWORD imageType;
-#ifdef _M_IX86
-  // normally, call ImageNtHeader() and use machine info from PE header
-  imageType = IMAGE_FILE_MACHINE_I386;
-  s.AddrPC.Offset = c.Eip;
-  s.AddrPC.Mode = AddrModeFlat;
-  s.AddrFrame.Offset = c.Ebp;
-  s.AddrFrame.Mode = AddrModeFlat;
-  s.AddrStack.Offset = c.Esp;
-  s.AddrStack.Mode = AddrModeFlat;
-#elif _M_X64
-  imageType = IMAGE_FILE_MACHINE_AMD64;
-  s.AddrPC.Offset = c.Rip;
-  s.AddrPC.Mode = AddrModeFlat;
-  s.AddrFrame.Offset = c.Rbp;
-  s.AddrFrame.Mode = AddrModeFlat;
-  s.AddrStack.Offset = c.Rsp;
-  s.AddrStack.Mode = AddrModeFlat;
-#elif _M_IA64
-  imageType = IMAGE_FILE_MACHINE_IA64;
-  s.AddrPC.Offset = c.StIIP;
-  s.AddrPC.Mode = AddrModeFlat;
-  s.AddrFrame.Offset = c.IntSp;
-  s.AddrFrame.Mode = AddrModeFlat;
-  s.AddrBStore.Offset = c.RsBSP;
-  s.AddrBStore.Mode = AddrModeFlat;
-  s.AddrStack.Offset = c.IntSp;
-  s.AddrStack.Mode = AddrModeFlat;
-#else
-#error "Platform not supported!"
-#endif
-
-  HANDLE process = GetCurrentProcess();
-  HANDLE thread = GetCurrentThread();
-
-  SYMBOL_INFOW* symbol =
-      (SYMBOL_INFOW*)calloc(sizeof(SYMBOL_INFOW) + 256 * sizeof(wchar_t), 1);
-  symbol->MaxNameLen = 255;
-  symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
-
-  while (StackWalk(imageType, process, thread, &s, &c, 0,
-                   SymFunctionTableAccess, SymGetModuleBase, 0)) {
-    BOOL has_symbol =
-        SymFromAddrW(process, (DWORD64)(s.AddrPC.Offset), 0, symbol);
-    fwprintf(
-        stderr, L"*** %016I64X %ls - %016I64X\n", (DWORD64)(s.AddrPC.Offset),
-        has_symbol ? symbol->Name : L"<<no symbol>>", (DWORD64)symbol->Address);
-    fflush(stderr);
-  }
-
-  free(symbol);
-}
-
 
 static LONG crash_handler(struct _EXCEPTION_POINTERS* ex_info) {
   fprintf(stderr, "Exception handler called, dumping information\n");
@@ -335,7 +211,7 @@ static LONG crash_handler(struct _EXCEPTION_POINTERS* ex_info) {
     exrec = exrec->ExceptionRecord;
   }
   if (try_to_print_stack) {
-    print_stack_from_context(*ex_info->ContextRecord);
+    print_stack_from_context(GetCurrentThread(), *ex_info->ContextRecord);
   }
   if (IsDebuggerPresent()) {
     __debugbreak();
@@ -348,7 +224,7 @@ static LONG crash_handler(struct _EXCEPTION_POINTERS* ex_info) {
 static void abort_handler(int sig) {
   fprintf(stderr, "Abort handler called.\n");
 
-  ListProcessThreads(GetCurrentProcessId() );
+  //ListProcessThreads(GetCurrentProcessId() );
 
   print_current_stack();
   if (IsDebuggerPresent()) {

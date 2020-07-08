@@ -66,7 +66,9 @@ static void* tag(int n) { return (void*)static_cast<uintptr_t>(n); }
 static int detag(void* p) { return static_cast<int>((uintptr_t)p); }
 
 void create_loop_destroy(void* addr) {
+  gpr_log(GPR_DEBUG, "Thread started");
   for (int i = 0; i < NUM_OUTER_LOOPS; ++i) {
+    gpr_log(GPR_DEBUG, "Thread starting outer loop %d", i);
     grpc_completion_queue* cq = grpc_completion_queue_create_for_next(nullptr);
     grpc_channel* chan = grpc_insecure_channel_create(static_cast<char*>(addr),
                                                       nullptr, nullptr);
@@ -76,10 +78,12 @@ void create_loop_destroy(void* addr) {
           grpc_timeout_milliseconds_to_deadline(DELAY_MILLIS);
       grpc_connectivity_state state =
           grpc_channel_check_connectivity_state(chan, 1);
+      gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_watch_connectivity_state", i);
       grpc_channel_watch_connectivity_state(chan, state, later_time, cq,
                                             nullptr);
       gpr_timespec poll_time =
           grpc_timeout_milliseconds_to_deadline(POLL_MILLIS);
+      gpr_log(GPR_DEBUG, "outer loop %d, starting grpc_channel_watch_connectivity_state", i);
       GPR_ASSERT(grpc_completion_queue_next(cq, poll_time, nullptr).type ==
                  GRPC_OP_COMPLETE);
       /* check that the watcher from "watch state" was free'd */
@@ -88,6 +92,7 @@ void create_loop_destroy(void* addr) {
     grpc_channel_destroy(chan);
     grpc_completion_queue_destroy(cq);
   }
+  gpr_log(GPR_DEBUG, "Thread finished");
 }
 
 struct server_thread_args {
@@ -106,7 +111,9 @@ void server_thread(void* vargs) {
   grpc_event ev;
   gpr_timespec deadline =
       grpc_timeout_milliseconds_to_deadline(SERVER_SHUTDOWN_TIMEOUT);
+  gpr_log(GPR_INFO, "server_thread: grpc_completion_queue_next START");
   ev = grpc_completion_queue_next(args->cq, deadline, nullptr);
+  gpr_log(GPR_INFO, "server_thread: grpc_completion_queue_next RETURN");
   GPR_ASSERT(ev.type == GRPC_OP_COMPLETE);
   GPR_ASSERT(detag(ev.tag) == 0xd1e);
 }
@@ -211,9 +218,13 @@ int run_concurrent_connectivity_test() {
       th = grpc_core::Thread("grpc_wave_2", create_loop_destroy, args.addr);
       th.Start();
     }
+    gpr_log(GPR_DEBUG, "waiting for all client threads to finish");
     for (auto& th : threads) {
       th.Join();
+      gpr_log(GPR_DEBUG, "thread joined successfully");
     }
+    
+    gpr_log(GPR_DEBUG, "grpc_server_shutdown_and_notify");
     grpc_server_shutdown_and_notify(args.server, args.cq, tag(0xd1e));
 
     server2.Join();

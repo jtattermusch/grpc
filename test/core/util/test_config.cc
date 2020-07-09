@@ -51,6 +51,7 @@ static unsigned seed(void) { return (unsigned)_getpid(); }
 #include <windows.h>
 
 #include <tchar.h>
+//#include <tlhelp32.h>
 
 // disable warning 4091 - dbghelp.h is broken for msvc2015
 #pragma warning(disable : 4091)
@@ -60,6 +61,70 @@ static unsigned seed(void) { return (unsigned)_getpid(); }
 #ifdef _MSC_VER
 #pragma comment(lib, "dbghelp.lib")
 #endif
+
+// BOOL ListProcessThreads( DWORD dwOwnerPID ) 
+// { 
+//   HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
+//   THREADENTRY32 te32;
+ 
+//   // Take a snapshot of all running threads  
+//   hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
+//   if( hThreadSnap == INVALID_HANDLE_VALUE ) 
+//     return( FALSE ); 
+ 
+//   // Fill in the size of the structure before using it. 
+//   te32.dwSize = sizeof(THREADENTRY32 ); 
+ 
+//   // Retrieve information about the first thread,
+//   // and exit if unsuccessful
+//   if( !Thread32First( hThreadSnap, &te32 ) ) 
+//   {   
+//     fwprintf(stderr, L"Error listing threads\n");
+//     fflush(stderr);
+
+//     CloseHandle( hThreadSnap );     // Must clean up the snapshot object!
+//     return( FALSE );
+//   }
+
+//   // Now walk the thread list of the system,
+//   // and display information about each thread
+//   // associated with the specified process
+//   do 
+//   { 
+//     if( te32.th32OwnerProcessID == dwOwnerPID )
+//     {
+//       fwprintf(stderr, L"  THREAD ID %d\n", (int) te32.th32ThreadID);
+//       fflush(stderr);
+
+//       //if (GetThreadId(hThread) == GetCurrentThreadId())
+//       if (te32.th32ThreadID != GetCurrentThreadId())
+//       {
+//          HANDLE thread_handle = OpenThread(THREAD_ALL_ACCESS, false, te32.th32ThreadID);
+//          GPR_ASSERT(thread_handle);
+//          CONTEXT c;
+//          memset(&c, 0, sizeof(CONTEXT));
+//          c.ContextFlags = CONTEXT_FULL;
+//          SuspendThread(thread_handle);  // TODO: resume thread at some point
+//          GPR_ASSERT(GetThreadContext(thread_handle, &c));
+//          print_stack_other_thread(thread_handle, c);
+//       }
+//       else 
+//       {
+//          CONTEXT c;
+//          RtlCaptureContext(&c);
+//          print_stack_other_thread(GetCurrentThread(), c);
+//          fwprintf(stderr, L"skipping thread\n");
+//       }
+
+//       fwprintf(stderr, L"\n");
+//       fflush(stderr);
+//     }
+//   } while( Thread32Next(hThreadSnap, &te32 ) );
+
+// //  Don't forget to clean up the snapshot object.
+//   CloseHandle( hThreadSnap );
+//   return( TRUE );
+// }
 
 static void print_stack_from_context(HANDLE thread, CONTEXT c) {
   STACKFRAME s;  // in/out stackframe
@@ -158,6 +223,8 @@ static LONG crash_handler(struct _EXCEPTION_POINTERS* ex_info) {
 
 static void abort_handler(int sig) {
   fprintf(stderr, "Abort handler called.\n");
+
+  //ListProcessThreads(GetCurrentProcessId() );
 
   print_current_stack();
   if (IsDebuggerPresent()) {

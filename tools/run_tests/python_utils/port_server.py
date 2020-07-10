@@ -31,7 +31,7 @@ import platform
 # increment this number whenever making a change to ensure that
 # the changes are picked up by running CI servers
 # note that all changes must be backwards compatible
-_MY_VERSION = 20
+_MY_VERSION = 21
 
 if len(sys.argv) == 2 and sys.argv[1] == 'dump_version':
     print(_MY_VERSION)

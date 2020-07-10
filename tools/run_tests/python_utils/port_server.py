@@ -177,7 +177,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
-            self.wfile.write(bytes(_MY_VERSION,'utf-8'))
+            self.wfile.write(bytes('%d' % _MY_VERSION, 'utf-8'))
         elif self.path == '/dump':
             # yaml module is not installed on Macs and Windows machines by default
             # so we import it lazily (/dump action is only used for debugging)

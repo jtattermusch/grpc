@@ -22,7 +22,7 @@ cd $(dirname $0)/../../..
 
 # run cfstream_test separately because it messes with the network
 # TODO(jtattermusch): "standalone" is deprecated in bazel. Is it actually required for the tests to pass?
-tools/bazel test $RUN_TESTS_FLAGS --spawn_strategy=standalone --genrule_strategy=standalone --test_output=all --copt="-DGRPC_CFSTREAM=1" //test/cpp/end2end:cfstream_test
+tools/bazel test $RUN_TESTS_FLAGS --test_output=all --copt="-DGRPC_CFSTREAM=1" //test/cpp/end2end:cfstream_test
 
 # Make sure time is in sync before running time_jump_test because the test does
 # NTP sync before exiting. Bazel gets confused if test end time < start time.
@@ -30,7 +30,7 @@ sudo sntp -sS pool.ntp.org
 
 # run time_jump_test separately because it changes system time
 # TODO(jtattermusch): "standalone" is deprecated in bazel. Is it actually required for the tests to pass?
-tools/bazel test $RUN_TESTS_FLAGS --spawn_strategy=standalone --genrule_strategy=standalone --test_output=all //test/cpp/common:time_jump_test
+tools/bazel test $RUN_TESTS_FLAGS --test_output=all //test/cpp/common:time_jump_test
 
 # kill port_server.py to prevent the build from hanging
 ps aux | grep port_server\\.py | awk '{print $2}' | xargs kill -9

@@ -22,7 +22,7 @@ cd $(dirname $0)/../../..
 
 # run cfstream_test separately because it messes with the network
 # TODO(jtattermusch): "standalone" is deprecated in bazel. Is it actually required for the tests to pass?
-tools/bazel test $RUN_TESTS_FLAGS --test_output=all --copt="-DGRPC_CFSTREAM=1" //test/cpp/end2end:cfstream_test
+tools/bazel test $RUN_TESTS_FLAGS --spawn_strategy=local --genrule_strategy=local --test_output=all --copt="-DGRPC_CFSTREAM=1" //test/cpp/end2end:cfstream_test
 
 # Make sure time is in sync before running time_jump_test because the test does
 # NTP sync before exiting. Bazel gets confused if test end time < start time.

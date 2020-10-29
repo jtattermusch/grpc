@@ -79,12 +79,15 @@ namespace Grpc.IntegrationTesting
             }
 
             var channelOptions = new List<ChannelOption>(config.ChannelArgs.Select((arg) => arg.ToChannelOption()));
+            string host = "[::]";
             var server = new Server(channelOptions)
             {
                 Services = { service },
-                Ports = { new ServerPort("[::]", config.Port, credentials) }
+                Ports = { new ServerPort(host, config.Port, credentials) }
             };
+            int boundPort = server.Ports.Single().BoundPort;
 
+            GrpcEnvironment.Logger.Info("Running benchmarking server {0}:{1}", host, boundPort);
             server.Start();
             return new ServerRunnerImpl(server);
         }

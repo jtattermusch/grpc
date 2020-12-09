@@ -30,17 +30,19 @@ REPO_ROOT="$(pwd)"
 git submodule update --init
 
 # Build protoc and grpc_cpp_plugin. Codegen is not cross-compiled to Android
-make HAS_SYSTEM_PROTOBUF=false
+tools/bazel build @com_google_protobuf//:protoc //src/compiler:all
+PROTOC=${REPO_ROOT}/bazel-bin/external/com_google_protobuf/protoc
+PLUGIN=${REPO_ROOT}/bazel-bin/src/compiler/grpc_csharp_plugin
 
 # Build and run interop instrumentation tests on Firebase Test Lab
 
 cd "${REPO_ROOT}/src/android/test/interop/"
 ./gradlew assembleDebug \
-    "-Pprotoc=${REPO_ROOT}/third_party/protobuf/src/protoc" \
-    "-Pgrpc_cpp_plugin=${REPO_ROOT}/bins/opt/grpc_cpp_plugin"
+    "-Pprotoc=${PROTOC}" \
+    "-Pgrpc_cpp_plugin=${PLUGIN}"
 ./gradlew assembleDebugAndroidTest \
-    "-Pprotoc=${REPO_ROOT}/third_party/protobuf/src/protoc" \
-    "-Pgrpc_cpp_plugin=${REPO_ROOT}/bins/opt/grpc_cpp_plugin"
+    "-Pprotoc=${PROTOC}" \
+    "-Pgrpc_cpp_plugin=${PLUGIN}"
 gcloud firebase test android run \
     --type instrumentation \
     --app app/build/outputs/apk/debug/app-debug.apk \
@@ -59,5 +61,5 @@ gcloud firebase test android run \
 
 cd "${REPO_ROOT}/examples/android/helloworld"
 ./gradlew build \
-    "-Pprotoc=${REPO_ROOT}/third_party/protobuf/src/protoc" \
-    "-Pgrpc_cpp_plugin=${REPO_ROOT}/bins/opt/grpc_cpp_plugin"
+    "-Pprotoc=${PROTOC}" \
+    "-Pgrpc_cpp_plugin=${PLUGIN}"

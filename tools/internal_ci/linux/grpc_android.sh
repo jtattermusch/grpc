@@ -31,8 +31,10 @@ git submodule update --init
 
 gcc --version
 
-sudo apt-get install -y clang
-clang --version
+#sudo apt-get install -y clang
+#clang --version
+
+cmake --version
 
 # Build protoc and grpc_cpp_plugin. Codegen is not cross-compiled to Android
 tools/bazel build @com_google_protobuf//:protoc //src/compiler:all

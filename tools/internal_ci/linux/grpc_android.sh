@@ -31,6 +31,7 @@ git submodule update --init
 
 gcc --version
 
+sudo apt-get install -y clang
 clang --version
 
 # Build protoc and grpc_cpp_plugin. Codegen is not cross-compiled to Android

@@ -17,7 +17,7 @@ set -ex
 
 # Install packages which were not preinstalled yet.
 # Protobuf needs autoconf & automake to build
-#sudo apt-get install -y autoconf automake 
+#sudo apt-get install -y autoconf automake
 
 # Accept the Android SDK licences.
 yes | /opt/android-sdk/current/tools/bin/sdkmanager --licenses
@@ -29,17 +29,15 @@ REPO_ROOT="$(pwd)"
 
 git submodule update --init
 
-gcc --version
-
-#sudo apt-get install -y clang
-#clang --version
-
-cmake --version
-
 # Build protoc and grpc_cpp_plugin. Codegen is not cross-compiled to Android
-tools/bazel build @com_google_protobuf//:protoc //src/compiler:all
-PROTOC=${REPO_ROOT}/bazel-bin/external/com_google_protobuf/protoc
-PLUGIN=${REPO_ROOT}/bazel-bin/src/compiler/grpc_csharp_plugin
+mkdir -p cmake/build
+pushd cmake/build
+cmake -DgRPC_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ../..
+make protoc grpc_cpp_plugin -j2
+popd
+
+PROTOC=${REPO_ROOT}/cmake/build/third_party/protobuf/protoc
+PLUGIN=${REPO_ROOT}/cmake/build/grpc_cpp_plugin
 
 # Build and run interop instrumentation tests on Firebase Test Lab
 

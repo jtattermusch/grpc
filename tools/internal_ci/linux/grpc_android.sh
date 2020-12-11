@@ -17,7 +17,7 @@ set -ex
 
 # Install packages which were not preinstalled yet.
 # Protobuf needs autoconf & automake to build
-sudo apt-get install -y autoconf automake 
+#sudo apt-get install -y autoconf automake 
 
 # Accept the Android SDK licences.
 yes | /opt/android-sdk/current/tools/bin/sdkmanager --licenses
@@ -28,6 +28,10 @@ cd $(dirname $0)/../../..
 REPO_ROOT="$(pwd)"
 
 git submodule update --init
+
+gcc --version
+
+clang --version
 
 # Build protoc and grpc_cpp_plugin. Codegen is not cross-compiled to Android
 tools/bazel build @com_google_protobuf//:protoc //src/compiler:all

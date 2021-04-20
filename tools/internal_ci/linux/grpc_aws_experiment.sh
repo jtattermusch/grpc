@@ -9,7 +9,7 @@ if [ -z "$KOKORO_KEYSTORE_DIR" ]; then
     exit 1
 fi
 
-IDENTITY=${KOKORO_KEYSTORE_DIR}/73836_grpc_arm_instance_private_key
+IDENTITY=${KOKORO_KEYSTORE_DIR}/73836_grpc_arm_instance_ssh_private_test_key1
 
 if [ -z "$INSTANCE" ]; then
     echo "no INSTANCE set, aborting"

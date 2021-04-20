@@ -18,10 +18,12 @@ fi
 
 FILE=grpc_aws_experiment_remote.sh
 chmod 700 $IDENTITY
-scp -i $IDENTITY -o StrictHostKeyChecking=no github/grpc/tools/internal_ci/linux/$FILE ubuntu@$INSTANCE:
-ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash ./$FILE" > ssh_log.txt
+ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "rm -rf grpc"  # TODO: remove when using fresh instances
+scp -i $IDENTITY -o StrictHostKeyChecking=no -r github/grpc ubuntu@$INSTANCE:
+ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash grpc/tools/internal_ci/linux/$FILE" > ssh_log.txt
 cat ssh_log.txt
 # Sync back sponge_log artifacts (wip)
+echo "looking for sponge logs..."
 find . | grep sponge_log
 
 

@@ -19,4 +19,8 @@ fi
 FILE=grpc_aws_experiment_remote.sh
 chmod 700 $IDENTITY
 scp -i $IDENTITY -o StrictHostKeyChecking=no github/grpc/tools/internal_ci/linux/$FILE ubuntu@$INSTANCE:
-ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash ./$FILE"
+ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash ./$FILE" > ssh_log.txt
+cat ssh_log.txt
+RETURN=$(tail -n1 ssh_log.txt | sed "s/RETURN=//")
+echo "returning $RETURN based on script output"
+exit $RETURN

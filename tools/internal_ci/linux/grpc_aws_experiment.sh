@@ -18,6 +18,5 @@ fi
 
 FILE=grpc_aws_experiment_remote.sh
 chmod 700 $IDENTITY
-ls github/grpc/
 scp -i $IDENTITY -o StrictHostKeyChecking=no github/grpc/tools/internal_ci/linux/$FILE ubuntu@$INSTANCE:
-ssh -i $IDENTITY -o StrictHostKeyChecking=no $INSTANCE "uname -a; ls -l; bash ./$FILE"
+ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash ./$FILE"

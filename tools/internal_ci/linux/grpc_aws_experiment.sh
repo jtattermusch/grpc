@@ -17,5 +17,5 @@ if [ -z "$INSTANCE" ]; then
 fi
 
 FILE=grpc_aws_experiment_remote.sh
-scp -i $IDENTITY tools/internal_cli/linux/$FILE $INSTANCE:
+scp -i $IDENTITY tools/internal_cli/linux/$FILE ubuntu@$INSTANCE:
 ssh -i $IDENTITY $INSTANCE "uname -a; ls -l; bash ./$FILE"

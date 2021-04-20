@@ -21,6 +21,11 @@ chmod 700 $IDENTITY
 scp -i $IDENTITY -o StrictHostKeyChecking=no github/grpc/tools/internal_ci/linux/$FILE ubuntu@$INSTANCE:
 ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash ./$FILE" > ssh_log.txt
 cat ssh_log.txt
+# Sync back sponge_log artifacts (wip)
+find . | grep sponge_log
+
+
+# Match return value
 RETURN=$(tail -n1 ssh_log.txt | sed "s/RETURN=//")
 echo "returning $RETURN based on script output"
 exit $RETURN

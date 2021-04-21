@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # This script is responsible for remotely running tests on an ARM instance.
 # It should return a status code useful to the kokoro infrastructure.
@@ -20,7 +20,7 @@ FILE=grpc_aws_experiment_remote.sh
 chmod 700 $IDENTITY
 REMOTE_SCRIPT_FAILURE=0
 ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "rm -rf grpc"
-scp -i $IDENTITY -o StrictHostKeyChecking=no -r github/grpc ubuntu@$INSTANCE
+scp -i $IDENTITY -o StrictHostKeyChecking=no -r github/grpc ubuntu@$INSTANCE:
 ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash grpc/tools/internal_ci/linux/$FILE" || REMOTE_SCRIPT_FAILURE=$?
 
 # Sync back sponge_log artifacts (wip)

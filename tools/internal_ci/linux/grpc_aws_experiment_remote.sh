@@ -19,5 +19,3 @@ make
 # run tests
 cd ../../
 python tools/run_tests/run_tests.py -l c++
-# echo the return value so the calling script can emulate it
-echo "RETURN=$?"

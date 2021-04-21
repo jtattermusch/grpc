@@ -24,8 +24,8 @@ scp -i $IDENTITY -o StrictHostKeyChecking=no -r github/grpc ubuntu@$INSTANCE:
 ssh -i $IDENTITY -o StrictHostKeyChecking=no ubuntu@$INSTANCE "uname -a; ls -l; bash grpc/tools/internal_ci/linux/$FILE" || REMOTE_SCRIPT_FAILURE=$?
 
 # Sync back sponge_log artifacts (wip)
-echo "looking for sponge logs..."
-find . | grep sponge_log
+# echo "looking for sponge logs..."
+# find . | grep sponge_log
 
 
 # Match return value

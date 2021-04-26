@@ -18,11 +18,17 @@ fi
 
 # Spawn an instance for running the workflow
 ## Setup aws cli
+# debug linker
+which ld
+ls -l $(which ld)
 curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 mkdir -p awscli/bin
 mkdir -p awscli/share
 ./aws/install -i awscli/share -b awscli/bin
+echo "about to invoke"
+ls awscli
+ls awscli/bin
 ./awscli/bin/aws --version
 exit
 

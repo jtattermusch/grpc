@@ -16,6 +16,18 @@ if [ -z "$INSTANCE" ]; then
     exit 1
 fi
 
+# Spawn an instance for running the workflow
+## Setup aws cli
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+mkdir -p awscli/bin
+mkdir -p awscli/share
+./aws/install -i awscli/share -b awscli/bin
+./awscli/bin/aws --version
+exit
+
+
+
 FILE=grpc_aws_experiment_remote.sh
 chmod 700 $IDENTITY
 REMOTE_SCRIPT_FAILURE=0

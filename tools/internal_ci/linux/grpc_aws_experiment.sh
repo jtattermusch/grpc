@@ -27,6 +27,7 @@ mkdir -p awscli/share
 echo "about to invoke"
 ls -l awscli
 ls -l awscli/bin
+ls -l awscli/share
 file ./awscli/share/v2/current/bin/aws
 bash ./awscli/share/v2/current/bin/aws --version
 exit

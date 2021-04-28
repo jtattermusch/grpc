@@ -21,15 +21,8 @@ fi
 # debug linker
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-mkdir -p awscli/bin
-mkdir -p awscli/share
-./aws/install -i awscli/share -b awscli/bin
-echo "about to invoke"
-ls -l awscli
-ls -l awscli/bin
-ls -l awscli/share
-file ./awscli/share/v2/current/bin/aws
-bash ./awscli/share/v2/current/bin/aws --version
+sudo ./aws/install 
+aws --version
 exit
 
 

@@ -10,6 +10,7 @@ if [ -z "$KOKORO_KEYSTORE_DIR" ]; then
 fi
 
 IDENTITY=${KOKORO_KEYSTORE_DIR}/73836_grpc_arm_instance_ssh_private_test_key1
+AWS_CREDENTIALS=${KOKORO_KEYSTORE_DIR}/73836_grpc_aws_ec2_credentials
 
 if [ -z "$INSTANCE" ]; then
     echo "no INSTANCE set, aborting"
@@ -23,6 +24,17 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install 
 aws --version
+
+# authenticate with aws cli
+mkdir ~/.aws/
+echo "[default]" >> ~/.aws/config
+ln -s $AWS_CREDENTIALS ~/.aws/credentials
+
+# setup instance 
+sudo apt update && sudo apt install -y jq
+# ubuntu 20.04 lts(arm64), micro (TODO)
+aws ec2 run-instances --image-id ami-064446ad1d755489e --region us-west-2
+# TODO: auto shutdown
 exit
 
 

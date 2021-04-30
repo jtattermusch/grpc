@@ -29,6 +29,10 @@ aws --version
 mkdir ~/.aws/
 echo "[default]" >> ~/.aws/config
 ln -s $AWS_CREDENTIALS ~/.aws/credentials
+echo "debug cred"
+head -c 11 ~/.aws/credentials
+echo "debug config"
+head -c 11 ~/.aws/config
 
 # setup instance 
 sudo apt update && sudo apt install -y jq

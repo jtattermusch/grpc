@@ -37,7 +37,9 @@ head -c 11 ~/.aws/config
 # setup instance 
 sudo apt update && sudo apt install -y jq chrony
 # debug date skew
+sleep 1m; # wait for previous chrony sync
 date
+timedatectl status
 sudo chronyd -q
 date
 # ubuntu 20.04 lts(arm64), micro (TODO)

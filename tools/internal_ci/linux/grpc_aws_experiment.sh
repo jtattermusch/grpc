@@ -38,10 +38,7 @@ head -c 11 ~/.aws/config
 sudo apt update && sudo apt install -y jq
 # debug date skew
 date
-sudo service ntpd stop
-sudo ntpdate time.nist.gov
-sudo service ntpd start
-ntpstat
+chronyd -q
 date
 # ubuntu 20.04 lts(arm64), micro (TODO)
 # aws ec2 run-instances --image-id ami-064446ad1d755489e --region us-east-2

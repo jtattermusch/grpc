@@ -37,7 +37,7 @@ head -c 11 ~/.aws/config
 # setup instance 
 sudo apt update && sudo apt install -y jq
 # ubuntu 20.04 lts(arm64), micro (TODO)
-aws ec2 run-instances --image-id ami-064446ad1d755489e --region us-west-2
+aws ec2 run-instances --image-id ami-064446ad1d755489e --region us-east-2
 # TODO: auto shutdown
 exit
 

@@ -38,7 +38,7 @@ head -c 11 ~/.aws/config
 sudo apt update && sudo apt install -y jq chrony
 # debug date skew
 date
-chronyd -q
+sudo chronyd -q
 date
 # ubuntu 20.04 lts(arm64), micro (TODO)
 # aws ec2 run-instances --image-id ami-064446ad1d755489e --region us-east-2

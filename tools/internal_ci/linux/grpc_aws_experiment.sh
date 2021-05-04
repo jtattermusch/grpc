@@ -35,7 +35,7 @@ echo "debug config"
 head -c 11 ~/.aws/config
 
 # setup instance 
-sudo apt update && sudo apt install -y jq
+sudo apt update && sudo apt install -y jq chrony
 # debug date skew
 date
 chronyd -q

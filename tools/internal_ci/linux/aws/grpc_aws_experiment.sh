@@ -43,7 +43,7 @@ sudo apt update && sudo apt install -y jq
 # ubuntu 18.04 lts(arm64)
 # https://aws.amazon.com/amazon-linux-ami/
 AWS_MACHINE_IMAGE=ami-026141f3d5c6d2d0c
-AWS_INSTANCE_TYPE=t4g.xlarge
+AWS_INSTANCE_TYPE=t4g.2xlarge
 AWS_SECURITY_GROUP=sg-021240e886feba750
 # Max allowed lifespan of the AWS instance. After this period of time, the instance will
 # self-terminate (delete itself).

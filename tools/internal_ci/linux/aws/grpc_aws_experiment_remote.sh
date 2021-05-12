@@ -21,6 +21,13 @@ sudo apt install -y build-essential autoconf libtool pkg-config cmake python pyt
 sudo pip install six
 
 cd grpc
-# build with bazel
-tools/bazel build --config=opt //test/...
 
+# without port server running, many tests will fail
+# TODO(jtattermusch): redirecting the output and executing under nohup currently
+# seems neccessary to avoid the SSH session from kokoro worker from hanging after
+# this script finishes. With the current way of starting the port server things
+# work, but it's something that needs further investigation.
+nohup python tools/run_tests/start_port_server.py >/dev/null 2>&1
+
+# test gRPC C/C++ with bazel
+tools/bazel test --config=opt --test_output=errors --test_tag_filters=-no_linux --build_tag_filters=-no_linux --flaky_test_attempts=1 --runs_per_test=1 //test/...

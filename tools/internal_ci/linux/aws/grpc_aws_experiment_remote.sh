@@ -20,23 +20,13 @@ sudo apt update
 sudo apt install -y build-essential autoconf libtool pkg-config cmake python python-pip clang
 sudo pip install six
 
-curl -sSL -o dotnet-install.sh https://dot.net/v1/dotnet-install.sh
-chmod u+x dotnet-install.sh
-
-./dotnet-install.sh --channel 2.1  # needed for the netcoreapp2.1 targets
-./dotnet-install.sh --channel 5.0
-
-export PATH="$HOME/.dotnet:$PATH"
-# Disable some unwanted dotnet options
-export NUGET_XMLDOC_MODE=skip
-export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
-export DOTNET_CLI_TELEMETRY_OPTOUT=true
-
-dotnet --list-sdks
+# install grpc ruby pre-requisites
+sudo apt install -y ruby ruby-dev
+sudo gem install bundler
 
 cd grpc
 
 git submodule update --init
 
-# build and test C#
-tools/run_tests/run_tests.py -l csharp -c opt --compiler coreclr
+# build and test ruby
+tools/run_tests/run_tests.py -t -x run_tests/ruby_linux_opt_native/sponge_log.xml --report_suite_name ruby_linux_opt_native -l ruby -c opt --report_multi_target

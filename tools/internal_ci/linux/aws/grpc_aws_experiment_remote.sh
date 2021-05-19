@@ -20,11 +20,11 @@ sudo apt update
 sudo apt install -y build-essential autoconf libtool pkg-config cmake python python-pip clang
 sudo pip install six
 
-sudo pip install python3.9 || true
-sudo pip install python3.8 || true
-sudo pip install python3.7 || true
+sudo apt install -y python3.9 python3.9-pip || true
+sudo apt install -y python3.8 python3.8-pip || true
+sudo apt install -y python3.7 python3.7-pip || true
 
-sudo pip install python3 python3-pip
+sudo apt install -y python3 python3-pip
 
 cd grpc
 

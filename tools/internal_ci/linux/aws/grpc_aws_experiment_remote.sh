@@ -20,6 +20,11 @@ sudo apt update
 sudo apt install -y build-essential autoconf libtool pkg-config cmake python python-pip clang
 sudo pip install six
 
+sudo pip install python3.9 || true
+sudo pip install python3.8 || true
+sudo pip install python3.7 || true
+
+
 cd grpc
 
 git submodule update --init
@@ -29,6 +34,6 @@ python2 --version || true
 python3 --version || true
 
 # build and test python
-tools/run_tests/run_tests.py -l python -c opt 
+tools/run_tests/run_tests.py -l python --compiler python3.6 -c opt 
 
 # pythonasyncio

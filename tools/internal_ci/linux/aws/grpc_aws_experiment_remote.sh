@@ -20,23 +20,15 @@ sudo apt update
 sudo apt install -y build-essential autoconf libtool pkg-config cmake python python-pip clang
 sudo pip install six
 
-curl -sSL -o dotnet-install.sh https://dot.net/v1/dotnet-install.sh
-chmod u+x dotnet-install.sh
-
-./dotnet-install.sh --channel 2.1  # needed for the netcoreapp2.1 targets
-./dotnet-install.sh --channel 5.0
-
-export PATH="$HOME/.dotnet:$PATH"
-# Disable some unwanted dotnet options
-export NUGET_XMLDOC_MODE=skip
-export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
-export DOTNET_CLI_TELEMETRY_OPTOUT=true
-
-dotnet --list-sdks
-
 cd grpc
 
 git submodule update --init
 
-# build and test C#
-tools/run_tests/run_tests.py -l csharp -c opt --compiler coreclr
+python --version || true
+python2 --version || true
+python3 --version || true
+
+# build and test python
+tools/run_tests/run_tests.py -l python -c opt 
+
+# pythonasyncio

@@ -24,6 +24,7 @@ sudo pip install python3.9 || true
 sudo pip install python3.8 || true
 sudo pip install python3.7 || true
 
+sudo pip install python3 python3-pip
 
 cd grpc
 

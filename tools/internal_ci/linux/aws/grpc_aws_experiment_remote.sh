@@ -20,21 +20,19 @@ sudo apt update
 sudo apt install -y build-essential autoconf libtool pkg-config cmake python python-pip clang
 sudo pip install six
 
-sudo apt install -y python3.9 python3.9-pip || true
-sudo apt install -y python3.8 python3.8-pip || true
-sudo apt install -y python3.7 python3.7-pip || true
-
+# install python3.6 and pip
 sudo apt install -y python3 python3-pip
 
 cd grpc
 
 git submodule update --init
 
-python --version || true
-python2 --version || true
-python3 --version || true
-
 # build and test python
-tools/run_tests/run_tests.py -l python --compiler python3.6 -c opt 
+tools/run_tests/run_tests.py -l python --compiler python3.6 -c opt --iomgr_platform native -x run_tests/python_linux_opt_native/sponge_log.xml || FAILED=true
+tools/run_tests/run_tests.py -l python --compiler python3.6 -c opt --iomgr_platform asyncio -x run_tests/python_linux_opt_gevent/sponge_log.xml || FAILED=true
+tools/run_tests/run_tests.py -l python --compiler python3.6 -c opt --iomgr_platform gevent -x run_tests/python_linux_opt_gevent/sponge_log.xml || FAILED=true
 
-# pythonasyncio
+if [ "$FAILED" != "" ]
+then
+  exit 1
+fi

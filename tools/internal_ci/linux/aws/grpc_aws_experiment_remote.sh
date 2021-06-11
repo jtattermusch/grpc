@@ -44,7 +44,7 @@ nvm install 8
 nvm use 8
 set -ex
 
-git clone https://github.com/protocolbuffers/protobuf.git
+git clone https://github.com/jtattermusch/protobuf.git
 cd protobuf
 git checkout benchmarks_no_tcmalloc
 git submodule update --init

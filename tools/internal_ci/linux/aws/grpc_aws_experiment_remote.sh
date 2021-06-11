@@ -39,9 +39,8 @@ go version
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
 set +ex
 . ~/.nvm/nvm.sh
-# TODO: install newer version of node
-nvm install 12
-nvm use 12
+nvm install 16
+nvm use 16
 set -ex
 
 git clone https://github.com/jtattermusch/protobuf.git
